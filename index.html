@@ -6,8 +6,6 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Wither Fight">
-<link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#7700cc">
 <title>Wither Fight</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;}
@@ -21,6 +19,22 @@ canvas{display:block;}
 .bb{display:block;padding:13px 42px;margin:3px auto;background:linear-gradient(135deg,#7700cc,#3300aa);color:#fff;border:2px solid #a040ff;border-radius:12px;font-size:15px;font-family:'Courier New',monospace;letter-spacing:3px;-webkit-appearance:none;cursor:pointer;box-shadow:0 0 18px rgba(160,32,240,0.4);}
 .bb2{display:block;padding:13px 36px;margin:3px auto;background:linear-gradient(135deg,#a020f0,#6600cc);color:#fff;border:none;border-radius:12px;font-size:13px;font-family:'Courier New',monospace;letter-spacing:2px;-webkit-appearance:none;cursor:pointer;}
 #hiBtn{background:linear-gradient(135deg,#aa6600,#664400);border-color:#ffaa00;font-size:12px;padding:10px 24px;}
+/* DİL + KONTROL EKRANları */
+#langScreen{background:linear-gradient(180deg,#020210,#0d0525,#050f05);z-index:600;display:flex;}
+.langTitle{color:#a020f0;font-size:clamp(13px,3.5vw,20px);letter-spacing:3px;text-shadow:0 0 20px #a020f0;text-align:center;margin-bottom:18px;}
+.langRow{display:flex;gap:14px;margin-bottom:10px;}
+.langBtn{padding:16px 32px;border-radius:14px;font-size:16px;font-family:'Courier New',monospace;letter-spacing:2px;cursor:pointer;-webkit-appearance:none;border:2px solid;color:#fff;}
+#lbTR{background:linear-gradient(135deg,#cc0000,#880000);border-color:#ff6666;}
+#lbEN{background:linear-gradient(135deg,#003399,#001166);border-color:#4488ff;}
+#ctrlScreen{background:linear-gradient(180deg,#020218,#080830,#020210);z-index:600;display:none;padding:12px;overflow-y:auto;}
+#ctrlScreen h2{color:#00ffaa;font-size:clamp(13px,3.5vw,19px);letter-spacing:3px;text-shadow:0 0 14px #00ffaa;text-align:center;margin-bottom:12px;}
+.cgrid{display:grid;grid-template-columns:1fr 1fr;gap:7px;width:100%;max-width:400px;}
+.ccard{background:rgba(255,255,255,0.05);border:1px solid #2a2a3a;border-radius:10px;padding:9px 8px;display:flex;align-items:flex-start;gap:8px;}
+.cico{font-size:22px;min-width:28px;text-align:center;margin-top:2px;}
+.ck{color:#ffaa00;font-size:9px;font-weight:bold;letter-spacing:1px;display:block;margin-bottom:3px;}
+.cd{color:#777;font-size:8px;line-height:1.4;}
+.ctip{color:#444;font-size:8px;text-align:center;margin:8px 0;max-width:380px;}
+#ctrlGo{padding:13px 44px;background:linear-gradient(135deg,#7700cc,#3300aa);color:#fff;border:2px solid #a040ff;border-radius:12px;font-size:14px;font-family:'Courier New',monospace;letter-spacing:3px;cursor:pointer;-webkit-appearance:none;margin-top:6px;box-shadow:0 0 16px rgba(160,32,240,0.4);}
 #charSelect{background:linear-gradient(180deg,#050518,#1a0a3e,#0d1a0d);display:none;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:10px;padding-top:max(10px,env(safe-area-inset-top,10px));}
 #charSelect h2{color:#a020f0;font-size:clamp(14px,4vw,22px);margin-bottom:4px;letter-spacing:3px;text-shadow:0 0 20px #a020f0;text-align:center;}
 #charSelect .sub{color:#555;font-size:9px;margin-bottom:10px;letter-spacing:2px;text-align:center;}
@@ -77,7 +91,25 @@ canvas{display:block;}
 </head>
 <body>
 
-<div id="logoScreen" class="screen">
+<!-- DİL SEÇİMİ -->
+<div id="langScreen" class="screen">
+  <canvas id="logoCanvas2" width="440" height="112" style="max-width:88vw;margin-bottom:14px;"></canvas>
+  <p class="langTitle" id="langSub">SELECT LANGUAGE / DİL SEÇ</p>
+  <div class="langRow">
+    <button class="langBtn" id="lbTR">🇹🇷 TÜRKÇE</button>
+    <button class="langBtn" id="lbEN">🇬🇧 ENGLISH</button>
+  </div>
+</div>
+
+<!-- KONTROL REHBERİ -->
+<div id="ctrlScreen" class="screen">
+  <h2 id="ctrlH"></h2>
+  <div class="cgrid" id="cgrid"></div>
+  <p class="ctip" id="ctip"></p>
+  <button id="ctrlGo"></button>
+</div>
+
+<div id="logoScreen" class="screen" style="display:none;">
   <canvas id="logoCanvas" width="440" height="112"></canvas>
   <div class="lsub"><b>🕹</b> Joystick=hareket · 🔥=ateş · ⚡=ışın · 👋=şaplak · 🔄=silah değiştir</div>
   <button class="bb" id="logoBtn">KARAKTER SEÇ</button>
@@ -148,6 +180,87 @@ canvas{display:block;}
 <button id="nxtBtn">SONRAKI BÖLÜM ▶</button>
 
 <script>
+// ── DİL / LANGUAGE ───────────────────────────────────
+let LANG='tr';
+const TR={
+  ctrlH:'🎮 NASIL OYNANIR',
+  ctrlGo:'▶ OYNA',
+  tip:'💡 Blokların arkasına saklan, bonusları kaçırma!',
+  controls:[
+    {i:'🕹️',k:'JOYSTİCK',d:'Sola/sağa kaydır\nkarakteri hareket ettir'},
+    {i:'🔥',k:'ATEŞ',d:'Büyük tuş — basılı tut\ndüşmana ateş et'},
+    {i:'⚡',k:'IŞIN',d:'Güçlü lazer ışını\nsınırlı mermi'},
+    {i:'👋',k:'ŞAPLAK',d:'Dev şaplak — %20 hasar\nsınırlı kullanım'},
+    {i:'🔄',k:'SİLAH DEĞİŞTİR',d:'Envanterindeki silahlar\narasında geçiş yap'},
+    {i:'⏸',k:'DURAKLAT',d:'Oyunu duraklat\nveya devam et'},
+    {i:'❤️',k:'CAN',d:'Maks 10 can\nbonuslarla artır'},
+    {i:'💎',k:'BONUSLAR',d:'Düşen itemları topla\nsilah & güç kazan'},
+  ]
+};
+const EN={
+  ctrlH:'🎮 HOW TO PLAY',
+  ctrlGo:'▶ PLAY',
+  tip:'💡 Hide behind blocks and never miss bonus drops!',
+  controls:[
+    {i:'🕹️',k:'JOYSTICK',d:'Slide left/right\nto move your character'},
+    {i:'🔥',k:'FIRE',d:'Big button — hold down\nto shoot the enemy'},
+    {i:'⚡',k:'BEAM',d:'Powerful laser beam\nlimited ammo'},
+    {i:'👋',k:'SLAP',d:'Giant slap — 20% damage\nlimited charges'},
+    {i:'🔄',k:'SWITCH',d:'Cycle through weapons\nin your inventory'},
+    {i:'⏸',k:'PAUSE',d:'Pause or resume\nthe game'},
+    {i:'❤️',k:'HEALTH',d:'Up to 10 hearts\ncollect bonuses for more'},
+    {i:'💎',k:'BONUSES',d:'Collect falling items\nfor weapons & power-ups'},
+  ]
+};
+
+function L(){return LANG==='tr'?TR:EN;}
+
+function showCtrl(){
+  document.getElementById('langScreen').style.display='none';
+  const s=document.getElementById('ctrlScreen');
+  s.style.display='flex';
+  const d=L();
+  document.getElementById('ctrlH').textContent=d.ctrlH;
+  document.getElementById('ctrlGo').textContent=d.ctrlGo;
+  document.getElementById('ctip').textContent=d.tip;
+  const g=document.getElementById('cgrid');
+  g.innerHTML='';
+  d.controls.forEach(c=>{
+    const card=document.createElement('div');
+    card.className='ccard';
+    card.innerHTML='<div class="cico">'+c.i+'</div><div><span class="ck">'+c.k+'</span><span class="cd">'+c.d.replace(/\n/g,'<br>')+'</span></div>';
+    g.appendChild(card);
+  });
+}
+
+function goToLogo(){
+  document.getElementById('ctrlScreen').style.display='none';
+  document.getElementById('logoScreen').style.display='flex';
+}
+
+// Logo çizimini langScreen'deki canvas'a da uygula
+function drawLogoOn(id){
+  const lc=document.getElementById(id);if(!lc)return;
+  const lx=lc.getContext('2d');
+  const F={W:[[1,0,0,0,1],[1,0,0,0,1],[1,0,1,0,1],[1,1,0,1,1],[1,0,0,0,1]],I:[[1,1,1],[0,1,0],[0,1,0],[0,1,0],[1,1,1]],T:[[1,1,1,1,1],[0,0,1,0,0],[0,0,1,0,0],[0,0,1,0,0],[0,0,1,0,0]],H:[[1,0,0,0,1],[1,0,0,0,1],[1,1,1,1,1],[1,0,0,0,1],[1,0,0,0,1]],E:[[1,1,1,1,1],[1,0,0,0,0],[1,1,1,1,0],[1,0,0,0,0],[1,1,1,1,1]],R:[[1,1,1,1,0],[1,0,0,0,1],[1,1,1,1,0],[1,0,1,0,0],[1,0,0,1,1]],F2:[[1,1,1,1,1],[1,0,0,0,0],[1,1,1,1,0],[1,0,0,0,0],[1,0,0,0,0]],G:[[0,1,1,1,1],[1,0,0,0,0],[1,0,1,1,1],[1,0,0,0,1],[0,1,1,1,0]]};
+  const t1=['W','I','T','H','E','R'],t2=['F2','I','G','H','T'];
+  const c1=['#ff3300','#ff5500','#ff7700','#ff9900','#ffbb00','#ffdd00'],c2=['#00ccff','#00aaff','#0088ff','#0066ff','#0044ff'];
+  const BS=9,GAP=3;
+  function ww(a){return a.reduce((s,c)=>s+(F[c]||F.E)[0].length*BS+GAP,0)-GAP;}
+  function draw(chars,colors,sx,sy){let cx=sx;chars.forEach((ch,ci)=>{const g=F[ch]||F.E;g.forEach((row,ri)=>row.forEach((v,cj)=>{if(v){lx.fillStyle=colors[ci];lx.fillRect(cx+cj*BS,sy+ri*BS,BS-1,BS-1);lx.fillStyle='rgba(255,255,255,0.3)';lx.fillRect(cx+cj*BS,sy+ri*BS,BS-1,2);lx.fillStyle='rgba(0,0,0,0.35)';lx.fillRect(cx+cj*BS,sy+ri*BS+BS-3,BS-1,2);}}));cx+=(g[0].length)*BS+GAP;});}
+  draw(t1,c1,(440-ww(t1))/2,5);draw(t2,c2,(440-ww(t2))/2,5+5*BS+9);
+  lx.fillStyle='#333';lx.fillRect(40,104,360,2);lx.fillStyle='#ffaa00';lx.fillRect(160,104,120,2);
+}
+drawLogoOn('logoCanvas2');
+
+// Buton olayları
+document.getElementById('lbTR').onclick=()=>{LANG='tr';showCtrl();};
+document.getElementById('lbEN').onclick=()=>{LANG='en';showCtrl();};
+document.getElementById('lbTR').addEventListener('touchend',e=>{e.preventDefault();LANG='tr';showCtrl();},{passive:false});
+document.getElementById('lbEN').addEventListener('touchend',e=>{e.preventDefault();LANG='en';showCtrl();},{passive:false});
+document.getElementById('ctrlGo').onclick=goToLogo;
+document.getElementById('ctrlGo').addEventListener('touchend',e=>{e.preventDefault();goToLogo();},{passive:false});
+
 // ── TOUCH ────────────────────────────────────────────
 const gc=document.getElementById('gameCanvas');
 const jz=document.getElementById('jz');
@@ -1096,15 +1209,6 @@ function drawOverlays(){
 }
 
 function loop(ts){const dt=Math.min(ts-lastTime,50);lastTime=ts;update(dt);render();requestAnimationFrame(loop);}
-</script>
-<script>
-if("serviceWorker" in navigator){
-  window.addEventListener("load",()=>{
-    navigator.serviceWorker.register("/witherfight/sw.js")
-      .then(r=>console.log("SW registered"))
-      .catch(e=>console.log("SW error",e));
-  });
-}
 </script>
 </body>
 </html>
