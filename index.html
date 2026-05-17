@@ -149,7 +149,7 @@ canvas{display:block;}
 
 <div id="gameOverScreen" class="screen">
   <h1>GAME OVER</h1>
-  <h2>ÖLDÜN!</h2>
+  <h2 id="goH2txt">ÖLDÜN!</h2>
   <div id="goScore"></div>
   <div id="goCodeBox">
     <p>Kod girerek sonraki bölüme geç:</p>
@@ -183,8 +183,7 @@ canvas{display:block;}
 // ── DİL / LANGUAGE ───────────────────────────────────
 let LANG='tr';
 const TR={
-  ctrlH:'🎮 NASIL OYNANIR',
-  ctrlGo:'▶ OYNA',
+  ctrlH:'🎮 NASIL OYNANIR',ctrlGo:'▶ OYNA',
   tip:'💡 Blokların arkasına saklan, bonusları kaçırma!',
   controls:[
     {i:'🕹️',k:'JOYSTİCK',d:'Sola/sağa kaydır\nkarakteri hareket ettir'},
@@ -195,11 +194,28 @@ const TR={
     {i:'⏸',k:'DURAKLAT',d:'Oyunu duraklat\nveya devam et'},
     {i:'❤️',k:'CAN',d:'Maks 10 can\nbonuslarla artır'},
     {i:'💎',k:'BONUSLAR',d:'Düşen itemları topla\nsilah & güç kazan'},
-  ]
+  ],
+  charSel:'KARAKTER SEÇ',charSub:'Karakterine dokun',startBtn:'OYUNA BAŞLA',
+  hiTitle:'🏆 EN YÜKSEK SKORLAR',hiBack:'← GERİ',hiEmpty:'Henüz skor yok!',
+  saveTit:'🏆 SKOR KAYDET',saveBtn:'KAYDET ✓',nameHint:'İSMİNİ GİR',
+  namePre:(sc)=>'Skorun: '+sc+' puan — İsmini gir!',
+  endTitle:'🌟 OYUN BİTTİ 🌟',endHi:'🏆 SKORU KAYDET',endAgain:'↩ YENİDEN OYNA',
+  endScore:(sc)=>'🏆 Toplam Puan: '+sc,endTime:(m,s)=>'⏱ Toplam Süre: '+m+'dk '+s+'sn',
+  nxtBtn:'SONRAKI BÖLÜM ▶',
+  goH2:'ÖLDÜN!',goCode:'Kod girerek sonraki bölüme geç:',goCodeBtn:'DOĞRULA →',
+  goRestart:'↩ BU BÖLÜMÜ YENİDEN BAŞLAT',goScore:(sc,lv)=>'Skor: '+sc+' | Bölüm: '+lv,
+  wrongCode:'❌ Yanlış kod! Tekrar dene.',
+  noBeam:'⚡ Işın mermisi yok!',noSlap:'👋 Şaplak hakkı yok!',
+  speedPop:'⚡ HIZ BOOST 5 sn!',
+  paused:'DURAKLATILDI',pauseHint:'▶ butonuna bas',
+  victory:'ZAFER!',defeated:'yok edildi!',cmdHit:'Komut Blogu tahrip edildi ✓',
+  points:(sc)=>'★ +'+sc+' puan',
+  inventory:'ENVANTER:',speedHud:(s)=>'⚡ HIZ BOOST '+s+'s',
+  levelHud:(lv,name)=>'BÖLÜM '+(lv+1)+'  '+name,
+  lvlBanner:(lv,name)=>'BÖLÜM '+(lv+1)+'\n'+name,
 };
 const EN={
-  ctrlH:'🎮 HOW TO PLAY',
-  ctrlGo:'▶ PLAY',
+  ctrlH:'🎮 HOW TO PLAY',ctrlGo:'▶ PLAY',
   tip:'💡 Hide behind blocks and never miss bonus drops!',
   controls:[
     {i:'🕹️',k:'JOYSTICK',d:'Slide left/right\nto move your character'},
@@ -210,7 +226,25 @@ const EN={
     {i:'⏸',k:'PAUSE',d:'Pause or resume\nthe game'},
     {i:'❤️',k:'HEALTH',d:'Up to 10 hearts\ncollect bonuses for more'},
     {i:'💎',k:'BONUSES',d:'Collect falling items\nfor weapons & power-ups'},
-  ]
+  ],
+  charSel:'SELECT CHARACTER',charSub:'Tap your character',startBtn:'START GAME',
+  hiTitle:'🏆 HIGH SCORES',hiBack:'← BACK',hiEmpty:'No scores yet!',
+  saveTit:'🏆 SAVE SCORE',saveBtn:'SAVE ✓',nameHint:'ENTER NAME',
+  namePre:(sc)=>'Your score: '+sc+' — Enter your name!',
+  endTitle:'🌟 GAME COMPLETE 🌟',endHi:'🏆 SAVE SCORE',endAgain:'↩ PLAY AGAIN',
+  endScore:(sc)=>'🏆 Total Score: '+sc,endTime:(m,s)=>'⏱ Total Time: '+m+'m '+s+'s',
+  nxtBtn:'NEXT LEVEL ▶',
+  goH2:'YOU DIED!',goCode:'Enter code to skip to next level:',goCodeBtn:'CONFIRM →',
+  goRestart:'↩ RETRY THIS LEVEL',goScore:(sc,lv)=>'Score: '+sc+' | Level: '+lv,
+  wrongCode:'❌ Wrong code! Try again.',
+  noBeam:'⚡ No beam ammo!',noSlap:'👋 No slap charges!',
+  speedPop:'⚡ SPEED BOOST 5s!',
+  paused:'PAUSED',pauseHint:'Press ▶ to continue',
+  victory:'VICTORY!',defeated:'defeated!',cmdHit:'Command Block destroyed ✓',
+  points:(sc)=>'★ +'+sc+' points',
+  inventory:'INVENTORY:',speedHud:(s)=>'⚡ SPEED BOOST '+s+'s',
+  levelHud:(lv,name)=>'LEVEL '+(lv+1)+'  '+name,
+  lvlBanner:(lv,name)=>'LEVEL '+(lv+1)+'\n'+name,
 };
 
 function L(){return LANG==='tr'?TR:EN;}
@@ -235,6 +269,30 @@ function showCtrl(){
 
 function goToLogo(){
   document.getElementById('ctrlScreen').style.display='none';
+  const d=L();
+  // Logo screen
+  document.getElementById('logoBtn').textContent=d.charSel;
+  document.getElementById('nxtBtn').textContent=d.nxtBtn;
+  // Char select
+  document.querySelector('#charSelect h2').textContent=d.charSel;
+  document.querySelector('#charSelect .sub').textContent=d.charSub;
+  document.getElementById('startBtn').textContent=d.startBtn;
+  // Hi score
+  document.querySelector('#hiScreen h2').textContent=d.hiTitle;
+  document.getElementById('hiBack').textContent=d.hiBack;
+  // Name screen
+  document.querySelector('#nameScreen h2').textContent=d.saveTit;
+  document.getElementById('nameSbm').textContent=d.saveBtn;
+  document.getElementById('nameInp').placeholder=d.nameHint;
+  // End screen
+  document.querySelector('.etitle').textContent=d.endTitle;
+  document.getElementById('endHiBtn').textContent=d.endHi;
+  document.getElementById('endAgain').textContent=d.endAgain;
+  // Game over screen
+  document.querySelector('#gameOverScreen h2').textContent=d.goH2;
+  document.querySelector('#goCodeBox p').textContent=d.goCode;
+  document.getElementById('goCodeBtn').textContent=d.goCodeBtn;
+  document.getElementById('goRestartBtn').textContent=d.goRestart;
   document.getElementById('logoScreen').style.display='flex';
 }
 
@@ -289,11 +347,11 @@ function showHiScores(){
   document.getElementById('logoScreen').style.display='none';
   document.getElementById('hiScreen').style.display='flex';
   const scores=getScores().sort((a,b)=>b.score-a.score).slice(0,10);
-  document.getElementById('hiList').innerHTML=scores.length?scores.map((s,i)=>`<div class="hirow"><span class="rank">#${i+1}</span><span class="name">${s.name}</span><span class="sc">${s.score.toLocaleString()}</span></div>`).join(''):'<div style="color:#444;text-align:center;padding:20px;">Henüz skor yok!</div>';
+  document.getElementById('hiList').innerHTML=scores.length?scores.map((s,i)=>`<div class="hirow"><span class="rank">#${i+1}</span><span class="name">${s.name}</span><span class="sc">${s.score.toLocaleString()}</span></div>`).join(''):'<div style="color:#444;text-align:center;padding:20px;">'+L().hiEmpty+'</div>';
 }
 function showNameEntry(){
   document.getElementById('nameScreen').style.display='flex';
-  document.getElementById('namePre').textContent='Skorun: '+Math.floor(gameScore).toLocaleString()+' puan — İsmini gir!';
+  document.getElementById('namePre').textContent=L().namePre(Math.floor(gameScore).toLocaleString());
   const inp=document.getElementById('nameInp');inp.value='';
   setTimeout(()=>inp.focus(),300);
 }
@@ -310,7 +368,7 @@ function saveScore(){
 function showGameOverScreen(){
   gc.style.display='none';document.getElementById('touchCtrl').style.display='none';
   const goS=document.getElementById('gameOverScreen');goS.style.display='flex';
-  document.getElementById('goScore').textContent='Skor: '+Math.floor(gameScore).toLocaleString()+' | Bölüm: '+(currentLevel+1);
+  document.getElementById('goScore').textContent=L().goScore(Math.floor(gameScore).toLocaleString(),currentLevel+1);
   document.getElementById('goCodeInp').value='';document.getElementById('goCodeErr').textContent='';
 }
 function tryCode(){
@@ -322,10 +380,10 @@ function tryCode(){
     gc.style.display='block';document.getElementById('touchCtrl').style.display='block';
     gameOver=false;
     initLevel(currentLevel);startBGM();
-    showLvlBanner('BÖLÜM '+(currentLevel+1)+'\n'+BOSS_DEFS[Math.min(currentLevel,9)].name);
+    showLvlBanner(L().lvlBanner(currentLevel,BOSS_DEFS[Math.min(currentLevel,9)].name));
     requestAnimationFrame(loop);
   }else{
-    document.getElementById('goCodeErr').textContent='❌ Yanlış kod! Tekrar dene.';
+    document.getElementById('goCodeErr').textContent=L().wrongCode;
     document.getElementById('goCodeInp').value='';
   }
 }
@@ -372,7 +430,16 @@ function stopBGM(){bgmNodes.forEach(clearTimeout);bgmNodes=[];}
 const ctx=gc.getContext('2d');
 let W=window.innerWidth,H=window.innerHeight;
 gc.width=W;gc.height=H;
-window.addEventListener('resize',()=>{W=window.innerWidth;H=window.innerHeight;gc.width=W;gc.height=H;if(stars.length)makeStars();});
+window.addEventListener('resize',()=>{
+  W=window.innerWidth;H=window.innerHeight;
+  gc.width=W;gc.height=H;
+  if(stars.length)makeStars();
+  // Ekran döndüğünde oyuncu ekran dışına çıkmasın
+  if(player&&!player.dead){
+    player.y=Math.min(player.y,H-player.h-10);
+    player.x=Math.max(0,Math.min(W-player.w,player.x));
+  }
+});
 
 // ── JOYSTICK ─────────────────────────────────────────
 const jk=document.getElementById('jk');let jDX=0;
@@ -580,7 +647,7 @@ function startGame(){
   gc.style.display='block';document.getElementById('sndBtn').style.display='flex';document.getElementById('touchCtrl').style.display='block';
   currentLevel=0;gameScore=0;gameTime=0;initLevel(0);startBGM();requestAnimationFrame(loop);
 }
-function nextLevel(){document.getElementById('nxtBtn').style.display='none';currentLevel++;initLevel(currentLevel);startBGM();showLvlBanner('BÖLÜM '+(currentLevel+1)+'\n'+BOSS_DEFS[Math.min(currentLevel,9)].name);}
+function nextLevel(){document.getElementById('nxtBtn').style.display='none';currentLevel++;initLevel(currentLevel);startBGM();showLvlBanner(L().lvlBanner(currentLevel,BOSS_DEFS[Math.min(currentLevel,9)].name));}
 function showLvlBanner(msg){const el=document.getElementById('lvlBannerTxt'),b=document.getElementById('lvlBanner');el.textContent=msg;el.style.opacity='0';b.style.display='flex';let a=0;const fi=setInterval(()=>{a+=0.05;el.style.opacity=a;if(a>=1)clearInterval(fi);},40);setTimeout(()=>{let a=1;const fo=setInterval(()=>{a-=0.05;el.style.opacity=a;if(a<=0){clearInterval(fo);b.style.display='none';}},50);},2200);}
 function togglePause(){paused=!paused;document.getElementById('bPause').textContent=paused?'▶':'⏸';}
 
@@ -602,10 +669,10 @@ function tryFire(){
     projectiles.push({x:player.x+player.w/2,y:player.y+10,vx:0,vy:-wd.speed,type:player.weapon,owner:'player',r:wd.r,spin:0,wobble:0,trail:[]});
   }
 }
-function activateBeam(){if(gameOver||victory||paused||player.dead)return;if(beamCooldown>0||beamActive||beamAmmo<=0){if(beamAmmo<=0)showPopup('⚡ Işın mermisi yok!');return;}beamAmmo--;beamActive=true;beamTimer=BEAM_DUR;playBeamSound();updateSpecialBtns();}
+function activateBeam(){if(gameOver||victory||paused||player.dead)return;if(beamCooldown>0||beamActive||beamAmmo<=0){if(beamAmmo<=0)showPopup(L().noBeam);return;}beamAmmo--;beamActive=true;beamTimer=BEAM_DUR;playBeamSound();updateSpecialBtns();}
 function activateSlap(){
   if(gameOver||victory||paused||player.dead)return;
-  if(slapAmmo<=0){showPopup('👋 Şaplak hakkı yok!');return;}
+  if(slapAmmo<=0){showPopup(L().noSlap);return;}
   if(slapAnim)return;
   slapAmmo--;updateSpecialBtns();playSlapSound();
   // Şaplak animasyonu başlat
@@ -778,11 +845,11 @@ function applyBonus(b){
     }
     player.weapon=b.weapon;player.weaponIdx=inventory.indexOf(b.weapon);
     showPopup((WEAPONS_BASE[b.weapon]?.icon||'🔫')+' '+b.label+' alındı!');playPickup();
-  }else if(b.type==='beam_ammo'){beamAmmo++;updateSpecialBtns();showPopup('⚡ Işın mermisi +1!');playPickup();}
-  else if(b.type==='slap_ammo'){slapAmmo++;updateSpecialBtns();showPopup('👋 Şaplak hakkı +1!');playPickup();}
+  }else if(b.type==='beam_ammo'){beamAmmo++;updateSpecialBtns();showPopup(LANG==='tr'?'⚡ Işın mermisi +1!':'⚡ Beam ammo +1!');playPickup();}
+  else if(b.type==='slap_ammo'){slapAmmo++;updateSpecialBtns();showPopup(LANG==='tr'?'👋 Şaplak hakkı +1!':'👋 Slap charge +1!');playPickup();}
   else if(b.type==='shield'){player.shield=true;showPopup('🛡 Kalkan aktif!');playPickup();}
   else if(b.type==='heart'){player.hp=Math.min(player.hp+1,10);player.maxHp=Math.max(player.maxHp,player.hp);showPopup('❤ Can +1');playPickup();}
-  else if(b.type==='speed_boost'){speedBoostActive=true;speedBoostTimer=5000;showPopup('⚡ HIZ BOOST 5 sn!');playSpeedUp();}
+  else if(b.type==='speed_boost'){speedBoostActive=true;speedBoostTimer=5000;showPopup(L().speedPop);playSpeedUp();}
 }
 function triggerPlayerDeath(){
   player.dead=true;player.deathTimer=1200;
@@ -812,8 +879,8 @@ function showEndScreen(){
   document.getElementById('endSub').textContent=ending.fam;
   document.getElementById('endStory').textContent=ending.story;
   const mins=Math.floor(gameTime/60000),secs=Math.floor((gameTime%60000)/1000);
-  document.getElementById('endScore').textContent='🏆 Toplam Puan: '+Math.floor(gameScore).toLocaleString();
-  document.getElementById('endTime').textContent='⏱ Toplam Süre: '+mins+'dk '+secs+'sn';
+  document.getElementById('endScore').textContent=L().endScore(Math.floor(gameScore).toLocaleString());
+  document.getElementById('endTime').textContent=L().endTime(mins,secs);
   drawFamilyScene(selectedChar,ending);
 }
 function drawFamilyScene(ch,ending){
@@ -888,7 +955,7 @@ function drawBG(){
   ctx.fillStyle=th.gnd;ctx.fillRect(0,H-50,W,50);ctx.fillStyle=th.gnd2;ctx.fillRect(0,H-50,W,10);
   ctx.strokeStyle=th.gnd2;ctx.lineWidth=0.5;for(let i=0;i<W;i+=50){ctx.beginPath();ctx.moveTo(i,H-50);ctx.lineTo(i,H);ctx.stroke();}
   ctx.fillStyle='rgba(255,220,50,0.9)';ctx.font='bold 13px Courier New';ctx.textAlign='right';ctx.fillText('★ '+Math.floor(gameScore).toLocaleString(),W-10,19);
-  ctx.fillStyle='rgba(255,255,255,0.12)';ctx.font='bold 9px Courier New';ctx.fillText('BÖLÜM '+(currentLevel+1)+'  '+BOSS_DEFS[Math.min(currentLevel,9)].name,W-10,32);
+  ctx.textAlign='left';
 }
 
 function drawBgFx(){
@@ -1178,34 +1245,90 @@ function drawBonuses(){
 }
 
 function drawHUD(){
-  const bx=6,by=H-136,pw=262,ph=126;
-  ctx.fillStyle='rgba(0,0,0,0.76)';ctx.fillRect(bx-4,by-4,pw,ph);ctx.strokeStyle='#333';ctx.lineWidth=1;ctx.strokeRect(bx-4,by-4,pw,ph);
-  if(!player.dead)drawChar(ctx,bx+22,by+82,player.char,0.64,walkT);
-  ctx.fillStyle='#fff';ctx.font='bold 10px Courier New';ctx.textAlign='left';ctx.fillText(player.char.name,bx+48,by+14);
-  for(let i=0;i<Math.min(player.maxHp,10);i++){ctx.font='11px sans-serif';ctx.fillStyle=i<player.hp?'#f36':'#300';ctx.fillText('❤',bx+48+(i%10)*16,by+(i<10?28:40));}
+  // Küçük, şeffaf HUD — sol alt köşe
+  const sc=Math.min(W,H)<400?0.75:0.85;
+  const bx=6, by=8;
+  const pw=200*sc, ph=90*sc;
+  // Arkaplan YOK — sadece hafif gölge efekti için çok düşük opacity
+  ctx.fillStyle='rgba(0,0,0,0.0)'; // tamamen şeffaf
+
+  // Karakter mini (daha küçük)
+  if(!player.dead)drawChar(ctx,bx+16*sc,by+62*sc,player.char,0.48*sc,walkT);
+
+  // İsim
+  ctx.fillStyle='rgba(255,255,255,0.85)';ctx.font=`bold ${8*sc}px Courier New`;ctx.textAlign='left';
+  ctx.fillText(player.char.name,bx+34*sc,by+10*sc);
+
+  // Canlar (küçük)
+  for(let i=0;i<Math.min(player.maxHp,10);i++){
+    ctx.font=`${8*sc}px sans-serif`;
+    ctx.fillStyle=i<player.hp?'#f36':'rgba(80,0,0,0.6)';
+    ctx.fillText('❤',bx+34*sc+(i%10)*12*sc,by+(i<10?20*sc:30*sc));
+  }
+
+  // Silah bilgisi
   const wd=WEAPONS_BASE[player.weapon]||WEAPONS_BASE.fireball;
   const upg=weaponUpgrades[player.weapon];
-  const multStr=upg&&upg.multiplier<1?(1/upg.multiplier).toFixed(1)+'x':'1x';
-  ctx.fillStyle=wd.wc||'#fa0';ctx.font='bold 8px Courier New';ctx.textAlign='left';ctx.fillText((wd.icon||'')+' '+wd.name+' ['+wd.damage+'] ⚡'+multStr,bx+48,by+54);
-  const cd=getWeaponCooldown(player.weapon);const cdR=Math.min((performance.now()-lastFireTime)/cd,1);
-  ctx.fillStyle='#222';ctx.fillRect(bx+48,by+58,118,4);ctx.fillStyle=cdR>=1?'#0f8':(wd.wc||'#fa0');ctx.fillRect(bx+48,by+58,118*cdR,4);
-  // Işın + şaplak bar
+  const multStr=upg&&upg.multiplier<1?(1/upg.multiplier).toFixed(1)+'x':'';
+  ctx.fillStyle=wd.wc||'#fa0';ctx.font=`bold ${7*sc}px Courier New`;
+  ctx.fillText((wd.icon||'')+' '+wd.name+(multStr?' ⚡'+multStr:''),bx+34*sc,by+35*sc);
+
+  // Silah cooldown bar
+  const cd=getWeaponCooldown(player.weapon);
+  const cdR=Math.min((performance.now()-lastFireTime)/cd,1);
+  ctx.fillStyle='rgba(0,0,0,0.4)';ctx.fillRect(bx+34*sc,by+38*sc,100*sc,3*sc);
+  ctx.fillStyle=cdR>=1?'#0f8':(wd.wc||'#fa0');ctx.fillRect(bx+34*sc,by+38*sc,100*sc*cdR,3*sc);
+
+  // Işın bar
   const beamR=beamActive?(beamTimer/BEAM_DUR):beamCooldown>0?Math.max(0,1-beamCooldown/BEAM_CD):1;
-  ctx.fillStyle='#444';ctx.font='7px Courier New';ctx.textAlign='left';ctx.fillText(`⚡×${beamAmmo}`,bx+48,by+72);ctx.fillStyle='#1a2a1a';ctx.fillRect(bx+74,by+66,76,7);ctx.fillStyle=beamActive?'#0ff':beamAmmo>0?'#0f8':'#333';ctx.fillRect(bx+74,by+66,76*beamR,7);ctx.strokeStyle='#333';ctx.lineWidth=0.5;ctx.strokeRect(bx+74,by+66,76,7);
-  ctx.fillText(`👋×${slapAmmo}`,bx+155,by+72);
-  // Hız boost göstergesi
-  if(speedBoostActive){ctx.fillStyle='#fa0';ctx.font='bold 7px Courier New';ctx.textAlign='left';ctx.fillText('⚡ HIZ BOOST '+(Math.ceil(speedBoostTimer/1000))+'s',bx+48,by+82);}
+  ctx.fillStyle='rgba(255,255,255,0.5)';ctx.font=`${6*sc}px Courier New`;
+  ctx.fillText(`⚡×${beamAmmo}`,bx+34*sc,by+50*sc);
+  ctx.fillStyle='rgba(0,0,0,0.3)';ctx.fillRect(bx+60*sc,by+44*sc,60*sc,5*sc);
+  ctx.fillStyle=beamActive?'#0ff':beamAmmo>0?'#0f8':'#333';ctx.fillRect(bx+60*sc,by+44*sc,60*sc*beamR,5*sc);
+  ctx.fillText(`👋×${slapAmmo}`,bx+125*sc,by+50*sc);
+
+  // Hız boost
+  if(speedBoostActive){ctx.fillStyle='#fa0';ctx.font=`bold ${6*sc}px Courier New`;ctx.fillText(L().speedHud(Math.ceil(speedBoostTimer/1000)),bx+34*sc,by+60*sc);}
+
   // Envanter
-  ctx.fillStyle='#555';ctx.font='7px Courier New';ctx.textAlign='left';ctx.fillText('ENVANTER:',bx+48,by+94);
-  inventory.forEach((w,i)=>{const iw=WEAPONS_BASE[w];if(!iw)return;const active=w===player.weapon;const up=weaponUpgrades[w];ctx.fillStyle=active?(iw.wc||'#fa0'):'#333';ctx.fillRect(bx+48+i*20,by+98,17,10);if(up&&up.multiplier<1){ctx.fillStyle='#0f8';ctx.fillRect(bx+48+i*20,by+96,4,4);}ctx.fillStyle=active?'#000':'#777';ctx.font='5px Courier New';ctx.textAlign='center';ctx.fillText(iw.icon||iw.name.slice(0,2),bx+56+i*20,by+106);});
-  // Popup & upgrade notif
-  if(wpTimer>0){ctx.fillStyle='rgba(0,0,0,0.88)';ctx.strokeStyle='#fa0';ctx.lineWidth=2;const ppw=210,pph=30,ppx=W/2-ppw/2,ppy=H/2-15;ctx.fillRect(ppx,ppy,ppw,pph);ctx.strokeRect(ppx,ppy,ppw,pph);ctx.fillStyle='#fa0';ctx.font='bold 10px Courier New';ctx.textAlign='center';ctx.fillText(wpMsg,W/2,ppy+19);}
-  if(upgradeNotif){const un=upgradeNotif;ctx.fillStyle='rgba(0,30,0,0.9)';ctx.strokeStyle='#0f8';ctx.lineWidth=2;const uw=Math.min(W-30,290),ux=W/2-uw/2;ctx.fillRect(ux,H/2+40,uw,38);ctx.strokeRect(ux,H/2+40,uw,38);ctx.fillStyle='#0f8';ctx.font='bold 10px Courier New';ctx.textAlign='center';ctx.fillText('🚀 '+un.msg,W/2,H/2+56);ctx.fillStyle='rgba(0,255,136,0.2)';ctx.fillRect(ux,H/2+40,uw*(1-un.timer/2500),4);}
+  ctx.fillStyle='rgba(100,100,100,0.7)';ctx.font=`${6*sc}px Courier New`;ctx.fillText(L().inventory,bx+34*sc,by+70*sc);
+  inventory.forEach((w,i)=>{
+    const iw=WEAPONS_BASE[w];if(!iw)return;
+    const active=w===player.weapon;
+    const up=weaponUpgrades[w];
+    ctx.fillStyle=active?(iw.wc||'#fa0'):'rgba(40,40,40,0.7)';
+    ctx.fillRect(bx+34*sc+i*16*sc,by+73*sc,14*sc,8*sc);
+    if(up&&up.multiplier<1){ctx.fillStyle='#0f8';ctx.fillRect(bx+34*sc+i*16*sc,by+71*sc,3*sc,3*sc);}
+    ctx.fillStyle=active?'#000':'rgba(150,150,150,0.9)';
+    ctx.font=`${5*sc}px Courier New`;ctx.textAlign='center';
+    ctx.fillText(iw.icon||iw.name.slice(0,2),bx+41*sc+i*16*sc,by+80*sc);
+  });
+
+  // Level göstergesi sağ üst (küçük)
+  ctx.fillStyle='rgba(255,255,255,0.15)';ctx.font=`bold ${8*sc}px Courier New`;ctx.textAlign='right';
+  ctx.fillText(L().levelHud(currentLevel,BOSS_DEFS[Math.min(currentLevel,9)].name),W-8,24);
+
+  // Popup
+  if(wpTimer>0){
+    ctx.fillStyle='rgba(0,0,0,0.82)';ctx.strokeStyle='#fa0';ctx.lineWidth=1.5;
+    const ppw=180,pph=24,ppx=W/2-ppw/2,ppy=H/2-12;
+    ctx.fillRect(ppx,ppy,ppw,pph);ctx.strokeRect(ppx,ppy,ppw,pph);
+    ctx.fillStyle='#fa0';ctx.font='bold 9px Courier New';ctx.textAlign='center';
+    ctx.fillText(wpMsg,W/2,ppy+16);
+  }
+  if(upgradeNotif){
+    const un=upgradeNotif;ctx.fillStyle='rgba(0,30,0,0.85)';ctx.strokeStyle='#0f8';ctx.lineWidth=1.5;
+    const uw=Math.min(W-30,260),ux=W/2-uw/2;
+    ctx.fillRect(ux,H/2+40,uw,32);ctx.strokeRect(ux,H/2+40,uw,32);
+    ctx.fillStyle='#0f8';ctx.font='bold 9px Courier New';ctx.textAlign='center';
+    ctx.fillText('🚀 '+un.msg,W/2,H/2+60);
+    ctx.fillStyle='rgba(0,255,136,0.2)';ctx.fillRect(ux,H/2+40,uw*(1-un.timer/2500),4);
+  }
 }
 
 function drawOverlays(){
-  if(paused){ctx.fillStyle='rgba(0,0,0,0.55)';ctx.fillRect(0,0,W,H);ctx.fillStyle='#fff';ctx.font='bold 30px Courier New';ctx.textAlign='center';ctx.fillText('DURAKLATILDI',W/2,H/2-18);ctx.fillStyle='#888';ctx.font='14px Courier New';ctx.fillText('▶ butonuna bas',W/2,H/2+18);}
-  if(victory&&victoryAlpha>0){ctx.fillStyle=`rgba(0,0,0,${victoryAlpha*0.7})`;ctx.fillRect(0,0,W,H);ctx.globalAlpha=victoryAlpha;ctx.fillStyle='#FFD700';ctx.font='bold 40px Courier New';ctx.textAlign='center';ctx.fillText('ZAFER!',W/2,H/2-44);ctx.fillStyle='#0f8';ctx.font='17px Courier New';ctx.fillText(boss.def.name+' yok edildi!',W/2,H/2-4);ctx.fillStyle='#aaf';ctx.font='12px Courier New';ctx.fillText('Komut Blogu tahrip edildi ✓',W/2,H/2+20);ctx.fillStyle='#fa0';ctx.font='12px Courier New';ctx.fillText('★ +'+Math.floor(gameScore).toLocaleString()+' puan',W/2,H/2+38);ctx.globalAlpha=1;}
+  if(paused){ctx.fillStyle='rgba(0,0,0,0.55)';ctx.fillRect(0,0,W,H);ctx.fillStyle='#fff';ctx.font='bold 30px Courier New';ctx.textAlign='center';ctx.fillText(L().paused,W/2,H/2-18);ctx.fillStyle='#888';ctx.font='14px Courier New';ctx.fillText(L().pauseHint,W/2,H/2+18);}
+  if(victory&&victoryAlpha>0){ctx.fillStyle=`rgba(0,0,0,${victoryAlpha*0.7})`;ctx.fillRect(0,0,W,H);ctx.globalAlpha=victoryAlpha;ctx.fillStyle='#FFD700';ctx.font='bold 40px Courier New';ctx.textAlign='center';ctx.fillText(L().victory,W/2,H/2-44);ctx.fillStyle='#0f8';ctx.font='17px Courier New';ctx.fillText(boss.def.name+' '+L().defeated,W/2,H/2-4);ctx.fillStyle='#aaf';ctx.font='12px Courier New';ctx.fillText(L().cmdHit,W/2,H/2+20);ctx.fillStyle='#fa0';ctx.font='12px Courier New';ctx.fillText(L().points(Math.floor(gameScore).toLocaleString()),W/2,H/2+38);ctx.globalAlpha=1;}
 }
 
 function loop(ts){const dt=Math.min(ts-lastTime,50);lastTime=ts;update(dt);render();requestAnimationFrame(loop);}
