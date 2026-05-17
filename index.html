@@ -432,18 +432,35 @@ const ctx=gc.getContext('2d');
 let W=window.innerWidth,H=window.innerHeight;
 gc.width=W;gc.height=H;
 window.addEventListener('resize',()=>{
-  W=window.innerWidth;H=window.innerHeight;
-  gc.width=W;gc.height=H;
-  if(stars.length)makeStars();
+  const wasLandscape=W>H;
+  W=window.innerWidth; H=window.innerHeight;
+  gc.width=W; gc.height=H;
+  if(stars.length) makeStars();
+  const nowLandscape=W>H;
+
   if(player&&!player.dead){
-    player.y=W>H?H-80:H-150;
-    player.y=Math.min(player.y,H-player.h-10);
+    player.y=H*0.82; // her zaman alt %18
     player.x=Math.max(0,Math.min(W-player.w,player.x));
   }
   if(boss&&boss.alive){
-    boss.w=W>H?160:220;boss.h=W>H?100:140;
+    const bw=Math.min(nowLandscape?W*0.22:W*0.40, nowLandscape?180:240);
+    boss.w=bw; boss.h=bw*0.64;
+    boss.y=Math.max(10,Math.min(H*0.12,boss.y));
     boss.x=Math.max(0,Math.min(W-boss.w,boss.x));
-    boss.y=Math.min(boss.y,50);
+  }
+  // Orientation değişince HP'leri koru, sadece konumları sıfırla
+  if(wasLandscape!==nowLandscape && player&&!player.dead && !gameOver && !victory){
+    const sh=player.hp, smh=player.maxHp, sbh=boss?boss.hp:0;
+    const sinv=[...inventory], sb=beamAmmo, ss=slapAmmo, sr=rocketAmmo;
+    const ssc=gameScore, slv=playerLevel, sxp=playerXP;
+    const sultiCD=ultiCooldown;
+    initLevel(currentLevel);
+    player.hp=sh; player.maxHp=smh;
+    if(boss&&sbh>0) boss.hp=sbh;
+    inventory=[...sinv]; beamAmmo=sb; slapAmmo=ss; rocketAmmo=sr;
+    gameScore=ssc; playerLevel=slv; playerXP=sxp;
+    ultiCooldown=sultiCD;
+    updateSpecialBtns();
   }
 });
 
@@ -617,6 +634,10 @@ const LEVEL_BONUSES={
 let ultiCooldown=0,ultiActive=false,ultiTimer=0,ultiType='';
 let levelUpNotif=null; // {msg, timer}
 
+function ultiDmg(amount){
+  const cap=boss.maxHp*0.30;
+  return Math.min(amount*(playerLevel>=3?1.5:1), cap);
+}
 function getUltiDef(){return CHAR_ULTIS[player?.char?.id]||CHAR_ULTIS[0];}
 
 function updateSpecialBtns(){
@@ -729,10 +750,11 @@ function makeBgParts(lvl){
 function initLevel(lvl){
   makeStars();makeBgParts(lvl);
   const bdef=BOSS_DEFS[Math.min(lvl,9)];
-  const isLandscape2=W>H;
-  boss={x:W/2-110,y:55,w:isLandscape2?160:220,h:isLandscape2?100:140,dx:2*bdef.spdMul,dy:0,hp:Math.floor(1500*bdef.hpMul),maxHp:Math.floor(1500*bdef.hpMul),def:bdef,animT:0,specialTimer:0,alive:true,moveMode:bdef.moveMode,_tx:null,_ty:null,slapShake:0};
-  const isLandscape=W>H;
-  player={x:W/2-20,y:isLandscape?H-110:H-160,w:40,h:70,speed:4,hp:5,maxHp:5,char:selectedChar,invincible:0,shield:false,weapon:'fireball',weaponIdx:0,dead:false,deathTimer:0};
+  const isLS=W>H;
+  const bw=Math.min(isLS?W*0.22:W*0.40, isLS?180:240);
+  const bh=bw*0.64;
+  boss={x:W/2-bw/2,y:H*0.06,w:bw,h:bh,dx:2*bdef.spdMul,dy:0,hp:Math.floor(1500*bdef.hpMul),maxHp:Math.floor(1500*bdef.hpMul),def:bdef,animT:0,specialTimer:0,alive:true,moveMode:bdef.moveMode,_tx:null,_ty:null,slapShake:0};
+  player={x:W/2-20,y:H*0.82,w:40,h:70,speed:4,hp:5,maxHp:5,char:selectedChar,invincible:0,shield:false,weapon:'fireball',weaponIdx:0,dead:false,deathTimer:0};
   inventory=['fireball'];beamAmmo=0;slapAmmo=0;rocketAmmo=0;speedBoostActive=false;speedBoostTimer=0;
   if(lvl===0){playerLevel=1;playerXP=0;}// Yeni oyunda sıfırla, bölümler arası korunur
   ultiCooldown=0;ultiActive=false;ultiTimer=0;
@@ -787,19 +809,32 @@ function tryFire(){
   const wd=WEAPONS_BASE[player.weapon]||WEAPONS_BASE.fireball;
   if(player.weapon==='rocket'){
     if(rocketAmmo<=0){
-      // Mermi bitti, önceki silaha geç
       switchWeapon();
       showPopup(LANG==='tr'?'🚀 Roket mermisi bitti!':'🚀 No rockets left!');
       return;
     }
     rocketAmmo--;updateSpecialBtns();
-  }
-  if(player.weapon==='rocket'){
-    // Güdümlü roket
     projectiles.push({x:player.x+player.w/2,y:player.y+10,vx:0,vy:-wd.speed,type:'rocket',owner:'player',r:wd.r,spin:0,wobble:0,homing:true,trail:[]});
-  }else{
-    projectiles.push({x:player.x+player.w/2,y:player.y+10,vx:0,vy:-wd.speed,type:player.weapon,owner:'player',r:wd.r,spin:0,wobble:0,trail:[]});
+    return;
   }
+  // Ateş topu ve lav için çoklu ateş
+  if(player.weapon==='fireball'||player.weapon==='lava'){
+    const pc=weaponUpgrades[player.weapon]?.pickCount||0;
+    const shots=Math.min(pc+1,4); // 1. alış=1, 2.=2, 3.=3, 4.+=4
+    const spread=12; // mermi arasındaki açı (derece)
+    const cx=player.x+player.w/2;
+    for(let i=0;i<shots;i++){
+      // Ortaya göre simetrik yayılım
+      const offset=(i-(shots-1)/2)*spread;
+      const rad=offset*Math.PI/180;
+      const vx=Math.sin(rad)*wd.speed;
+      const vy=-Math.cos(rad)*wd.speed;
+      projectiles.push({x:cx,y:player.y+10,vx,vy,type:player.weapon,owner:'player',r:wd.r,spin:0,wobble:0,trail:[]});
+    }
+    return;
+  }
+  // Diğer silahlar — tek mermi
+  projectiles.push({x:player.x+player.w/2,y:player.y+10,vx:0,vy:-wd.speed,type:player.weapon,owner:'player',r:wd.r,spin:0,wobble:0,trail:[]});
 }
 function activateBeam(){if(gameOver||victory||paused||player.dead)return;if(beamCooldown>0||beamActive||beamAmmo<=0){if(beamAmmo<=0)showPopup(L().noBeam);return;}beamAmmo--;beamActive=true;beamTimer=BEAM_DUR;playBeamSound();updateSpecialBtns();}
 function activateSlap(){
@@ -833,6 +868,8 @@ function update(dt){
   if(inAnyUlti){walkT+=dt*0.012;}else{
   const spd=speedBoostActive?player.speed*1.8:player.speed;
   if(Math.abs(jDX)>0.1){player.x=Math.max(0,Math.min(W-player.w,player.x+jDX*spd*(dt/16)*1.0));mv=true;faceR=jDX>0;}
+  // Oyuncu Y sabit (alt %18)
+  player.y=H*0.82;
   if(keys['ArrowLeft']||keys['KeyA']){player.x=Math.max(0,player.x-spd*(dt/16));mv=true;faceR=false;}
   if(keys['ArrowRight']||keys['KeyD']){player.x=Math.min(W-player.w,player.x+spd*(dt/16));mv=true;faceR=true;}
   if(mv)walkT+=dt*0.008;else walkT*=0.88;
@@ -963,7 +1000,7 @@ function updateSpiderUlti(dt){
     if(s.t<50){
       // Hasar ver — 687
       if(boss.alive){
-        const dmg=344*(playerLevel>=3?1.5:1);
+        const dmg=ultiDmg(344);
         boss.hp=Math.max(0,boss.hp-dmg);
         gameScore+=dmg;
         boss.slapShake=500;
@@ -1051,7 +1088,7 @@ function updateJessieUlti(dt){
     if(prog>=1){s.phase='hit';s.t=0;}
   } else if(s.phase==='hit'){
     if(s.t<60&&boss.alive){
-      const dmg=275*(playerLevel>=3?1.5:1);
+      const dmg=ultiDmg(275);
       boss.hp=Math.max(0,boss.hp-dmg);gameScore+=dmg;boss.slapShake=600;addXP(35);
       for(let i=0;i<6;i++){burst(s.punchX+(Math.random()-0.5)*80,s.punchY+(Math.random()-0.5)*60,'#00BFFF',18);burst(s.punchX+(Math.random()-0.5)*50,s.punchY+(Math.random()-0.5)*40,'#ffffff',12);}
       beep(80,0.2,'sawtooth',0.4);beep(200,0.15,'sine',0.3);
@@ -1109,7 +1146,7 @@ function updateHurryUlti(dt){
     // Boss'un yanından geçince hasar
     if(!s.dmgDone&&boss.alive&&Math.abs(player.x-boss.x-boss.w/2)<boss.w){
       s.dmgDone=true;
-      const dmg=225*(playerLevel>=3?1.5:1);
+      const dmg=ultiDmg(225);
       boss.hp=Math.max(0,boss.hp-dmg);gameScore+=dmg;boss.slapShake=500;addXP(30);
       for(let i=0;i<4;i++){burst(boss.x+boss.w/2+(Math.random()-0.5)*60,boss.y+boss.h/2,'#FFD700',20);burst(boss.x+boss.w/2,boss.y+boss.h/2,'#ff8800',15);}
       beep(100,0.15,'sawtooth',0.4);
@@ -1161,7 +1198,7 @@ function updateAriaUlti(dt){
     if(s.t>1200&&!s.dmgDone){
       s.dmgDone=true;
       if(boss.alive){
-        const dmg=310*(playerLevel>=3?1.5:1);
+        const dmg=ultiDmg(310);
         boss.hp=Math.max(0,boss.hp-dmg);gameScore+=dmg;boss.slapShake=800;addXP(38);
         for(let i=0;i<8;i++){burst(s.cx+(Math.random()-0.5)*100,s.cy+(Math.random()-0.5)*100,'#9400D3',18);burst(s.cx+(Math.random()-0.5)*60,s.cy+(Math.random()-0.5)*60,'#ffffff',12);}
         beep(40,0.3,'sine',0.5);
@@ -1201,7 +1238,7 @@ function updateZephyrUlti(dt){
       // Boss'a şimşek çak
       if(boss.alive){
         const bx2=boss.x+Math.random()*boss.w;
-        const dmgPerStrike=(240/s.maxStrikes)*(playerLevel>=3?1.5:1);
+        const dmgPerStrike=ultiDmg(240/s.maxStrikes);
         s.dmg+=dmgPerStrike;
         boss.hp=Math.max(0,boss.hp-dmgPerStrike);gameScore+=dmgPerStrike;
         addXP(3);
@@ -1263,9 +1300,10 @@ function updateBossMove(dt){
     case 'chaos':boss.x=W/2-boss.w/2+Math.sin(t*3)*W*0.42+Math.cos(t*1.7)*50;boss.y=80+Math.sin(t*2.2)*80+Math.cos(t*3.1)*30;break;
   }
   boss.x=Math.max(0,Math.min(W-boss.w,boss.x))+shake;
+  // Boss her zaman üst %5-%22 arasında
   const minGap=W>H?234:180;
-  const maxBossY=Math.min(H*0.25, player.y-boss.h-minGap);
-  boss.y=Math.max(10,Math.min(Math.max(10,maxBossY),boss.y));
+  const maxBossY=Math.min(H*0.22, player.y-boss.h-minGap);
+  boss.y=Math.max(H*0.04, Math.min(Math.max(H*0.04, maxBossY), boss.y));
 }
 function bossShoot(rage=1,offset=false){
   const nhds=boss.def.heads,step=boss.w/(nhds+1);
@@ -1300,7 +1338,10 @@ function applyBonus(b){
       playSpeedUp();
     }
     player.weapon=b.weapon;player.weaponIdx=inventory.indexOf(b.weapon);
-    showPopup((WEAPONS_BASE[b.weapon]?.icon||'🔫')+' '+b.label+' alındı!');playPickup();
+    const pc2=weaponUpgrades[b.weapon]?.pickCount||0;
+    const shots=Math.min(pc2+1,4);
+    const multiStr=(b.weapon==='fireball'||b.weapon==='lava')&&shots>1?' ×'+shots+'🔥':'';
+    showPopup((WEAPONS_BASE[b.weapon]?.icon||'🔫')+' '+b.label+multiStr+' alındı!');playPickup();
   }else if(b.type==='beam_ammo'){beamAmmo++;updateSpecialBtns();showPopup(LANG==='tr'?'⚡ Işın mermisi +1!':'⚡ Beam ammo +1!');playPickup();}
   else if(b.type==='slap_ammo'){slapAmmo++;updateSpecialBtns();showPopup(LANG==='tr'?'👋 Şaplak hakkı +1!':'👋 Slap charge +1!');playPickup();}
   else if(b.type==='shield'){player.shield=true;showPopup('🛡 Kalkan aktif!');playPickup();}
