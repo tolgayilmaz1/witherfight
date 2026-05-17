@@ -19,14 +19,42 @@ canvas{display:block;}
 .bb{display:block;padding:13px 42px;margin:3px auto;background:linear-gradient(135deg,#7700cc,#3300aa);color:#fff;border:2px solid #a040ff;border-radius:12px;font-size:15px;font-family:'Courier New',monospace;letter-spacing:3px;-webkit-appearance:none;cursor:pointer;box-shadow:0 0 18px rgba(160,32,240,0.4);}
 .bb2{display:block;padding:13px 36px;margin:3px auto;background:linear-gradient(135deg,#a020f0,#6600cc);color:#fff;border:none;border-radius:12px;font-size:13px;font-family:'Courier New',monospace;letter-spacing:2px;-webkit-appearance:none;cursor:pointer;}
 #hiBtn{background:linear-gradient(135deg,#aa6600,#664400);border-color:#ffaa00;font-size:12px;padding:10px 24px;}
+/* YATAY MOD UYARISI */
+#rotateOverlay{position:fixed;top:0;left:0;width:100%;height:100%;background:#000;z-index:9999;display:none;flex-direction:column;align-items:center;justify-content:center;gap:16px;}
+#rotateOverlay .ricon{font-size:64px;animation:rotpulse 1.2s ease-in-out infinite;}
+#rotateOverlay p{color:#fff;font-size:16px;font-family:'Courier New',monospace;letter-spacing:2px;text-align:center;}
+#rotateOverlay p.rsub{color:#666;font-size:11px;margin-top:-8px;}
+@keyframes rotpulse{0%,100%{transform:rotate(0deg);}50%{transform:rotate(-15deg);}}
 /* DİL + KONTROL EKRANları */
 #langScreen{background:linear-gradient(180deg,#020210,#0d0525,#050f05);z-index:600;display:flex;}
+/* KAYAN KREDİLER */
+#rollingCredits{position:relative;width:100%;max-width:320px;height:260px;overflow:hidden;margin-top:8px;}
+#rollingCredits::before{content:'';position:absolute;top:0;left:0;right:0;height:24px;background:linear-gradient(180deg,#020210,transparent);z-index:2;pointer-events:none;}
+#rollingCredits::after{content:'';position:absolute;bottom:0;left:0;right:0;height:24px;background:linear-gradient(0deg,#020210,transparent);z-index:2;pointer-events:none;}
+#creditsInner{display:flex;flex-direction:column;align-items:center;gap:12px;animation:credScroll 22s linear infinite;}
+@keyframes credScroll{0%{transform:translateY(130px);}100%{transform:translateY(-100%);}}}
+.cr-role{color:#00ff66!important;font-size:clamp(13px,3.5vw,16px)!important;letter-spacing:3px;text-transform:uppercase;font-weight:bold;display:block!important;text-shadow:0 0 10px #00ff66,0 0 20px #00ff66;font-family:"Courier New",monospace;}
+.cr-name{color:#ffffff!important;font-size:clamp(17px,5vw,24px)!important;font-weight:bold;letter-spacing:3px;text-shadow:0 0 16px rgba(180,100,255,1);display:block!important;font-family:"Courier New",monospace;}
+.cr-pair{display:flex;flex-direction:column;align-items:center;gap:3px;margin-bottom:8px;}
+.cr-studio{color:#7700cc;font-size:clamp(10px,2.8vw,13px);letter-spacing:3px;margin:4px 0;}
 .langTitle{color:#a020f0;font-size:clamp(13px,3.5vw,20px);letter-spacing:3px;text-shadow:0 0 20px #a020f0;text-align:center;margin-bottom:18px;}
 .langRow{display:flex;gap:14px;margin-bottom:10px;}
 .langBtn{padding:16px 32px;border-radius:14px;font-size:16px;font-family:'Courier New',monospace;letter-spacing:2px;cursor:pointer;-webkit-appearance:none;border:2px solid;color:#fff;}
 #lbTR{background:linear-gradient(135deg,#cc0000,#880000);border-color:#ff6666;}
 #lbEN{background:linear-gradient(135deg,#003399,#001166);border-color:#4488ff;}
 #ctrlScreen{background:linear-gradient(180deg,#020218,#080830,#020210);z-index:600;display:none;padding:12px;overflow-y:auto;}
+/* KONTROL SEÇİMİ */
+#ctrlSelScreen{background:linear-gradient(180deg,#000510,#001030,#000508);z-index:550;display:none;}
+.copt{display:flex;flex-direction:column;align-items:center;gap:8px;padding:18px 22px;margin:6px;border-radius:16px;border:2px solid #333;background:rgba(255,255,255,0.04);width:130px;cursor:pointer;}
+.copt.sel{border-color:#a040ff;background:rgba(160,64,255,0.15);}
+.copt-icon{font-size:36px;}
+.copt-title{color:#fff;font-size:14px;font-family:'Courier New',monospace;letter-spacing:2px;font-weight:bold;text-align:center;}
+.copt-desc{color:#666;font-size:10px;font-family:'Courier New',monospace;text-align:center;line-height:1.5;}
+#ctrlSelGo{padding:13px 40px;background:linear-gradient(135deg,#7700cc,#3300aa);color:#fff;border:2px solid #a040ff;border-radius:12px;font-size:15px;font-family:'Courier New',monospace;letter-spacing:3px;cursor:pointer;margin-top:12px;}
+/* BUTON KONTROLÜ */
+#btnCtrl{position:fixed;bottom:0;left:0;width:100%;display:none;padding:5px 10px;padding-bottom:max(8px,env(safe-area-inset-bottom,8px));z-index:200;pointer-events:none;}
+.btn-ctrl-row{display:flex;justify-content:space-between;align-items:flex-end;width:100%;pointer-events:all;}
+.btn-move{width:88px;height:88px;border-radius:50%;background:rgba(80,180,255,0.18);border:3px solid rgba(80,180,255,0.5);color:#fff;font-size:30px;display:flex;align-items:center;justify-content:center;cursor:pointer;user-select:none;-webkit-tap-highlight-color:transparent;}
 #ctrlScreen h2{color:#00ffaa;font-size:clamp(13px,3.5vw,19px);letter-spacing:3px;text-shadow:0 0 14px #00ffaa;text-align:center;margin-bottom:12px;}
 .cgrid{display:grid;grid-template-columns:1fr 1fr;gap:7px;width:100%;max-width:400px;}
 .ccard{background:rgba(255,255,255,0.05);border:1px solid #2a2a3a;border-radius:10px;padding:9px 8px;display:flex;align-items:flex-start;gap:8px;}
@@ -90,14 +118,72 @@ canvas{display:block;}
 </style>
 </head>
 <body>
+<div id="rotateOverlay">
+  <div class="ricon">📱</div>
+  <p>LÜTFEN TELEFONU DİKEY ÇEVİR</p>
+  <p class="rsub">Please rotate to portrait mode</p>
+</div>
 
 <!-- DİL SEÇİMİ -->
 <div id="langScreen" class="screen">
-  <canvas id="logoCanvas2" width="440" height="112" style="max-width:88vw;margin-bottom:14px;"></canvas>
+  <canvas id="logoCanvas2" width="440" height="112" style="max-width:88vw;margin-bottom:6px;"></canvas>
+  <p style="color:#440066;font-size:clamp(7px,2vw,9px);letter-spacing:3px;margin-bottom:8px;">MISHA ENTERTAINMENT COMPANY</p>
   <p class="langTitle" id="langSub">SELECT LANGUAGE / DİL SEÇ</p>
   <div class="langRow">
     <button class="langBtn" id="lbTR">🇹🇷 TÜRKÇE</button>
     <button class="langBtn" id="lbEN">🇬🇧 ENGLISH</button>
+  </div>
+  <div id="rollingCredits">
+    <div id="creditsInner">
+      <span style="color:#9900cc;font-size:11px;font-family:Courier New,monospace;letter-spacing:3px;text-align:center;display:block;margin-bottom:14px;">✦ MISHA ENTERTAINMENT ✦</span>
+      <span style="color:#00ff66;font-size:13px;font-family:Courier New,monospace;letter-spacing:3px;font-weight:bold;text-align:center;display:block;margin-bottom:2px;">Animation Director</span><span style="color:#ffffff;font-size:20px;font-family:Courier New,monospace;font-weight:bold;letter-spacing:3px;text-align:center;display:block;margin-bottom:14px;">MIKAIL</span>
+      <span style="color:#00ff66;font-size:13px;font-family:Courier New,monospace;letter-spacing:3px;font-weight:bold;text-align:center;display:block;margin-bottom:2px;">Code Encryption</span><span style="color:#ffffff;font-size:20px;font-family:Courier New,monospace;font-weight:bold;letter-spacing:3px;text-align:center;display:block;margin-bottom:14px;">RAMIS</span>
+      <span style="color:#00ff66;font-size:13px;font-family:Courier New,monospace;letter-spacing:3px;font-weight:bold;text-align:center;display:block;margin-bottom:2px;">Data Validation</span><span style="color:#ffffff;font-size:20px;font-family:Courier New,monospace;font-weight:bold;letter-spacing:3px;text-align:center;display:block;margin-bottom:14px;">TOLGA</span>
+      <span style="color:#00ff66;font-size:13px;font-family:Courier New,monospace;letter-spacing:3px;font-weight:bold;text-align:center;display:block;margin-bottom:2px;">Rendering Engine</span><span style="color:#ffffff;font-size:20px;font-family:Courier New,monospace;font-weight:bold;letter-spacing:3px;text-align:center;display:block;margin-bottom:14px;">JASON</span>
+      <span style="color:#00ff66;font-size:13px;font-family:Courier New,monospace;letter-spacing:3px;font-weight:bold;text-align:center;display:block;margin-bottom:2px;">Image Making</span><span style="color:#ffffff;font-size:20px;font-family:Courier New,monospace;font-weight:bold;letter-spacing:3px;text-align:center;display:block;margin-bottom:14px;">TRAVIS</span>
+      <span style="color:#00ff66;font-size:13px;font-family:Courier New,monospace;letter-spacing:3px;font-weight:bold;text-align:center;display:block;margin-bottom:2px;">Scenario & Story</span><span style="color:#ffffff;font-size:20px;font-family:Courier New,monospace;font-weight:bold;letter-spacing:3px;text-align:center;display:block;margin-bottom:14px;">EDWARD</span>
+      <span style="color:#00ff66;font-size:13px;font-family:Courier New,monospace;letter-spacing:3px;font-weight:bold;text-align:center;display:block;margin-bottom:2px;">Leveling System</span><span style="color:#ffffff;font-size:20px;font-family:Courier New,monospace;font-weight:bold;letter-spacing:3px;text-align:center;display:block;margin-bottom:14px;">TOLGA</span>
+      <span style="color:#00ff66;font-size:13px;font-family:Courier New,monospace;letter-spacing:3px;font-weight:bold;text-align:center;display:block;margin-bottom:2px;">Photoshop & Visual</span><span style="color:#ffffff;font-size:20px;font-family:Courier New,monospace;font-weight:bold;letter-spacing:3px;text-align:center;display:block;margin-bottom:14px;">SERKAN</span>
+      <span style="color:#00ff66;font-size:13px;font-family:Courier New,monospace;letter-spacing:3px;font-weight:bold;text-align:center;display:block;margin-bottom:2px;">Creative Direction</span><span style="color:#ffffff;font-size:20px;font-family:Courier New,monospace;font-weight:bold;letter-spacing:3px;text-align:center;display:block;margin-bottom:14px;">STEPHEN</span>
+      <span style="color:#9900cc;font-size:11px;font-family:Courier New,monospace;letter-spacing:3px;text-align:center;display:block;margin-bottom:14px;">© 2025 WITHER FIGHT</span>
+    </div>
+  </div>
+</div>
+
+<!-- KONTROL TİPİ SEÇİMİ -->
+<div id="ctrlSelScreen" class="screen">
+  <h2 style="color:#00ffaa;font-size:clamp(14px,4vw,20px);letter-spacing:3px;margin-bottom:16px;" id="ctrlSelH">🎮 KONTROL SEÇ</h2>
+  <div style="display:flex;gap:10px;">
+    <div class="copt sel" id="optJoy" onclick="selCtrl('joystick')">
+      <span class="copt-icon">🕹️</span>
+      <span class="copt-title">JOYSTICK</span>
+      <span class="copt-desc">Sol ekranda<br>joystick</span>
+    </div>
+    <div class="copt" id="optBtn" onclick="selCtrl('buttons')">
+      <span class="copt-icon">◀▶</span>
+      <span class="copt-title">BUTONLAR</span>
+      <span class="copt-desc">Sol-Sağ<br>butonlar</span>
+    </div>
+  </div>
+  <button id="ctrlSelGo">▶ DEVAM</button>
+</div>
+
+<!-- SAĞ-SOL BUTON KONTROLÜ -->
+<div id="btnCtrl">
+  <div class="btn-ctrl-row">
+    <div style="display:flex;gap:10px;align-items:flex-end;">
+      <div class="btn-move" id="btnLeft">◀</div>
+      <div class="btn-move" id="btnRight">▶</div>
+    </div>
+    <div class="tcright">
+      <div id="bMute3" class="cb" style="width:44px;height:44px;font-size:16px;">🔊</div>
+      <div id="bPause2" class="cb" style="width:50px;height:50px;font-size:16px;">⏸</div>
+      <div id="bSw2" class="cb" style="width:50px;height:50px;background:rgba(80,200,255,0.25);border-color:rgba(80,200,255,0.7);font-size:13px;flex-direction:column;gap:1px;">🔄<span style="font-size:8px;color:#8df;">NEXT</span></div>
+      <div id="bSlap2" class="cb" style="width:58px;height:58px;font-size:20px;">👋×0</div>
+      <div id="bBeam2" class="cb" style="width:58px;height:58px;font-size:20px;">⚡×0</div>
+      <div id="bUlti2" class="cb" style="width:72px;height:72px;background:rgba(255,200,0,0.25);border-color:rgba(255,200,0,0.7);font-size:14px;flex-direction:column;gap:2px;">✨<span id="ultiLabel2" style="font-size:9px;color:#ffd700;">ULTI</span></div>
+      <div id="bFire2" class="cb" style="width:92px;height:92px;font-size:28px;background:rgba(255,80,0,0.3);border-color:rgba(255,120,0,0.6);">🔥</div>
+    </div>
   </div>
 </div>
 
@@ -181,6 +267,25 @@ canvas{display:block;}
 <button id="nxtBtn">SONRAKI BÖLÜM ▶</button>
 
 <script>
+// ── YÖN KONTROLÜ ─────────────────────────────────────
+function checkOrientation(){
+  const overlay=document.getElementById('rotateOverlay');
+  if(window.innerWidth>window.innerHeight){
+    // Yatay mod — overlay göster, oyunu duraklat
+    overlay.style.display='flex';
+    if(typeof paused!=='undefined'&&!paused&&typeof gameOver!=='undefined'&&!gameOver&&typeof victory!=='undefined'&&!victory){
+      paused=true;
+    }
+  } else {
+    // Dikey mod — overlay gizle
+    overlay.style.display='none';
+    // Otomatik devam ettirme — kullanıcı zaten pause butonuyla kontrol etsin
+  }
+}
+checkOrientation();
+window.addEventListener('resize',checkOrientation);
+window.addEventListener('orientationchange',()=>setTimeout(checkOrientation,100));
+
 // ── DİL / LANGUAGE ───────────────────────────────────
 let LANG='tr';
 const TR={
@@ -317,8 +422,50 @@ document.getElementById('lbTR').onclick=()=>{LANG='tr';showCtrl();};
 document.getElementById('lbEN').onclick=()=>{LANG='en';showCtrl();};
 document.getElementById('lbTR').addEventListener('touchend',e=>{e.preventDefault();LANG='tr';showCtrl();},{passive:false});
 document.getElementById('lbEN').addEventListener('touchend',e=>{e.preventDefault();LANG='en';showCtrl();},{passive:false});
-document.getElementById('ctrlGo').onclick=goToLogo;
-document.getElementById('ctrlGo').addEventListener('touchend',e=>{e.preventDefault();goToLogo();},{passive:false});
+// Kontrol seçimi
+let ctrlType='joystick';
+let btnLPressed=false,btnRPressed=false;
+
+function selCtrl(type){
+  ctrlType=type;
+  document.getElementById('optJoy').classList.toggle('sel',type==='joystick');
+  document.getElementById('optBtn').classList.toggle('sel',type==='buttons');
+}
+function showCtrlSel(){
+  document.getElementById('ctrlScreen').style.display='none';
+  document.getElementById('ctrlSelScreen').style.display='flex';
+  document.getElementById('ctrlSelH').textContent=LANG==='tr'?'🎮 KONTROL SEÇ':'🎮 SELECT CONTROL';
+  document.getElementById('ctrlSelGo').textContent=LANG==='tr'?'▶ DEVAM':'▶ CONTINUE';
+}
+function applyCtrl(){
+  document.getElementById('ctrlSelScreen').style.display='none';
+  document.getElementById('logoScreen').style.display='flex';
+}
+document.getElementById('ctrlSelGo').onclick=applyCtrl;
+document.getElementById('ctrlSelGo').addEventListener('touchend',e=>{e.preventDefault();applyCtrl();},{passive:false});
+
+// Buton kontrolü
+const btnL=document.getElementById('btnLeft');
+const btnR=document.getElementById('btnRight');
+function setL(v){btnLPressed=v;jDX=btnRPressed?1:v?-1:0;}
+function setR(v){btnRPressed=v;jDX=btnLPressed?-1:v?1:0;}
+btnL.addEventListener('touchstart',e=>{e.preventDefault();setL(true);},{passive:false});
+btnL.addEventListener('touchend',e=>{e.preventDefault();setL(false);},{passive:false});
+btnR.addEventListener('touchstart',e=>{e.preventDefault();setR(true);},{passive:false});
+btnR.addEventListener('touchend',e=>{e.preventDefault();setR(false);},{passive:false});
+
+// btnCtrl sağ butonları
+function bindBtn(id,fn){const el=document.getElementById(id);if(!el)return;el.addEventListener('touchstart',e=>{e.preventDefault();fn();},{passive:false});el.addEventListener('click',fn);}
+bindBtn('bPause2',togglePause);bindBtn('bSw2',switchWeapon);
+bindBtn('bBeam2',activateBeam);bindBtn('bSlap2',activateSlap);bindBtn('bUlti2',activateUlti);
+let fIv2=null;
+const bF2=document.getElementById('bFire2');
+bF2.addEventListener('touchstart',e=>{e.preventDefault();tryFire();fIv2=setInterval(tryFire,95);},{passive:false});
+bF2.addEventListener('touchend',e=>{e.preventDefault();clearInterval(fIv2);},{passive:false});
+bindBtn('bMute3',toggleMute);
+
+document.getElementById('ctrlGo').onclick=showCtrlSel;
+document.getElementById('ctrlGo').addEventListener('touchend',e=>{e.preventDefault();showCtrlSel();},{passive:false});
 
 // ── TOUCH ────────────────────────────────────────────
 const gc=document.getElementById('gameCanvas');
@@ -367,8 +514,21 @@ function saveScore(){
 
 // ── GAME OVER SCREEN ─────────────────────────────────
 function showGameOverScreen(){
-  gc.style.display='none';document.getElementById('touchCtrl').style.display='none';
-  const goS=document.getElementById('gameOverScreen');goS.style.display='flex';
+  gc.style.display='none';
+  document.getElementById('touchCtrl').style.display='none';
+  document.getElementById('btnCtrl').style.display='none';
+  // Top 10'a girdi mi kontrol et
+  if(gameScore>0){
+    const scores=getScores().sort((a,b)=>b.score-a.score);
+    const isTop10=scores.length<10||gameScore>scores[scores.length-1].score;
+    if(isTop10){
+      const isRecord=scores.length===0||gameScore>scores[0].score;
+      document.querySelector('#nameScreen h2').textContent=isRecord?'🏆 YENİ REKOR!':'⭐ TOP 10!';
+      setTimeout(()=>showNameEntry(),400);
+      return;
+    }
+  }
+  document.getElementById('gameOverScreen').style.display='flex';
   document.getElementById('goScore').textContent=L().goScore(Math.floor(gameScore).toLocaleString(),currentLevel+1);
   document.getElementById('goCodeInp').value='';document.getElementById('goCodeErr').textContent='';
 }
@@ -432,35 +592,17 @@ const ctx=gc.getContext('2d');
 let W=window.innerWidth,H=window.innerHeight;
 gc.width=W;gc.height=H;
 window.addEventListener('resize',()=>{
-  const wasLandscape=W>H;
   W=window.innerWidth; H=window.innerHeight;
   gc.width=W; gc.height=H;
   if(stars.length) makeStars();
-  const nowLandscape=W>H;
-
   if(player&&!player.dead){
-    player.y=H*0.82; // her zaman alt %18
+    player.y=H*0.82;
     player.x=Math.max(0,Math.min(W-player.w,player.x));
   }
   if(boss&&boss.alive){
-    const bw=Math.min(nowLandscape?W*0.22:W*0.40, nowLandscape?180:240);
-    boss.w=bw; boss.h=bw*0.64;
-    boss.y=Math.max(10,Math.min(H*0.12,boss.y));
+    boss.w=Math.min(W*0.40,240); boss.h=boss.w*0.64;
+    boss.y=Math.max(H*0.04,Math.min(H*0.12,boss.y));
     boss.x=Math.max(0,Math.min(W-boss.w,boss.x));
-  }
-  // Orientation değişince HP'leri koru, sadece konumları sıfırla
-  if(wasLandscape!==nowLandscape && player&&!player.dead && !gameOver && !victory){
-    const sh=player.hp, smh=player.maxHp, sbh=boss?boss.hp:0;
-    const sinv=[...inventory], sb=beamAmmo, ss=slapAmmo, sr=rocketAmmo;
-    const ssc=gameScore, slv=playerLevel, sxp=playerXP;
-    const sultiCD=ultiCooldown;
-    initLevel(currentLevel);
-    player.hp=sh; player.maxHp=smh;
-    if(boss&&sbh>0) boss.hp=sbh;
-    inventory=[...sinv]; beamAmmo=sb; slapAmmo=ss; rocketAmmo=sr;
-    gameScore=ssc; playerLevel=slv; playerXP=sxp;
-    ultiCooldown=sultiCD;
-    updateSpecialBtns();
   }
 });
 
@@ -641,6 +783,12 @@ function ultiDmg(amount){
 function getUltiDef(){return CHAR_ULTIS[player?.char?.id]||CHAR_ULTIS[0];}
 
 function updateSpecialBtns(){
+  ['','2'].forEach(s=>{
+    const b=document.getElementById('bBeam'+s);if(b)b.textContent='⚡×'+beamAmmo;
+    const sl=document.getElementById('bSlap'+s);if(sl)sl.textContent='👋×'+slapAmmo;
+    const ub=document.getElementById('bUlti'+s);const ul=document.getElementById('ultiLabel'+s);
+    if(ub&&ul){const ud=CHAR_ULTIS[player?.char?.id]||CHAR_ULTIS[0];if(ultiCooldown>0){ub.style.opacity='0.45';ul.textContent=Math.ceil(ultiCooldown/1000)+'s';}else{ub.style.opacity='1';ub.style.borderColor=ud.color;ul.textContent='ULTI';if(ub.firstChild)ub.firstChild.textContent=ud.icon;}}
+  });
   document.getElementById('bBeam').textContent='⚡×'+beamAmmo;
   document.getElementById('bSlap').textContent='👋×'+slapAmmo;
   // Roket ammo HUD'da göster
@@ -750,9 +898,7 @@ function makeBgParts(lvl){
 function initLevel(lvl){
   makeStars();makeBgParts(lvl);
   const bdef=BOSS_DEFS[Math.min(lvl,9)];
-  const isLS=W>H;
-  const bw=Math.min(isLS?W*0.22:W*0.40, isLS?180:240);
-  const bh=bw*0.64;
+  const bw=Math.min(W*0.40,240); const bh=bw*0.64;
   boss={x:W/2-bw/2,y:H*0.06,w:bw,h:bh,dx:2*bdef.spdMul,dy:0,hp:Math.floor(1500*bdef.hpMul),maxHp:Math.floor(1500*bdef.hpMul),def:bdef,animT:0,specialTimer:0,alive:true,moveMode:bdef.moveMode,_tx:null,_ty:null,slapShake:0};
   player={x:W/2-20,y:H*0.82,w:40,h:70,speed:4,hp:5,maxHp:5,char:selectedChar,invincible:0,shield:false,weapon:'fireball',weaponIdx:0,dead:false,deathTimer:0};
   inventory=['fireball'];beamAmmo=0;slapAmmo=0;rocketAmmo=0;speedBoostActive=false;speedBoostTimer=0;
@@ -769,7 +915,7 @@ function initLevel(lvl){
   document.getElementById('nxtBtn').style.display='none';document.getElementById('bPause').textContent='⏸';
   updateSpecialBtns();
 }
-function updateSpecialBtns(){document.getElementById('bBeam').textContent='⚡×'+beamAmmo;document.getElementById('bSlap').textContent='👋×'+slapAmmo;}
+
 
 function buildBlocks(lvl){
   const pats=['grid','diamond','cross','zigzag','wall','pyramid','random','grid','diamond','cross'];
@@ -789,7 +935,9 @@ function showCharSelect(){document.getElementById('logoScreen').style.display='n
 function startGame(){
   if(!selectedChar)return;initAudio();
   document.getElementById('charSelect').style.display='none';
-  gc.style.display='block';document.getElementById('sndBtn').style.display='flex';document.getElementById('touchCtrl').style.display='block';
+  gc.style.display='block';document.getElementById('sndBtn').style.display='flex';
+  if(ctrlType==='buttons'){document.getElementById('touchCtrl').style.display='none';document.getElementById('btnCtrl').style.display='block';}
+  else{document.getElementById('touchCtrl').style.display='block';document.getElementById('btnCtrl').style.display='none';}
   currentLevel=0;gameScore=0;gameTime=0;initLevel(0);startBGM();requestAnimationFrame(loop);
 }
 function nextLevel(){document.getElementById('nxtBtn').style.display='none';currentLevel++;initLevel(currentLevel);startBGM();showLvlBanner(L().lvlBanner(currentLevel,BOSS_DEFS[Math.min(currentLevel,9)].name));}
@@ -1300,9 +1448,7 @@ function updateBossMove(dt){
     case 'chaos':boss.x=W/2-boss.w/2+Math.sin(t*3)*W*0.42+Math.cos(t*1.7)*50;boss.y=80+Math.sin(t*2.2)*80+Math.cos(t*3.1)*30;break;
   }
   boss.x=Math.max(0,Math.min(W-boss.w,boss.x))+shake;
-  // Boss her zaman üst %5-%22 arasında
-  const minGap=W>H?234:180;
-  const maxBossY=Math.min(H*0.22, player.y-boss.h-minGap);
+  const maxBossY=Math.min(H*0.22, player.y-boss.h-180);
   boss.y=Math.max(H*0.04, Math.min(Math.max(H*0.04, maxBossY), boss.y));
 }
 function bossShoot(rage=1,offset=false){
@@ -1373,7 +1519,7 @@ function burst(x,y,col,n=10){for(let i=0;i<n;i++){const a=Math.random()*Math.PI*
 
 // ── END SCREEN ────────────────────────────────────────
 function showEndScreen(){
-  stopBGM();gc.style.display='none';document.getElementById('touchCtrl').style.display='none';
+  stopBGM();gc.style.display='none';document.getElementById('touchCtrl').style.display='none';document.getElementById('btnCtrl').style.display='none';
   const es=document.getElementById('endScreen');es.style.display='flex';
   const ending=ENDINGS[selectedChar.id]||ENDINGS[0];
   document.getElementById('endSub').textContent=ending.fam;
