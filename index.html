@@ -167,7 +167,7 @@ canvas{display:block;}
     <div id="jz"><div id="jk"></div></div>
     <div class="tcright">
       <div id="bPause" class="cb">⏸</div>
-      <div id="bSw" class="cb">🔄</div>
+      <div id="bSw" class="cb" style="background:rgba(80,200,255,0.25);border-color:rgba(80,200,255,0.7);font-size:9px;flex-direction:column;gap:1px;">🔄<span style="font-size:6px;color:#8df;">NEXT</span></div>
       <div id="bBeam" class="cb">⚡×0</div>
       <div id="bSlap" class="cb">👋×0</div>
       <div id="bFire" class="cb">🔥</div>
@@ -611,7 +611,7 @@ function initLevel(lvl){
   makeStars();makeBgParts(lvl);
   const bdef=BOSS_DEFS[Math.min(lvl,9)];
   boss={x:W/2-110,y:55,w:220,h:140,dx:2*bdef.spdMul,dy:0,hp:Math.floor(1500*bdef.hpMul),maxHp:Math.floor(1500*bdef.hpMul),def:bdef,animT:0,specialTimer:0,alive:true,moveMode:bdef.moveMode,_tx:null,_ty:null,slapShake:0};
-  player={x:W/2-20,y:H-150,w:40,h:70,speed:5,hp:5,maxHp:5,char:selectedChar,invincible:0,shield:false,weapon:'fireball',weaponIdx:0,dead:false,deathTimer:0};
+  player={x:W/2-20,y:H-150,w:40,h:70,speed:3,hp:5,maxHp:5,char:selectedChar,invincible:0,shield:false,weapon:'fireball',weaponIdx:0,dead:false,deathTimer:0};
   inventory=['fireball'];beamAmmo=0;slapAmmo=0;speedBoostActive=false;speedBoostTimer=0;
   // Silah upgrade sıfırla
   weaponUpgrades={};upgradeNotif=null;
@@ -698,7 +698,7 @@ function update(dt){
   // Move
   let mv=false;
   const spd=speedBoostActive?player.speed*1.8:player.speed;
-  if(Math.abs(jDX)>0.1){player.x=Math.max(0,Math.min(W-player.w,player.x+jDX*spd*(dt/16)*1.5));mv=true;faceR=jDX>0;}
+  if(Math.abs(jDX)>0.1){player.x=Math.max(0,Math.min(W-player.w,player.x+jDX*spd*(dt/16)*1.0));mv=true;faceR=jDX>0;}
   if(keys['ArrowLeft']||keys['KeyA']){player.x=Math.max(0,player.x-spd*(dt/16));mv=true;faceR=false;}
   if(keys['ArrowRight']||keys['KeyD']){player.x=Math.min(W-player.w,player.x+spd*(dt/16));mv=true;faceR=true;}
   if(mv)walkT+=dt*0.008;else walkT*=0.88;
@@ -820,7 +820,9 @@ function updateBossMove(dt){
     case 'random':if(!boss._tx||Math.abs(boss.x-boss._tx)<5){boss._tx=50+Math.random()*(W-200);boss._ty=40+Math.random()*120;}boss.x+=(boss._tx-boss.x)*0.02*(dt/16)*spd;boss.y+=(boss._ty-boss.y)*0.02*(dt/16)*spd;break;
     case 'chaos':boss.x=W/2-boss.w/2+Math.sin(t*3)*W*0.42+Math.cos(t*1.7)*50;boss.y=80+Math.sin(t*2.2)*80+Math.cos(t*3.1)*30;break;
   }
-  boss.x=Math.max(0,Math.min(W-boss.w,boss.x))+shake;boss.y=Math.max(10,Math.min(H*0.42,boss.y));
+  boss.x=Math.max(0,Math.min(W-boss.w,boss.x))+shake;
+  const maxBossY=Math.min(H*0.28, H-player.h-220);
+  boss.y=Math.max(10,Math.min(maxBossY,boss.y));
 }
 function bossShoot(){
   const nhds=boss.def.heads,step=boss.w/(nhds+1);
