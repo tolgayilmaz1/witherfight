@@ -170,6 +170,7 @@ canvas{display:block;}
       <div id="bSw" class="cb" style="background:rgba(80,200,255,0.25);border-color:rgba(80,200,255,0.7);font-size:9px;flex-direction:column;gap:1px;">🔄<span style="font-size:6px;color:#8df;">NEXT</span></div>
       <div id="bBeam" class="cb">⚡×0</div>
       <div id="bSlap" class="cb">👋×0</div>
+      <div id="bUlti" class="cb" style="width:68px;height:68px;background:rgba(255,200,0,0.25);border-color:rgba(255,200,0,0.7);font-size:10px;flex-direction:column;gap:1px;">✨<span id="ultiLabel" style="font-size:6px;color:#ffd700;">ULTI</span></div>
       <div id="bFire" class="cb">🔥</div>
     </div>
   </div>
@@ -327,7 +328,7 @@ function addTap(id,fn){const el=document.getElementById(id);if(!el)return;el.add
 addTap('logoBtn',showCharSelect);addTap('hiBtn',showHiScores);
 addTap('hiBack',()=>{document.getElementById('hiScreen').style.display='none';document.getElementById('logoScreen').style.display='flex';});
 addTap('startBtn',startGame);addTap('nxtBtn',nextLevel);addTap('sndBtn',toggleMute);
-addTap('bPause',togglePause);addTap('bSw',switchWeapon);addTap('bBeam',activateBeam);addTap('bSlap',activateSlap);
+addTap('bPause',togglePause);addTap('bSw',switchWeapon);addTap('bBeam',activateBeam);addTap('bSlap',activateSlap);addTap('bUlti',activateUlti);
 addTap('endHiBtn',()=>{document.getElementById('endScreen').style.display='none';showNameEntry();});
 addTap('endAgain',()=>{document.getElementById('endScreen').style.display='none';document.getElementById('logoScreen').style.display='flex';});
 addTap('nameSbm',saveScore);
@@ -434,10 +435,15 @@ window.addEventListener('resize',()=>{
   W=window.innerWidth;H=window.innerHeight;
   gc.width=W;gc.height=H;
   if(stars.length)makeStars();
-  // Ekran döndüğünde oyuncu ekran dışına çıkmasın
   if(player&&!player.dead){
+    player.y=W>H?H-80:H-150;
     player.y=Math.min(player.y,H-player.h-10);
     player.x=Math.max(0,Math.min(W-player.w,player.x));
+  }
+  if(boss&&boss.alive){
+    boss.w=W>H?160:220;boss.h=W>H?100:140;
+    boss.x=Math.max(0,Math.min(W-boss.w,boss.x));
+    boss.y=Math.min(boss.y,50);
   }
 });
 
@@ -452,7 +458,7 @@ const WEAPONS_BASE={
   fireball:{name:'Ateş Topu',     damage:50, cooldown:900, speed:11,r:9, color:'#f60',wc:'#f80',icon:'🔥'},
   ice:     {name:'Buz Topu',      damage:60, cooldown:1100,speed:10,r:10,color:'#8df',wc:'#adf',icon:'❄️'},
   lava:    {name:'Lav Topu',      damage:80, cooldown:1300,speed:9, r:12,color:'#f40',wc:'#f60',icon:'🌋'},
-  rocket:  {name:'Roket',         damage:120,cooldown:1800,speed:7, r:8, color:'#888',wc:'#aaa',icon:'🚀'},
+  rocket:  {name:'Roket',         damage:120,cooldown:200, speed:7, r:8, color:'#888',wc:'#aaa',icon:'🚀'},
   saw:     {name:'Testere',       damage:35, cooldown:280, speed:12,r:10,color:'#ccc',wc:'#eee',icon:'⚙️'},
   water:   {name:'Su Damlası',    damage:25, cooldown:220, speed:14,r:8, color:'#08f',wc:'#4af',icon:'💧'},
   thunder: {name:'Şimşek Topu',   damage:100,cooldown:1500,speed:15,r:11,color:'#ff0',wc:'#ffd',icon:'⚡'},
@@ -579,6 +585,119 @@ CHARS.forEach((ch,idx)=>{
 });
 function selectChar(idx){selectedChar=CHARS[idx];document.querySelectorAll('.cc').forEach(c=>c.classList.remove('sel'));document.querySelectorAll('.cc')[idx].classList.add('sel');document.getElementById('startBtn').style.display='block';}
 
+// ── ULTİ & LEVEL SİSTEMİ ────────────────────────────
+// Her karakter için ulti tanımı
+const CHAR_ULTIS={
+  0:{name:'💎 Elmas Zırh',    nameEN:'💎 Diamond Armor',  icon:'💎', cd:18000,
+     desc:'Zırh giy, boss\'a fırla, 550 hasar!',descEN:'Armor up, dash into boss, 550 dmg!',
+     color:'#00BFFF'},
+  1:{name:'⚡ Kasırga Koşusu', nameEN:'⚡ Tornado Dash',   icon:'⚡', cd:15000,
+     desc:'Ekranı geç, 450 hasar, hız boost!',descEN:'Screen dash, 450 dmg, speed boost!',
+     color:'#FFD700'},
+  2:{name:'🕷️ Spider Yumruk',  nameEN:'🕷️ Spider Punch',   icon:'🕷️', cd:20000,
+     desc:'Spiderman\'a dönüş, uçan yumruk 687!',descEN:'Transform & fly-punch boss 687!',
+     color:'#cc0000'},
+  3:{name:'🌀 Kara Delik',     nameEN:'🌀 Black Hole',     icon:'🌀', cd:16000,
+     desc:'Boss\'u çeken kara delik, 620 hasar!',descEN:'Black hole pulls boss, 620 dmg!',
+     color:'#9400D3'},
+  4:{name:'⚡ Şimşek Fırtınası',nameEN:'⚡ Lightning Storm',icon:'🌩️', cd:14000,
+     desc:'Gökyüzünden şimşek yağar, 480 hasar!',descEN:'Lightning rains from sky, 480 dmg!',
+     color:'#FF4500'},
+};
+
+// Level sistemi
+let playerLevel=1,playerXP=0;
+const XP_PER_LEVEL=[0,100,250]; // level 1→2: 100xp, level 2→3: 250xp
+
+const LEVEL_BONUSES={
+  2:{hp:2,  fireRate:0.8, desc:'+2 Can, Ateş Hızı %20↑', descEN:'+2 HP, Fire Rate +20%'},
+  3:{hp:2,  fireRate:0.6, desc:'+2 Can, Ateş Hızı %40↑, Ulti 2x Güçlü', descEN:'+2 HP, Fire Rate +40%, Ulti 2x Power'},
+};
+
+let ultiCooldown=0,ultiActive=false,ultiTimer=0,ultiType='';
+let levelUpNotif=null; // {msg, timer}
+
+function getUltiDef(){return CHAR_ULTIS[player?.char?.id]||CHAR_ULTIS[0];}
+
+function updateSpecialBtns(){
+  document.getElementById('bBeam').textContent='⚡×'+beamAmmo;
+  document.getElementById('bSlap').textContent='👋×'+slapAmmo;
+  // Roket ammo HUD'da göster
+  if(player&&player.weapon==='rocket'){
+    const sw=document.getElementById('bSw');
+    if(sw)sw.querySelector('span').textContent='🚀×'+rocketAmmo;
+  }
+  const ud=getUltiDef();
+  const ultiBtn=document.getElementById('bUlti');
+  const ultiLbl=document.getElementById('ultiLabel');
+  if(ultiCooldown>0){
+    const secs=Math.ceil(ultiCooldown/1000);
+    ultiBtn.style.opacity='0.45';
+    ultiLbl.textContent=secs+'s';
+  }else{
+    ultiBtn.style.opacity='1';
+    ultiBtn.style.borderColor=ud.color;
+    ultiBtn.style.background=`rgba(255,200,0,0.3)`;
+    ultiLbl.textContent='ULTI';
+    document.getElementById('bUlti').firstChild.textContent=ud.icon;
+  }
+}
+
+function activateUlti(){
+  if(gameOver||victory||paused||player.dead)return;
+  if(ultiCooldown>0){showPopup(LANG==='tr'?'⏳ Ulti hazır değil!':'⏳ Ulti not ready!');return;}
+  const ud=getUltiDef();
+  const power=playerLevel>=3?2:1;
+  ultiCooldown=ud.cd;
+  ultiActive=true;
+  ultiType=player.char.id;
+  beep(800,0.05,'sine',0.3);beep(1000,0.08,'sine',0.25);beep(1200,0.1,'sine',0.2);
+
+  if(ultiType===0){
+    // Jessie — Elmas Zırh Çarpışı: zırh giy → boss'a fırla → 550 hasar
+    showPopup(LANG==='tr'?'💎 ELMAS ZIRH!':'💎 DIAMOND ARMOR!');
+    player._jessieUlti={phase:'armor',t:0,origX:player.x,origY:player.y,punchX:0,punchY:0};
+    ultiActive=false;
+  } else if(ultiType===1){
+    // Hurry — Kasırga Koşusu: ekranı soldan sağa geçer, 450 hasar
+    showPopup(LANG==='tr'?'⚡ KASIRGA KOŞUSU!':'⚡ TORNADO DASH!');
+    player._hurryUlti={phase:'spin',t:0,origX:player.x,origY:player.y,dashX:W+60};
+    ultiActive=false;
+  } else if(ultiType===2){
+    // Mikail — Spider Yumruk
+    showPopup(LANG==='tr'?'🕷️ SPİDER YUMRUK!':'🕷️ SPIDER PUNCH!');
+    player._spiderUlti={phase:'transform',t:0,origX:player.x,origY:player.y,punchX:0,punchY:0};
+    ultiActive=false;
+  } else if(ultiType===3){
+    // Aria — Kara Delik: ortada kara delik açılır, boss'u çeker, 620 hasar
+    showPopup(LANG==='tr'?'🌀 KARA DELİK!':'🌀 BLACK HOLE!');
+    player._ariaUlti={phase:'open',t:0,cx:W/2,cy:H/3,radius:0,maxR:120,dmgDone:false};
+    ultiActive=false;
+  } else if(ultiType===4){
+    // Zephyr — Şimşek Fırtınası: yukarıdan şimşek yağar, 480 hasar
+    showPopup(LANG==='tr'?'⚡ ŞİMŞEK FIRTINASI!':'⚡ LIGHTNING STORM!');
+    player._zephyrUlti={phase:'storm',t:0,strikes:0,maxStrikes:8,dmg:0};
+    ultiActive=false;
+  }
+}
+
+function addXP(amount){
+  if(playerLevel>=3)return;
+  playerXP+=amount;
+  const needed=XP_PER_LEVEL[playerLevel];
+  if(playerXP>=needed){
+    playerXP=0;
+    playerLevel++;
+    const bonus=LEVEL_BONUSES[playerLevel];
+    player.maxHp+=bonus.hp;player.hp=Math.min(player.hp+bonus.hp,player.maxHp);
+    levelUpNotif={msg:LANG==='tr'?'⭐ LEVEL '+playerLevel+'! '+bonus.desc:'⭐ LEVEL '+playerLevel+'! '+bonus.descEN,timer:3500};
+    // Ses efekti
+    [523,659,784,1047,1318].forEach((f,i)=>setTimeout(()=>beep(f,0.2,'sine',0.18),i*100));
+    burst(player.x+player.w/2,player.y+player.h/2,'#FFD700',40);
+    burst(player.x+player.w/2,player.y+player.h/2,'#ffffff',20);
+  }
+}
+
 // ── GAME STATE ────────────────────────────────────────
 let player,boss,blocks,projectiles,bonuses,particles,bossFragments,bgParts;
 let gameOver=false,victory=false,paused=false;
@@ -589,7 +708,7 @@ let wpTimer=0,wpMsg='';
 let inventory=[];
 let walkT=0,faceR=true;
 let beamActive=false,beamTimer=0,beamCooldown=0,beamAmmo=0;
-let slapAmmo=0,slapAnim=null; // şaplak state
+let slapAmmo=0,slapAnim=null,rocketAmmo=0;
 let speedBoostTimer=0,speedBoostActive=false;
 let gameScore=0,gameTime=0,levelStartTime=0;
 let lightningFlash=0,lightningTimer=0;
@@ -610,9 +729,13 @@ function makeBgParts(lvl){
 function initLevel(lvl){
   makeStars();makeBgParts(lvl);
   const bdef=BOSS_DEFS[Math.min(lvl,9)];
-  boss={x:W/2-110,y:55,w:220,h:140,dx:2*bdef.spdMul,dy:0,hp:Math.floor(1500*bdef.hpMul),maxHp:Math.floor(1500*bdef.hpMul),def:bdef,animT:0,specialTimer:0,alive:true,moveMode:bdef.moveMode,_tx:null,_ty:null,slapShake:0};
-  player={x:W/2-20,y:H-150,w:40,h:70,speed:3,hp:5,maxHp:5,char:selectedChar,invincible:0,shield:false,weapon:'fireball',weaponIdx:0,dead:false,deathTimer:0};
-  inventory=['fireball'];beamAmmo=0;slapAmmo=0;speedBoostActive=false;speedBoostTimer=0;
+  const isLandscape2=W>H;
+  boss={x:W/2-110,y:55,w:isLandscape2?160:220,h:isLandscape2?100:140,dx:2*bdef.spdMul,dy:0,hp:Math.floor(1500*bdef.hpMul),maxHp:Math.floor(1500*bdef.hpMul),def:bdef,animT:0,specialTimer:0,alive:true,moveMode:bdef.moveMode,_tx:null,_ty:null,slapShake:0};
+  const isLandscape=W>H;
+  player={x:W/2-20,y:isLandscape?H-110:H-160,w:40,h:70,speed:4,hp:5,maxHp:5,char:selectedChar,invincible:0,shield:false,weapon:'fireball',weaponIdx:0,dead:false,deathTimer:0};
+  inventory=['fireball'];beamAmmo=0;slapAmmo=0;rocketAmmo=0;speedBoostActive=false;speedBoostTimer=0;
+  if(lvl===0){playerLevel=1;playerXP=0;}// Yeni oyunda sıfırla, bölümler arası korunur
+  ultiCooldown=0;ultiActive=false;ultiTimer=0;
   // Silah upgrade sıfırla
   weaponUpgrades={};upgradeNotif=null;
   blocks=[];buildBlocks(lvl);
@@ -663,6 +786,15 @@ function tryFire(){
   lastFireTime=now;playFire(player.weapon);
   const wd=WEAPONS_BASE[player.weapon]||WEAPONS_BASE.fireball;
   if(player.weapon==='rocket'){
+    if(rocketAmmo<=0){
+      // Mermi bitti, önceki silaha geç
+      switchWeapon();
+      showPopup(LANG==='tr'?'🚀 Roket mermisi bitti!':'🚀 No rockets left!');
+      return;
+    }
+    rocketAmmo--;updateSpecialBtns();
+  }
+  if(player.weapon==='rocket'){
     // Güdümlü roket
     projectiles.push({x:player.x+player.w/2,y:player.y+10,vx:0,vy:-wd.speed,type:'rocket',owner:'player',r:wd.r,spin:0,wobble:0,homing:true,trail:[]});
   }else{
@@ -697,30 +829,59 @@ function update(dt){
 
   // Move
   let mv=false;
+  const inAnyUlti=player._spiderUlti||player._jessieUlti||player._hurryUlti;
+  if(inAnyUlti){walkT+=dt*0.012;}else{
   const spd=speedBoostActive?player.speed*1.8:player.speed;
   if(Math.abs(jDX)>0.1){player.x=Math.max(0,Math.min(W-player.w,player.x+jDX*spd*(dt/16)*1.0));mv=true;faceR=jDX>0;}
   if(keys['ArrowLeft']||keys['KeyA']){player.x=Math.max(0,player.x-spd*(dt/16));mv=true;faceR=false;}
   if(keys['ArrowRight']||keys['KeyD']){player.x=Math.min(W-player.w,player.x+spd*(dt/16));mv=true;faceR=true;}
   if(mv)walkT+=dt*0.008;else walkT*=0.88;
+  } // end spider ulti movement block
   if(player.invincible>0)player.invincible-=dt;
   if(wpTimer>0)wpTimer-=dt;
+  if(ultiCooldown>0){ultiCooldown=Math.max(0,ultiCooldown-dt);updateSpecialBtns();}
+  if(ultiTimer>0){ultiTimer=Math.max(0,ultiTimer-dt);if(ultiTimer<=0)ultiActive=false;}
+  if(levelUpNotif){levelUpNotif.timer-=dt;if(levelUpNotif.timer<=0)levelUpNotif=null;}
   if(upgradeNotif){upgradeNotif.timer-=dt;if(upgradeNotif.timer<=0)upgradeNotif=null;}
   if(speedBoostActive){speedBoostTimer-=dt;if(speedBoostTimer<=0){speedBoostActive=false;showPopup('Hız boost bitti!');}}
 
   // Beam
   if(beamActive){
     beamTimer-=dt;if(beamTimer<=0){beamActive=false;beamCooldown=BEAM_CD;}
-    if(boss.alive){boss.hp=Math.max(0,boss.hp-8*(dt/16));gameScore+=8*(dt/16)*0.5;if(Math.random()<0.15)burst(boss.x+Math.random()*boss.w,boss.y+boss.h/2,'#0ff',3);if(boss.hp<=0){boss.alive=false;startVictory();}}
+    if(boss.alive){boss.hp=Math.max(0,boss.hp-8*(dt/16));gameScore+=8*(dt/16)*0.5;addXP(1);if(Math.random()<0.15)burst(boss.x+Math.random()*boss.w,boss.y+boss.h/2,'#0ff',3);if(boss.hp<=0){boss.alive=false;startVictory();}}
   }
   if(beamCooldown>0)beamCooldown-=dt;
 
   // Şaplak animasyonu
   if(slapAnim){updateSlapAnim(dt);}
   if(boss.slapShake>0)boss.slapShake-=dt;
+  // Spider ulti animasyonu
+  if(player._spiderUlti){updateSpiderUlti(dt);}
+  if(player._jessieUlti){updateJessieUlti(dt);}
+  if(player._hurryUlti){updateHurryUlti(dt);}
+  if(player._ariaUlti){updateAriaUlti(dt);}
+  if(player._zephyrUlti){updateZephyrUlti(dt);}
 
   // Boss
   updateBossMove(dt);boss.animT+=dt*0.003;
-  if(boss.alive){bossFireTimer+=dt;if(bossFireTimer>Math.max(600,1500/boss.def.fireMul)){bossFireTimer=0;bossShoot();}boss.specialTimer+=dt;if(boss.specialTimer>5000){boss.specialTimer=0;bossSpecial();}}
+  // Boss öfke çarpanı — HP azaldıkça logaritmik artar
+  if(boss.alive){
+    const hpR=boss.hp/boss.maxHp;
+    // %60 altında devreye girer, daha yumuşak: 0.6→1x, 0.4→1.3x, 0.2→1.6x, 0→2x
+    const rage=hpR<0.6?1+Math.log(0.6/Math.max(hpR,0.02))*0.7:1;
+    const fireInterval=Math.max(300,1500/(boss.def.fireMul*rage));
+    bossFireTimer+=dt;
+    if(bossFireTimer>fireInterval){
+      bossFireTimer=0;
+      bossShoot(rage);
+      // Sadece %30 altında çift ateş
+      if(hpR<0.3&&rage>1.4)bossShoot(rage,true);
+    }
+    boss.specialTimer+=dt;
+    const specialInterval=hpR<0.4?3500:5000;
+    if(boss.specialTimer>specialInterval){boss.specialTimer=0;bossSpecial();}
+    boss._rage=rage;
+  }
 
   // Weather fx
   const fx=BG_THEMES[Math.min(currentLevel,9)].fx;
@@ -751,7 +912,7 @@ function update(dt){
     if(p.owner==='player'){
       for(let b of blocks){if(b.hp>0&&p.x>b.x&&p.x<b.x+b.w&&p.y>b.y&&p.y<b.y+b.h){b.hp--;burst(p.x,p.y,'#aaa',6);return false;}}
       if(boss.alive&&p.x>boss.x&&p.x<boss.x+boss.w&&p.y>boss.y&&p.y<boss.y+boss.h){
-        const wd=WEAPONS_BASE[p.type]||WEAPONS_BASE.fireball;boss.hp=Math.max(0,boss.hp-wd.damage);gameScore+=wd.damage;burst(p.x,p.y,boss.def.eyeColor,10);playHit();
+        const wd=WEAPONS_BASE[p.type]||WEAPONS_BASE.fireball;boss.hp=Math.max(0,boss.hp-wd.damage);gameScore+=wd.damage;addXP(Math.ceil(wd.damage/8));burst(p.x,p.y,boss.def.eyeColor,10);playHit();
         if(boss.hp<=0){boss.alive=false;startVictory();}return false;
       }
     }else{
@@ -777,7 +938,288 @@ function update(dt){
   bossFragments=bossFragments.filter(f=>{f.x+=f.vx*(dt/16);f.y+=f.vy*(dt/16);f.vy+=0.4;f.vx*=0.98;f.spin+=f.spinSpeed;f.life-=(dt/16);return f.life>0&&f.y<H+100;});
 }
 
-// ŞAPLAK ANİMASYON
+// ── SPİDER ULTİ ANİMASYONU ──────────────────────────
+function updateSpiderUlti(dt){
+  const s=player._spiderUlti;
+  s.t+=dt;
+  if(s.phase==='transform'){
+    // 600ms dönüşüm efekti
+    if(s.t>600){s.phase='fly';s.t=0;
+      s.punchX=boss.x+boss.w/2; s.punchY=boss.y+boss.h/2;
+    }
+    // Parlama efekti
+    if(Math.random()<0.3)burst(player.x+player.w/2,player.y+player.h/2,'#cc0000',4);
+    burst(player.x+player.w/2,player.y+player.h/2,'#0044ff',2);
+  } else if(s.phase==='fly'){
+    // 500ms uçuş — boss'a doğru git
+    const prog=Math.min(s.t/500,1);
+    player.x=s.origX+(s.punchX-20-s.origX)*prog;
+    player.y=s.origY+(s.punchY-s.origY)*prog;
+    // Web izi
+    if(Math.random()<0.4)burst(player.x+20,player.y+35,'#aaaaaa',3);
+    if(prog>=1){s.phase='punch';s.t=0;}
+  } else if(s.phase==='punch'){
+    // 300ms yumruk & patlama
+    if(s.t<50){
+      // Hasar ver — 687
+      if(boss.alive){
+        const dmg=344*(playerLevel>=3?1.5:1);
+        boss.hp=Math.max(0,boss.hp-dmg);
+        gameScore+=dmg;
+        boss.slapShake=500;
+        addXP(40);
+        for(let i=0;i<5;i++){
+          burst(s.punchX+(Math.random()-0.5)*60,s.punchY+(Math.random()-0.5)*60,'#ff4400',20);
+          burst(s.punchX+(Math.random()-0.5)*40,s.punchY+(Math.random()-0.5)*40,'#ffdd00',15);
+          burst(s.punchX+(Math.random()-0.5)*30,s.punchY+(Math.random()-0.5)*30,'#ffffff',10);
+        }
+        beep(60,0.2,'sawtooth',0.5);beep(120,0.15,'sawtooth',0.3);
+        if(boss.hp<=0){boss.alive=false;startVictory();}
+      }
+    }
+    if(s.t>300){s.phase='return';s.t=0;}
+  } else if(s.phase==='return'){
+    // 500ms geri dönüş
+    const prog=Math.min(s.t/500,1);
+    player.x=s.punchX-20+(s.origX-s.punchX+20)*prog;
+    player.y=s.punchY+(s.origY-s.punchY)*prog;
+    if(Math.random()<0.3)burst(player.x+20,player.y+35,'#cc0000',2);
+    if(prog>=1){
+      player.x=s.origX;player.y=s.origY;
+      s.phase='done';
+      // Geri dönüş parlaması
+      burst(player.x+player.w/2,player.y+player.h/2,'#3a7d44',20);
+      showPopup(LANG==='tr'?'💚 Mikail geri döndü!':'💚 Mikail returned!');
+    }
+  } else {
+    player._spiderUlti=null;
+  }
+}
+
+function drawSpiderMikail(ctx,x,y,sc,wt){
+  // Kırmızı-mavi Spiderman kostümü
+  ctx.save();ctx.translate(x,y);ctx.scale(sc,sc);
+  // Bacaklar
+  ctx.fillStyle='#0000cc';ctx.fillRect(-9,22,8,20);ctx.fillRect(1,22,8,20);
+  // Kırmızı tayt
+  ctx.fillStyle='#cc0000';ctx.fillRect(-9,14,18,10);
+  // Mavi gövde
+  ctx.fillStyle='#0000cc';ctx.fillRect(-11,-2,22,18);
+  // Kırmızı üst
+  ctx.fillStyle='#cc0000';ctx.fillRect(-9,-2,18,10);
+  // Web çizgileri
+  ctx.strokeStyle='#0000aa';ctx.lineWidth=1;
+  ctx.beginPath();ctx.moveTo(0,-2);ctx.lineTo(-11,8);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(0,-2);ctx.lineTo(11,8);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(-11,3);ctx.lineTo(11,3);ctx.stroke();
+  // Kollar
+  ctx.fillStyle='#cc0000';
+  const as=Math.sin(wt)*10;
+  ctx.save();ctx.rotate(as*Math.PI/180);ctx.fillRect(-15,0,6,14);ctx.restore();
+  ctx.save();ctx.rotate(-as*Math.PI/180);ctx.fillRect(9,0,6,14);ctx.restore();
+  // Kırmızı kafa maskesi
+  ctx.fillStyle='#cc0000';ctx.beginPath();ctx.roundRect(-10,-21,20,20,4);ctx.fill();
+  // Büyük beyaz gözler (Spiderman maskesi)
+  ctx.fillStyle='#ffffff';
+  ctx.beginPath();ctx.ellipse(-5,-12,5,4,0.3,0,Math.PI*2);ctx.fill();
+  ctx.beginPath();ctx.ellipse(5,-12,5,4,-0.3,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle='#aaddff';
+  ctx.beginPath();ctx.ellipse(-5,-12,3,2.5,0.3,0,Math.PI*2);ctx.fill();
+  ctx.beginPath();ctx.ellipse(5,-12,3,2.5,-0.3,0,Math.PI*2);ctx.fill();
+  // Web pattern kafa
+  ctx.strokeStyle='#aa0000';ctx.lineWidth=0.5;
+  ctx.beginPath();ctx.arc(0,-11,9,0,Math.PI*2);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(-10,-11);ctx.lineTo(10,-11);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(0,-21);ctx.lineTo(0,-1);ctx.stroke();
+  ctx.restore();
+}
+
+// ── SPİDER ULTİ ÇİZİMİ (render içinde çağrılacak) ──
+
+// ── JESSİE ULTİ — Elmas Zırh Çarpışı ──────────────
+function updateJessieUlti(dt){
+  const s=player._jessieUlti; s.t+=dt;
+  if(s.phase==='armor'){
+    player.invincible=9999;
+    burst(player.x+player.w/2,player.y+player.h/2,'#00BFFF',4);
+    if(s.t>700){s.phase='fly';s.t=0;s.punchX=boss.x+boss.w/2;s.punchY=boss.y+boss.h/2;}
+  } else if(s.phase==='fly'){
+    const prog=Math.min(s.t/500,1);
+    player.x=s.origX+(s.punchX-20-s.origX)*prog;
+    player.y=s.origY+(s.punchY-s.origY)*prog;
+    burst(player.x+20,player.y+35,'#00BFFF',3);burst(player.x+20,player.y+35,'#ffffff',2);
+    if(prog>=1){s.phase='hit';s.t=0;}
+  } else if(s.phase==='hit'){
+    if(s.t<60&&boss.alive){
+      const dmg=275*(playerLevel>=3?1.5:1);
+      boss.hp=Math.max(0,boss.hp-dmg);gameScore+=dmg;boss.slapShake=600;addXP(35);
+      for(let i=0;i<6;i++){burst(s.punchX+(Math.random()-0.5)*80,s.punchY+(Math.random()-0.5)*60,'#00BFFF',18);burst(s.punchX+(Math.random()-0.5)*50,s.punchY+(Math.random()-0.5)*40,'#ffffff',12);}
+      beep(80,0.2,'sawtooth',0.4);beep(200,0.15,'sine',0.3);
+      if(boss.hp<=0){boss.alive=false;startVictory();}
+    }
+    if(s.t>400){s.phase='return';s.t=0;}
+  } else if(s.phase==='return'){
+    const prog=Math.min(s.t/500,1);
+    player.x=s.punchX-20+(s.origX-s.punchX+20)*prog;
+    player.y=s.punchY+(s.origY-s.punchY)*prog;
+    if(prog>=1){player.x=s.origX;player.y=s.origY;player.invincible=3000;
+      speedBoostActive=true;speedBoostTimer=3000;// bonus: 3sn invincible+hız
+      burst(player.x+player.w/2,player.y+player.h/2,'#00BFFF',25);
+      showPopup(LANG==='tr'?'💎 3sn Koruma!':'💎 3s Shield!');
+      s.phase='done';}
+  } else {player._jessieUlti=null;}
+}
+function drawJessieArmor(ctx,x,y,sc,wt){
+  // Elmas zırhlı Jessie
+  ctx.save();ctx.translate(x,y);ctx.scale(sc,sc);
+  ctx.fillStyle='#333388';ctx.fillRect(-9,22,8,20);ctx.fillRect(1,22,8,20);
+  ctx.fillStyle='#001166';ctx.fillRect(-9,14,18,10);
+  // Parlak elmas zırh
+  const shimmer=Math.sin(Date.now()*0.01)*0.3+0.7;
+  ctx.fillStyle=`rgba(0,180,255,${shimmer})`;ctx.fillRect(-11,-2,22,18);
+  ctx.strokeStyle='#ffffff';ctx.lineWidth=1.5;ctx.strokeRect(-11,-2,22,18);
+  // Elmas parıltıları
+  ctx.fillStyle='rgba(255,255,255,0.8)';
+  [[-8,2],[0,10],[8,2],[-4,14],[4,14]].forEach(([px,py])=>{
+    ctx.beginPath();ctx.moveTo(px,py-4);ctx.lineTo(px+3,py);ctx.lineTo(px,py+4);ctx.lineTo(px-3,py);ctx.closePath();ctx.fill();
+  });
+  ctx.fillStyle='rgba(0,180,255,0.8)';ctx.fillRect(-15,0,5,12);ctx.fillRect(10,0,5,12);
+  ctx.fillStyle='#FDBCB4';ctx.beginPath();ctx.roundRect(-10,-21,20,20,4);ctx.fill();
+  ctx.fillStyle='#00BFFF';ctx.fillRect(-10,-24,20,7);ctx.beginPath();ctx.ellipse(0,-25,9,5,0,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle='#ffffff';ctx.fillRect(-7,-15,5,4);ctx.fillRect(2,-15,5,4);
+  // Elmas kalkan hâlesi
+  ctx.strokeStyle=`rgba(0,190,255,${shimmer*0.6})`;ctx.lineWidth=3;
+  ctx.beginPath();ctx.arc(0,-5,32,0,Math.PI*2);ctx.stroke();
+  ctx.restore();
+}
+
+// ── HURRY ULTİ — Kasırga Koşusu ────────────────────
+function updateHurryUlti(dt){
+  const s=player._hurryUlti; s.t+=dt;
+  if(s.phase==='spin'){
+    // 500ms döner kasırga hazırlığı
+    burst(player.x+player.w/2,player.y+player.h/2,'#FFD700',5);
+    burst(player.x+player.w/2,player.y+player.h/2,'#ffffff',3);
+    if(s.t>500){s.phase='dash';s.t=0;player.y=boss.y+boss.h/2-35;}
+  } else if(s.phase==='dash'){
+    // Boss'tan geçen hızlı koşu
+    const prog=Math.min(s.t/400,1);
+    player.x=s.origX+(W+100-s.origX)*prog;
+    burst(player.x,player.y+35,'#FFD700',4);burst(player.x,player.y+35,'#ff8800',2);
+    // Boss'un yanından geçince hasar
+    if(!s.dmgDone&&boss.alive&&Math.abs(player.x-boss.x-boss.w/2)<boss.w){
+      s.dmgDone=true;
+      const dmg=225*(playerLevel>=3?1.5:1);
+      boss.hp=Math.max(0,boss.hp-dmg);gameScore+=dmg;boss.slapShake=500;addXP(30);
+      for(let i=0;i<4;i++){burst(boss.x+boss.w/2+(Math.random()-0.5)*60,boss.y+boss.h/2,'#FFD700',20);burst(boss.x+boss.w/2,boss.y+boss.h/2,'#ff8800',15);}
+      beep(100,0.15,'sawtooth',0.4);
+      if(boss.hp<=0){boss.alive=false;startVictory();}
+    }
+    if(prog>=1){s.phase='return';s.t=0;player.x=W+60;}
+  } else if(s.phase==='return'){
+    const prog=Math.min(s.t/300,1);
+    player.x=W+60+(s.origX-W-60)*prog;
+    if(prog>=1){player.x=s.origX;player.y=s.origY;
+      speedBoostActive=true;speedBoostTimer=4000;
+      burst(player.x+player.w/2,player.y+player.h/2,'#FFD700',30);
+      showPopup(LANG==='tr'?'⚡ 4sn Hız Boost!':'⚡ 4s Speed Boost!');
+      s.phase='done';}
+  } else {player._hurryUlti=null;}
+}
+function drawHurrySpin(ctx,x,y,sc,wt){
+  ctx.save();ctx.translate(x,y);ctx.scale(sc,sc);
+  // Kasırga sarısı kostüm
+  const spin=Date.now()*0.015;
+  // Kasırga halkası
+  for(let i=0;i<3;i++){
+    ctx.strokeStyle=`rgba(255,${180+i*25},0,${0.4+i*0.2})`;ctx.lineWidth=3+i*2;
+    ctx.beginPath();ctx.arc(0,-5,20+i*10,spin+i,spin+i+Math.PI*1.5);ctx.stroke();
+  }
+  ctx.fillStyle='#333388';ctx.fillRect(-9,22,8,20);ctx.fillRect(1,22,8,20);
+  ctx.fillStyle='#ff8800';ctx.fillRect(-9,14,18,10);
+  ctx.fillStyle='#FFD700';ctx.fillRect(-9,-2,18,18);
+  ctx.fillStyle='#FDBCB4';ctx.fillRect(-15,0,5,12);ctx.fillRect(10,0,5,12);
+  ctx.fillStyle='#FDBCB4';ctx.beginPath();ctx.roundRect(-10,-21,20,20,4);ctx.fill();
+  ctx.fillStyle='#8B4513';ctx.fillRect(-11,-24,22,7);ctx.beginPath();ctx.ellipse(0,-25,10,6,0,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle='#222';ctx.fillRect(-7,-15,5,4);ctx.fillRect(2,-15,5,4);
+  ctx.restore();
+}
+
+// ── ARİA ULTİ — Kara Delik ─────────────────────────
+function updateAriaUlti(dt){
+  const s=player._ariaUlti; s.t+=dt;
+  if(s.phase==='open'){
+    s.radius=Math.min(s.radius+dt*0.15,s.maxR);
+    // Kara delik çeker efekti
+    if(boss.alive){
+      const dx=s.cx-boss.x-boss.w/2,dy=s.cy-boss.y-boss.h/2;
+      const dist=Math.sqrt(dx*dx+dy*dy);
+      if(dist>10){boss.x+=dx/dist*3*(dt/16);boss.y+=dy/dist*3*(dt/16);}
+    }
+    burst(s.cx+(Math.random()-0.5)*s.radius*2,s.cy+(Math.random()-0.5)*s.radius*2,'#9400D3',3);
+    burst(s.cx+(Math.random()-0.5)*40,s.cy+(Math.random()-0.5)*40,'#cc44ff',2);
+    if(s.t>1200&&!s.dmgDone){
+      s.dmgDone=true;
+      if(boss.alive){
+        const dmg=310*(playerLevel>=3?1.5:1);
+        boss.hp=Math.max(0,boss.hp-dmg);gameScore+=dmg;boss.slapShake=800;addXP(38);
+        for(let i=0;i<8;i++){burst(s.cx+(Math.random()-0.5)*100,s.cy+(Math.random()-0.5)*100,'#9400D3',18);burst(s.cx+(Math.random()-0.5)*60,s.cy+(Math.random()-0.5)*60,'#ffffff',12);}
+        beep(40,0.3,'sine',0.5);
+        if(boss.hp<=0){boss.alive=false;startVictory();}
+      }
+    }
+    if(s.t>2000){s.phase='close';s.t=0;}
+  } else if(s.phase==='close'){
+    s.radius=Math.max(0,s.radius-dt*0.2);
+    if(s.radius<=0){player._ariaUlti=null;}
+  }
+}
+function drawBlackHole(ctx,cx,cy,radius){
+  if(radius<=2)return;
+  ctx.save();
+  const rg=ctx.createRadialGradient(cx,cy,0,cx,cy,radius);
+  rg.addColorStop(0,'#000000');rg.addColorStop(0.5,'rgba(80,0,120,0.9)');rg.addColorStop(0.8,'rgba(148,0,211,0.6)');rg.addColorStop(1,'rgba(148,0,211,0)');
+  ctx.fillStyle=rg;ctx.beginPath();ctx.arc(cx,cy,radius,0,Math.PI*2);ctx.fill();
+  // Dönen halka
+  const t=Date.now()*0.003;
+  for(let i=0;i<3;i++){
+    ctx.strokeStyle=`rgba(200,100,255,${0.3+i*0.2})`;ctx.lineWidth=2+i;
+    ctx.beginPath();ctx.arc(cx,cy,radius*0.4+i*15,t+i,t+i+Math.PI*1.8);ctx.stroke();
+    ctx.beginPath();ctx.arc(cx,cy,radius*0.6+i*12,-t-i,-t-i+Math.PI*1.6);ctx.stroke();
+  }
+  ctx.restore();
+}
+
+// ── ZEPHYR ULTİ — Şimşek Fırtınası ────────────────
+function updateZephyrUlti(dt){
+  const s=player._zephyrUlti; s.t+=dt;
+  if(s.phase==='storm'){
+    const interval=200;
+    const nextStrike=Math.floor(s.t/interval);
+    if(nextStrike>s.strikes&&s.strikes<s.maxStrikes){
+      s.strikes=nextStrike;
+      // Boss'a şimşek çak
+      if(boss.alive){
+        const bx2=boss.x+Math.random()*boss.w;
+        const dmgPerStrike=(240/s.maxStrikes)*(playerLevel>=3?1.5:1);
+        s.dmg+=dmgPerStrike;
+        boss.hp=Math.max(0,boss.hp-dmgPerStrike);gameScore+=dmgPerStrike;
+        addXP(3);
+        // Şimşek izi — yukarıdan boss'a
+        lightningFlash=80;
+        burst(bx2,boss.y,'#ffff00',12);burst(bx2,boss.y+boss.h/2,'#ffffff',8);burst(bx2,boss.y,'#ff8800',6);
+        beep(800+Math.random()*400,0.06,'sawtooth',0.3);
+        if(boss.hp<=0){boss.alive=false;startVictory();}
+      }
+    }
+    if(s.t>s.maxStrikes*interval+300){
+      // Tüm düşman mermilerini de temizle
+      projectiles=projectiles.filter(p=>p.owner==='player');
+      showPopup(LANG==='tr'?'⚡ Mermiler temizlendi!':'⚡ Bullets cleared!');
+      player._zephyrUlti=null;
+    }
+  }
+}
 function updateSlapAnim(dt){
   const s=slapAnim;s.t+=dt;
   if(s.phase==='approach'){
@@ -806,7 +1248,7 @@ function updateSlapAnim(dt){
 }
 
 function updateBossMove(dt){
-  const t=boss.animT,spd=boss.def.spdMul;
+  const t=boss.animT,spd=boss.def.spdMul*(boss._rage||1);
   const shake=boss.slapShake>0?Math.sin(Date.now()*0.04)*14:0;
   switch(boss.moveMode){
     case 'linear':boss.x+=boss.dx*(dt/16);if(boss.x<=10||boss.x+boss.w>=W-10)boss.dx*=-1;break;
@@ -821,18 +1263,30 @@ function updateBossMove(dt){
     case 'chaos':boss.x=W/2-boss.w/2+Math.sin(t*3)*W*0.42+Math.cos(t*1.7)*50;boss.y=80+Math.sin(t*2.2)*80+Math.cos(t*3.1)*30;break;
   }
   boss.x=Math.max(0,Math.min(W-boss.w,boss.x))+shake;
-  const maxBossY=Math.min(H*0.28, H-player.h-220);
-  boss.y=Math.max(10,Math.min(maxBossY,boss.y));
+  const minGap=W>H?234:180;
+  const maxBossY=Math.min(H*0.25, player.y-boss.h-minGap);
+  boss.y=Math.max(10,Math.min(Math.max(10,maxBossY),boss.y));
 }
-function bossShoot(){
+function bossShoot(rage=1,offset=false){
   const nhds=boss.def.heads,step=boss.w/(nhds+1);
-  for(let i=0;i<nhds;i++){const cx=boss.x+step*(i+1),cy=boss.y+boss.h*0.5;const r=Math.random();const type=r<0.2?'ice':r<0.35?'ender':r<0.45?'block':'fireball';const ang=Math.atan2((player.y+30)-cy,(player.x+20)-cx);const spd=(4.5+Math.random()*1.5)*Math.sqrt(boss.def.fireMul);projectiles.push({x:cx,y:cy,vx:Math.cos(ang)*spd,vy:Math.sin(ang)*spd,type,owner:'boss',r:13,spin:0,wobble:0});}
+  for(let i=0;i<nhds;i++){
+    const cx=boss.x+step*(i+1)+(offset?(Math.random()-0.5)*30:0),cy=boss.y+boss.h*0.5;
+    const r=Math.random();
+    const type=r<0.2?'ice':r<0.35?'ender':r<0.45?'block':'fireball';
+    const ang=Math.atan2((player.y+30)-cy,(player.x+20)-cx);
+    const spd=(4.5+Math.random()*1.5)*Math.sqrt(boss.def.fireMul)*Math.min(rage,2.0);
+    projectiles.push({x:cx,y:cy,vx:Math.cos(ang)*spd,vy:Math.sin(ang)*spd,type,owner:'boss',r:13,spin:0,wobble:0});
+  }
 }
 function bossSpecial(){const sp=boss.def.special||'';if(['split','chaos','rain'].includes(sp)){for(let i=0;i<8;i++){const ang=(i/8)*Math.PI*2;projectiles.push({x:boss.x+boss.w/2,y:boss.y+boss.h/2,vx:Math.cos(ang)*5,vy:Math.sin(ang)*5,type:'nether',owner:'boss',r:10,spin:0,wobble:0});}}if(sp==='teleport'){boss.x=Math.random()*(W-boss.w);boss.y=40+Math.random()*80;burst(boss.x+boss.w/2,boss.y+boss.h/2,'#80f',20);}if(sp==='slam'){boss.y=H*0.4;setTimeout(()=>{boss.y=70;},400);}}
 
 function applyBonus(b){
   if(b.type==='weapon'){
     if(!inventory.includes(b.weapon))inventory.push(b.weapon);
+    if(b.weapon==='rocket'){
+      rocketAmmo+=5;
+      updateSpecialBtns();
+    }
     // Silah upgrade sistemi
     if(!weaponUpgrades[b.weapon])weaponUpgrades[b.weapon]={pickCount:0,multiplier:1.0};
     weaponUpgrades[b.weapon].pickCount++;
@@ -855,8 +1309,11 @@ function applyBonus(b){
 }
 function triggerPlayerDeath(){
   player.dead=true;player.deathTimer=1200;
-  for(let i=0;i<30;i++){const a=Math.random()*Math.PI*2,s=3+Math.random()*7;bossFragments.push({x:player.x+Math.random()*player.w,y:player.y+Math.random()*player.h,vx:Math.cos(a)*s,vy:Math.sin(a)*s-4,spin:Math.random()*Math.PI,spinSpeed:(Math.random()-0.5)*0.25,life:50+Math.random()*50,maxLife:100,color:player.char.shirt||player.char.armor||'#c30',color2:player.char.skin||'#FDBCB4',size:5+Math.random()*12});}
-  for(let i=0;i<6;i++)setTimeout(()=>burst(player.x+player.w/2,player.y+player.h/2,'#f44',18),i*80);burst(player.x+player.w/2,player.y+player.h/2,'#ff0',25);
+  const charColor=player.char.shirt||player.char.armor||'#4488ff';
+  for(let i=0;i<30;i++){const a=Math.random()*Math.PI*2,s=3+Math.random()*7;bossFragments.push({x:player.x+Math.random()*player.w,y:player.y+Math.random()*player.h,vx:Math.cos(a)*s,vy:Math.sin(a)*s-4,spin:Math.random()*Math.PI,spinSpeed:(Math.random()-0.5)*0.25,life:50+Math.random()*50,maxLife:100,color:charColor,color2:'#aaddff',size:5+Math.random()*12});}
+  for(let i=0;i<6;i++)setTimeout(()=>burst(player.x+player.w/2,player.y+player.h/2,'#aaddff',18),i*80);
+  burst(player.x+player.w/2,player.y+player.h/2,'#ffffff',25);
+  burst(player.x+player.w/2,player.y+player.h/2,'#ffdd00',15);
 }
 function startVictory(){
   victory=true;victoryPhase=0;victoryAlpha=0;stopBGM();
@@ -911,7 +1368,32 @@ function render(){
   projectiles.forEach(drawProj);
   drawFragments();
   particles.forEach(p=>{ctx.globalAlpha=p.life/p.maxLife;ctx.fillStyle=p.color;ctx.fillRect(p.x-p.r/2,p.y-p.r/2,p.r,p.r);});ctx.globalAlpha=1;
-  if(player&&!player.dead){drawChar(ctx,player.x+player.w/2,player.y+player.h*0.88,player.char,1.0,walkT,player.invincible>0);drawWH(ctx,player.x+player.w/2,player.y+player.h*0.88,player.weapon,1.0,faceR);}
+  if(player&&!player.dead){
+    const inUlti=player._spiderUlti||player._jessieUlti||player._hurryUlti;
+    if(player._spiderUlti&&player.char.id===2){
+      drawSpiderMikail(ctx,player.x+player.w/2,player.y+player.h*0.88,1.0,walkT);
+      if(player._spiderUlti.phase==='fly'||player._spiderUlti.phase==='punch'){
+        ctx.save();ctx.translate(player.x+player.w/2,player.y+player.h*0.88);
+        ctx.fillStyle='rgba(255,80,0,0.6)';ctx.beginPath();ctx.arc(faceR?18:-18,0,14,0,Math.PI*2);ctx.fill();
+        ctx.fillStyle='#fff';ctx.font='bold 10px sans-serif';ctx.textAlign='center';ctx.fillText('👊',faceR?18:-18,4);ctx.restore();
+      }
+    } else if(player._jessieUlti&&player.char.id===0){
+      drawJessieArmor(ctx,player.x+player.w/2,player.y+player.h*0.88,1.0,walkT);
+    } else if(player._hurryUlti&&player.char.id===1){
+      drawHurrySpin(ctx,player.x+player.w/2,player.y+player.h*0.88,1.0,walkT);
+    } else {
+      drawChar(ctx,player.x+player.w/2,player.y+player.h*0.88,player.char,1.0,walkT,player.invincible>0);
+      drawWH(ctx,player.x+player.w/2,player.y+player.h*0.88,player.weapon,1.0,faceR);
+    }
+  }
+  // Aria kara delik
+  if(player&&player._ariaUlti){drawBlackHole(ctx,player._ariaUlti.cx,player._ariaUlti.cy,player._ariaUlti.radius);}
+  // Zephyr şimşek fırtınası çizgisi
+  if(player&&player._zephyrUlti&&boss.alive&&lightningFlash>50){
+    ctx.save();ctx.strokeStyle='rgba(255,255,100,0.9)';ctx.lineWidth=3;ctx.shadowColor='#ffff00';ctx.shadowBlur=15;
+    ctx.beginPath();ctx.moveTo(boss.x+boss.w/2,0);ctx.lineTo(boss.x+boss.w/2,boss.y);ctx.stroke();
+    ctx.shadowBlur=0;ctx.restore();
+  }
   if(speedBoostActive&&!player.dead){ctx.save();ctx.strokeStyle='rgba(255,220,50,0.7)';ctx.lineWidth=3;ctx.setLineDash([4,4]);ctx.beginPath();ctx.arc(player.x+player.w/2,player.y+player.h/2,44,0,Math.PI*2);ctx.stroke();ctx.setLineDash([]);ctx.restore();}
   if(player&&player.shield&&!player.dead){ctx.save();ctx.strokeStyle='rgba(80,160,255,0.7)';ctx.lineWidth=3;ctx.setLineDash([6,4]);ctx.beginPath();ctx.arc(player.x+player.w/2,player.y+player.h/2,40,0,Math.PI*2);ctx.stroke();ctx.setLineDash([]);ctx.restore();}
   drawHUD();drawOverlays();
@@ -1204,7 +1686,48 @@ function drawBoss(){
     const hstep=w/(nhds+1);
     for(let i=0;i<nhds;i++){const cx2=x+hstep*(i+1),bob=Math.sin(animT+i*1.8)*6,hy=y+6+bob,hw=Math.max(24,34-nhds*2),hh=26;ctx.fillStyle=bd.color1;ctx.fillRect(cx2-hw/2,hy,hw,hh);ctx.fillStyle=bd.color2;ctx.fillRect(cx2-hw/2+2,hy+2,hw-4,hh-4);ctx.fillStyle=bd.eyeColor;ctx.fillRect(cx2-hw/2+3,hy+5,6,5);ctx.fillRect(cx2+hw/2-9,hy+5,6,5);if(beamActive){ctx.fillStyle=`rgba(0,255,255,${0.5+Math.sin(Date.now()*0.02)*0.3})`;ctx.beginPath();ctx.arc(cx2,hy+7,10,0,Math.PI*2);ctx.fill();}ctx.fillStyle='#000';ctx.fillRect(cx2-6,hy+17,12,5);ctx.fillStyle=bd.color1;ctx.fillRect(cx2-4,hy+hh,8,9);}
   }
-  const bw2=Math.max(w,240),bx2=x+(w-bw2)/2,by2=y-40;ctx.fillStyle='#111';ctx.fillRect(bx2,by2,bw2,18);const barC=hpR>0.5?'#c20':hpR>0.25?'#f50':'#f00';ctx.fillStyle=barC;ctx.fillRect(bx2,by2,bw2*hpR,18);ctx.strokeStyle='#333';ctx.lineWidth=1;ctx.strokeRect(bx2,by2,bw2,18);ctx.fillStyle='#fff';ctx.font='bold 10px Courier New';ctx.textAlign='center';ctx.fillText(bd.name+'  '+hp+' / '+maxHp,bx2+bw2/2,by2+13);
+  // ── GÜZEL BOSS HP BARI ──
+  const barW=Math.min(W*0.6,340);
+  const barX=W/2-barW/2;
+  const barY=28;
+  const barH=20;
+  // Arka plan + kenar
+  ctx.fillStyle='rgba(0,0,0,0.75)';
+  ctx.beginPath();ctx.roundRect(barX-4,barY-4,barW+8,barH+22,8);ctx.fill();
+  ctx.strokeStyle='rgba(255,255,255,0.12)';ctx.lineWidth=1;
+  ctx.beginPath();ctx.roundRect(barX-4,barY-4,barW+8,barH+22,8);ctx.stroke();
+  // Boss adı
+  ctx.fillStyle='rgba(255,255,255,0.9)';ctx.font=`bold ${clamp(9,W*0.022,12)}px Courier New`;
+  ctx.textAlign='center';ctx.fillText(bd.name,W/2,barY-7);
+  // HP bar gölge
+  ctx.fillStyle='rgba(0,0,0,0.8)';ctx.beginPath();ctx.roundRect(barX,barY,barW,barH,4);ctx.fill();
+  // HP gradient renk
+  const barColor=hpR>0.6?['#00ff88','#00cc44']:hpR>0.3?['#ffaa00','#ff6600']:['#ff4444','#cc0000'];
+  const barGrad=ctx.createLinearGradient(barX,barY,barX,barY+barH);
+  barGrad.addColorStop(0,barColor[0]);barGrad.addColorStop(1,barColor[1]);
+  ctx.fillStyle=barGrad;
+  ctx.beginPath();ctx.roundRect(barX,barY,barW*hpR,barH,4);ctx.fill();
+  // Parlama çizgisi üstte
+  ctx.fillStyle='rgba(255,255,255,0.25)';
+  ctx.beginPath();ctx.roundRect(barX,barY,barW*hpR,barH*0.35,4);ctx.fill();
+  // Titreme efekti düşük canda
+  if(hpR<0.25&&Math.floor(Date.now()/200)%2===0){
+    ctx.strokeStyle='rgba(255,0,0,0.6)';ctx.lineWidth=2;
+    ctx.beginPath();ctx.roundRect(barX-1,barY-1,barW+2,barH+2,5);ctx.stroke();
+  }
+  // Öfke göstergesi — %80 altında
+  if(hpR<0.8){
+    const rage=boss._rage||1;
+    const rageStr=rage>=2.5?'😡😡😡 ÇILGIN!':rage>=1.8?'😡😡 ÖFKELI':rage>=1.2?'😡 GERGİN':'';
+    if(rageStr){
+      ctx.fillStyle=rage>=2?'#ff4444':rage>=1.8?'#ff8800':'#ffaa00';
+      ctx.font=`bold ${clamp(7,W*0.018,10)}px Courier New`;ctx.textAlign='left';
+      ctx.fillText(rageStr,barX,barY+barH-4);
+    }
+  }
+  // HP yazısı
+  ctx.fillStyle='#fff';ctx.font=`bold ${clamp(8,W*0.02,11)}px Courier New`;ctx.textAlign='center';
+  ctx.fillText(Math.ceil(hp)+' / '+maxHp,W/2,barY+barH-4);
 }
 function drawFragments(){bossFragments.forEach(f=>{ctx.save();ctx.translate(f.x,f.y);ctx.rotate(f.spin);const a=f.life/f.maxLife;ctx.globalAlpha=a;ctx.fillStyle=f.color;ctx.fillRect(-f.size/2,-f.size/2,f.size,f.size);ctx.fillStyle=f.color2;ctx.globalAlpha=a*0.6;ctx.beginPath();ctx.arc(0,0,f.size*0.3,0,Math.PI*2);ctx.fill();ctx.restore();});ctx.globalAlpha=1;}
 
@@ -1246,6 +1769,7 @@ function drawBonuses(){
   });
 }
 
+function clamp(mn,v,mx){return Math.max(mn,Math.min(mx,v));}
 function drawHUD(){
   // Küçük, şeffaf HUD — sol alt köşe
   const sc=Math.min(W,H)<400?0.75:0.85;
@@ -1306,9 +1830,51 @@ function drawHUD(){
     ctx.fillText(iw.icon||iw.name.slice(0,2),bx+41*sc+i*16*sc,by+80*sc);
   });
 
-  // Level göstergesi sağ üst (küçük)
+  // Level + XP bar
+  const lvlColors=['','#88ff44','#ffaa00','#ff44ff'];
+  ctx.fillStyle=lvlColors[playerLevel]||'#88ff44';
+  ctx.font=`bold ${8*sc}px Courier New`;ctx.textAlign='left';
+  ctx.fillText('LV'+playerLevel,bx+170*sc,by+10*sc);
+  if(playerLevel<3){
+    const xpR=playerXP/XP_PER_LEVEL[playerLevel];
+    ctx.fillStyle='rgba(0,0,0,0.3)';ctx.fillRect(bx+186*sc,by+3*sc,60*sc,6*sc);
+    ctx.fillStyle=lvlColors[playerLevel];ctx.fillRect(bx+186*sc,by+3*sc,60*sc*xpR,6*sc);
+    ctx.fillStyle='rgba(255,255,255,0.3)';ctx.font=`${5*sc}px Courier New`;
+    ctx.fillText('XP',bx+248*sc,by+9*sc);
+  }else{
+    ctx.fillStyle='#ff44ff';ctx.font=`${6*sc}px Courier New`;
+    ctx.fillText('MAX',bx+186*sc,by+9*sc);
+  }
+
+  // Ulti bilgisi
+  const ud=getUltiDef();
+  const ultiR=ultiCooldown>0?1-(ultiCooldown/ud.cd):1;
+  ctx.fillStyle=ultiCooldown>0?'rgba(255,200,0,0.4)':'rgba(255,200,0,0.9)';
+  ctx.font=`${6*sc}px Courier New`;ctx.textAlign='left';
+  ctx.fillText(ud.icon+' '+(LANG==='tr'?ud.name:ud.nameEN).slice(0,12),bx+34*sc,by+85*sc);
+  ctx.fillStyle='rgba(0,0,0,0.3)';ctx.fillRect(bx+34*sc,by+88*sc,160*sc,4*sc);
+  ctx.fillStyle=ultiCooldown>0?'#888':'#FFD700';
+  ctx.fillRect(bx+34*sc,by+88*sc,160*sc*ultiR,4*sc);
+
+  // Bölüm göstergesi sağ üst
   ctx.fillStyle='rgba(255,255,255,0.15)';ctx.font=`bold ${8*sc}px Courier New`;ctx.textAlign='right';
   ctx.fillText(L().levelHud(currentLevel,BOSS_DEFS[Math.min(currentLevel,9)].name),W-8,24);
+
+  // Level-up bildirimi
+  if(levelUpNotif){
+    const ln=levelUpNotif;
+    const alpha=ln.timer>2800?1:ln.timer/2800;
+    ctx.globalAlpha=alpha;
+    ctx.fillStyle='rgba(0,0,0,0.88)';
+    ctx.strokeStyle='#FFD700';ctx.lineWidth=2;
+    const lw=Math.min(W-20,320),lx2=W/2-lw/2;
+    ctx.fillRect(lx2,H/2-60,lw,50);ctx.strokeRect(lx2,H/2-60,lw,50);
+    ctx.fillStyle='#FFD700';ctx.font=`bold ${clamp(14,W*0.035,20)}px Courier New`;
+    ctx.textAlign='center';ctx.fillText(ln.msg,W/2,H/2-38);
+    ctx.fillStyle='#aaf';ctx.font=`${clamp(9,W*0.022,13)}px Courier New`;
+    ctx.fillText(LANG==='tr'?LEVEL_BONUSES[playerLevel]?.desc:LEVEL_BONUSES[playerLevel]?.descEN,W/2,H/2-18);
+    ctx.globalAlpha=1;
+  }
 
   // Popup
   if(wpTimer>0){
