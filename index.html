@@ -19,6 +19,23 @@ canvas{display:block;}
 .bb{display:block;padding:13px 42px;margin:3px auto;background:linear-gradient(135deg,#7700cc,#3300aa);color:#fff;border:2px solid #a040ff;border-radius:12px;font-size:15px;font-family:'Courier New',monospace;letter-spacing:3px;-webkit-appearance:none;cursor:pointer;box-shadow:0 0 18px rgba(160,32,240,0.4);}
 .bb2{display:block;padding:13px 36px;margin:3px auto;background:linear-gradient(135deg,#a020f0,#6600cc);color:#fff;border:none;border-radius:12px;font-size:13px;font-family:'Courier New',monospace;letter-spacing:2px;-webkit-appearance:none;cursor:pointer;}
 #hiBtn{background:linear-gradient(135deg,#aa6600,#664400);border-color:#ffaa00;font-size:12px;padding:10px 24px;}
+#settingsBtn{background:linear-gradient(135deg,#003366,#001a33);border-color:#00aaff;font-size:12px;padding:10px 24px;}
+#settingsScreen{background:linear-gradient(180deg,#020210,#061428,#020210);display:none;z-index:650;text-align:center;}
+#settingsScreen h2{color:#00aaff;font-size:clamp(16px,4vw,24px);letter-spacing:3px;text-shadow:0 0 18px #00aaff;margin-bottom:12px;}
+#settingsScreen p{color:#888;font-size:10px;line-height:1.7;max-width:320px;margin:0 auto 10px;}
+#adminOpenBtn{background:linear-gradient(135deg,#222244,#111122);border:2px solid #5555aa;color:#fff;border-radius:10px;padding:12px 22px;font-family:'Courier New',monospace;font-size:12px;letter-spacing:2px;cursor:pointer;margin:8px auto 4px;}
+#adminLoginPanel{display:none;background:rgba(0,0,0,0.28);border:1px solid #26384a;border-radius:12px;padding:12px 10px;width:100%;max-width:330px;margin:8px auto;}
+#setPass{background:#070707;border:2px solid #00aaff;border-radius:9px;color:#fff;font-size:16px;font-family:'Courier New',monospace;padding:10px 14px;text-align:center;width:210px;-webkit-appearance:none;outline:none;margin:6px 0;}
+#setErr{color:#ff5555;font-size:10px;min-height:16px;margin:4px 0 8px;}
+#adminBox{display:none;background:rgba(255,255,255,0.05);border:1px solid #24445a;border-radius:12px;padding:14px 12px;width:100%;max-width:330px;margin:8px auto;}
+#clearScoresBtn{background:linear-gradient(135deg,#880000,#440000);border:2px solid #ff4444;color:#fff;border-radius:10px;padding:12px 18px;font-family:'Courier New',monospace;font-size:12px;letter-spacing:2px;cursor:pointer;margin-top:8px;}
+#adminMsg{color:#00ffaa;font-size:10px;min-height:16px;margin-top:8px;}
+#langSettings{width:100%;max-width:360px;margin:4px auto 12px;padding:10px;border:1px solid #1d3444;border-radius:12px;background:rgba(255,255,255,0.04);}
+#langSettingsTitle{color:#ffaa00;font-size:12px;letter-spacing:2px;margin-bottom:4px;}
+#langSettingsInfo{color:#777;font-size:9px;margin-bottom:8px;}
+.langPickGrid{display:grid;grid-template-columns:1fr 1fr;gap:6px;width:100%;}
+.langPick{padding:9px 7px;border-radius:9px;border:1px solid #334;background:rgba(255,255,255,0.06);color:#ddd;font-size:10px;font-family:'Courier New',monospace;letter-spacing:1px;cursor:pointer;-webkit-appearance:none;}
+.langPick.sel{border-color:#00ffaa;color:#00ffaa;background:rgba(0,255,170,0.12);box-shadow:0 0 12px rgba(0,255,170,0.18);}
 /* YATAY MOD UYARISI */
 #rotateOverlay{position:fixed;top:0;left:0;width:100%;height:100%;background:#000;z-index:9999;display:none;flex-direction:column;align-items:center;justify-content:center;gap:16px;}
 #rotateOverlay .ricon{font-size:64px;animation:rotpulse 1.2s ease-in-out infinite;}
@@ -82,7 +99,15 @@ canvas{display:block;}
 #bSlap{width:60px;height:60px;background:rgba(255,180,0,0.2);border-color:rgba(255,180,0,0.5);}
 #bSw{width:52px;height:52px;background:rgba(80,200,255,0.2);border-color:rgba(80,200,255,0.4);}
 #bPause{width:40px;height:40px;}
-#sndBtn{position:fixed;top:max(10px,env(safe-area-inset-top,10px));right:max(10px,env(safe-area-inset-right,10px));width:40px;height:40px;background:rgba(0,0,0,0.7);border:1px solid #444;border-radius:50%;display:none;align-items:center;justify-content:center;font-size:16px;cursor:pointer;z-index:300;color:#fff;}
+#sndBtn{position:fixed;top:max(42px,calc(env(safe-area-inset-top,0px) + 42px));right:max(10px,env(safe-area-inset-right,10px));width:40px;height:40px;background:rgba(0,0,0,0.7);border:1px solid #444;border-radius:50%;display:none;align-items:center;justify-content:center;font-size:16px;cursor:pointer;z-index:300;color:#fff;}
+#gameSettingsBtn{position:fixed;top:max(42px,calc(env(safe-area-inset-top,0px) + 42px));right:max(58px,calc(env(safe-area-inset-right,0px) + 58px));width:40px;height:40px;background:rgba(0,0,0,0.72);border:1px solid #00aaff;border-radius:50%;display:none;align-items:center;justify-content:center;font-size:18px;cursor:pointer;z-index:301;color:#fff;box-shadow:0 0 12px rgba(0,170,255,0.22);}
+#gameMenuOverlay{position:fixed;inset:0;background:rgba(0,0,0,0.62);z-index:800;display:none;align-items:center;justify-content:center;padding:16px;}
+#gameMenuCard{width:min(92vw,390px);max-height:88vh;overflow-y:auto;background:linear-gradient(180deg,#061428,#02040c);border:2px solid #00aaff;border-radius:18px;padding:18px 14px;text-align:center;box-shadow:0 0 35px rgba(0,170,255,0.28);}
+#gameMenuTitle{color:#00ffaa;font-size:clamp(18px,5vw,26px);letter-spacing:3px;text-shadow:0 0 18px #00ffaa;margin-bottom:12px;}
+.gameMenuBtn{width:100%;max-width:290px;display:block;margin:8px auto;padding:13px 18px;border-radius:12px;border:2px solid #355;background:linear-gradient(135deg,#13233a,#07101d);color:#fff;font-family:'Courier New',monospace;font-size:13px;letter-spacing:2px;cursor:pointer;-webkit-appearance:none;}
+#gameMenuExit{border-color:#ff4444;background:linear-gradient(135deg,#660000,#220000);color:#ffaaaa;}
+#gameMenuLangBox{display:none;margin-top:10px;padding:10px;border-radius:12px;border:1px solid #24445a;background:rgba(255,255,255,0.05);}
+#gameMenuLangTitle{color:#ffaa00;font-size:12px;letter-spacing:2px;margin-bottom:7px;}
 #lvlBanner{position:fixed;top:0;left:0;width:100%;height:100%;display:none;align-items:center;justify-content:center;z-index:150;pointer-events:none;}
 #lvlBannerTxt{color:#fff;font-size:clamp(17px,5vw,34px);font-family:'Courier New',monospace;text-align:center;opacity:0;text-shadow:0 0 30px #ffaa00;padding:0 20px;white-space:pre;}
 #nxtBtn{position:fixed;bottom:30%;left:50%;transform:translateX(-50%);padding:13px 38px;background:linear-gradient(135deg,#00aa44,#006622);color:#fff;border:2px solid #00ff88;border-radius:12px;font-size:clamp(12px,3.5vw,16px);cursor:pointer;font-family:'Courier New',monospace;letter-spacing:3px;display:none;z-index:250;box-shadow:0 0 24px rgba(0,255,100,0.4);-webkit-appearance:none;}
@@ -200,6 +225,7 @@ canvas{display:block;}
   <div class="lsub"><b>🕹</b> Joystick=hareket · 🔥=ateş · ⚡=ışın · 👋=şaplak · 🔄=silah değiştir</div>
   <button class="bb" id="logoBtn">KARAKTER SEÇ</button>
   <button class="bb" id="hiBtn" style="margin-top:6px;">🏆 HI-SCORES</button>
+  <button class="bb" id="settingsBtn" style="margin-top:6px;">⚙ SETTINGS</button>
   <div class="ihint">Safari → <b>Paylaş</b> → <b>Ana Ekrana Ekle</b> = Uygulama gibi açılır</div>
 </div>
 
@@ -207,6 +233,31 @@ canvas{display:block;}
   <h2>🏆 EN YÜKSEK SKORLAR</h2>
   <div id="hiList" style="width:100%;max-width:360px;"></div>
   <button class="bb2" id="hiBack" style="margin-top:14px;">← GERİ</button>
+</div>
+
+
+<div id="settingsScreen" class="screen">
+  <h2 id="settingsTitle">⚙ SETTINGS</h2>
+  <div id="langSettings">
+    <div id="langSettingsTitle">🌍 DİL / LANGUAGE</div>
+    <div id="langSettingsInfo">Oyunun menü ve yazı dilini seç.</div>
+    <div class="langPickGrid" id="langPickGrid"></div>
+  </div>
+  <p id="settingsInfo">Dil seçimini buradan yapabilirsin.</p>
+  <button class="bb2" id="adminOpenBtn">🔐 ADMIN PANEL GİRİŞ</button>
+  <div id="adminLoginPanel">
+    <p id="adminLoginInfo">Admin panel için şifre gir.</p>
+    <input id="setPass" type="password" placeholder="ŞİFRE" autocomplete="off" autocorrect="off" spellcheck="false">
+    <div id="setErr"></div>
+    <button class="bb2" id="setLogin">GİRİŞ</button>
+  </div>
+  <div id="adminBox">
+    <p id="adminTitle" style="color:#00ffaa;font-size:12px;letter-spacing:2px;margin-bottom:4px;">ADMIN PANEL</p>
+    <p id="adminInfo">High score listesini temizleyebilirsin.</p>
+    <button id="clearScoresBtn">🗑 HI-SCORE TEMİZLE</button>
+    <div id="adminMsg"></div>
+  </div>
+  <button class="bb2" id="settingsBack" style="margin-top:12px;">← GERİ</button>
 </div>
 
 <div id="nameScreen" class="screen">
@@ -263,21 +314,51 @@ canvas{display:block;}
 </div>
 
 <div id="sndBtn">🔊</div>
+<div id="gameSettingsBtn">⚙</div>
+<div id="gameMenuOverlay">
+  <div id="gameMenuCard">
+    <div id="gameMenuTitle">⏸ PAUSE</div>
+    <button class="gameMenuBtn" id="gameMenuResume">▶ DEVAM ET</button>
+    <button class="gameMenuBtn" id="gameMenuSound">🔊 SES AÇ/KAPAT</button>
+    <button class="gameMenuBtn" id="gameMenuLangToggle">🌍 DİL / LANGUAGE</button>
+    <div id="gameMenuLangBox">
+      <div id="gameMenuLangTitle">🌍 DİL</div>
+      <div class="langPickGrid" id="gameLangPickGrid"></div>
+    </div>
+    <button class="gameMenuBtn" id="gameMenuExit">↩ ANA MENÜYE DÖN</button>
+  </div>
+</div>
 <div id="lvlBanner"><div id="lvlBannerTxt"></div></div>
 <button id="nxtBtn">SONRAKI BÖLÜM ▶</button>
+
+
+<!-- Firebase online high score SDK KAPALI
+     İzin popup çıkmasın diye online Firebase/Analytics bağlantıları kaldırıldı.
+     Skorlar localStorage ile cihazda tutulur. -->
+<script>
+const WF_SCORE_COLLECTION = 'witherfight_scores';
+let wfDb = null;
+let wfCloudReady = false;
+</script>
 
 <script>
 // ── YÖN KONTROLÜ ─────────────────────────────────────
 function checkOrientation(){
   const overlay=document.getElementById('rotateOverlay');
-  if(window.innerWidth>window.innerHeight){
-    // Yatay mod — overlay göster, oyunu duraklat
+
+  // PC / laptop ekranında bu uyarı çıkmasın.
+  // Sadece telefon-tablet gibi dokunmatik mobil cihazlarda yatay ekran uyarısı ver.
+  const ua=navigator.userAgent||'';
+  const isMobile=/Android|iPhone|iPad|iPod|Mobile/i.test(ua) || (navigator.maxTouchPoints>1 && Math.min(window.innerWidth,window.innerHeight)<900);
+
+  if(isMobile && window.innerWidth>window.innerHeight){
+    // Mobil yatay mod — overlay göster, oyunu duraklat
     overlay.style.display='flex';
     if(typeof paused!=='undefined'&&!paused&&typeof gameOver!=='undefined'&&!gameOver&&typeof victory!=='undefined'&&!victory){
       paused=true;
     }
   } else {
-    // Dikey mod — overlay gizle
+    // PC veya mobil dikey mod — overlay gizle
     overlay.style.display='none';
     // Otomatik devam ettirme — kullanıcı zaten pause butonuyla kontrol etsin
   }
@@ -287,7 +368,7 @@ window.addEventListener('resize',checkOrientation);
 window.addEventListener('orientationchange',()=>setTimeout(checkOrientation,100));
 
 // ── DİL / LANGUAGE ───────────────────────────────────
-let LANG='tr';
+let LANG=localStorage.getItem('wf_lang')||'tr';
 const TR={
   ctrlH:'🎮 NASIL OYNANIR',ctrlGo:'▶ OYNA',
   tip:'💡 Blokların arkasına saklan, bonusları kaçırma!',
@@ -353,7 +434,177 @@ const EN={
   lvlBanner:(lv,name)=>'LEVEL '+(lv+1)+'\n'+name,
 };
 
-function L(){return LANG==='tr'?TR:EN;}
+
+Object.assign(TR,{
+  settingsBtn:'⚙ AYARLAR',settingsTitle:'⚙ AYARLAR',settingsInfo:'Dil seçimini buradan yapabilirsin.',adminOpen:'🔐 ADMIN PANEL GİRİŞ',adminLoginInfo:'Admin panel için şifre gir.',languageTitle:'🌍 DİL',languageInfo:'Oyunun menü ve yazı dilini seç.',adminTitle:'ADMIN PANEL',adminInfo:'High score listesini temizleyebilirsin.',setPass:'ŞİFRE',setLogin:'GİRİŞ',clearScores:'🗑 HI-SCORE TEMİZLE',wrongPass:'❌ Şifre yanlış',clearDone:'✓ High score listesi temizlendi',ctrlSelH:'🎮 KONTROL SEÇ',ctrlSelGo:'▶ DEVAM',
+  ultiNotReady:'⏳ Ulti hazır değil!',diamondArmor:'💎 ELMAS ZIRH!',tornadoDash:'⚡ KASIRGA KOŞUSU!',spiderPunch:'🕷️ SPİDER YUMRUK!',blackHole:'🌀 KARA DELİK!',lightningStorm:'⚡ ŞİMŞEK FIRTINASI!',rocketEmpty:'🚀 Roket mermisi bitti!',mikailReturn:'💚 Mikail geri döndü!',shield3:'💎 3sn Koruma!',speed4:'⚡ 4sn Hız Boost!',bulletsCleared:'⚡ Mermiler temizlendi!',beamPlus:'⚡ Işın mermisi +1!',slapPlus:'👋 Şaplak hakkı +1!',gameMenuTitle:'⏸ OYUN DURDU',gameMenuResume:'▶ DEVAM ET',gameMenuSound:'🔊 SES AÇ/KAPAT',gameMenuLang:'🌍 DİL SEÇ',gameMenuExit:'↩ ANA MENÜYE DÖN'
+});
+Object.assign(EN,{
+  settingsBtn:'⚙ SETTINGS',settingsTitle:'⚙ SETTINGS',settingsInfo:'Choose language here. Admin panel is separate below.',adminOpen:'🔐 ADMIN PANEL LOGIN',adminLoginInfo:'Enter password for admin panel.',languageTitle:'🌍 LANGUAGE',languageInfo:'Choose the game menu and text language.',adminTitle:'ADMIN PANEL',adminInfo:'You can clear the high score list.',setPass:'PASSWORD',setLogin:'LOGIN',clearScores:'🗑 CLEAR HI-SCORES',wrongPass:'❌ Wrong password',clearDone:'✓ High score list cleared',ctrlSelH:'🎮 SELECT CONTROL',ctrlSelGo:'▶ CONTINUE',
+  ultiNotReady:'⏳ Ulti not ready!',diamondArmor:'💎 DIAMOND ARMOR!',tornadoDash:'⚡ TORNADO DASH!',spiderPunch:'🕷️ SPIDER PUNCH!',blackHole:'🌀 BLACK HOLE!',lightningStorm:'⚡ LIGHTNING STORM!',rocketEmpty:'🚀 No rockets left!',mikailReturn:'💚 Mikail returned!',shield3:'💎 3s Shield!',speed4:'⚡ 4s Speed Boost!',bulletsCleared:'⚡ Bullets cleared!',beamPlus:'⚡ Beam ammo +1!',slapPlus:'👋 Slap charge +1!',gameMenuTitle:'⏸ PAUSED',gameMenuResume:'▶ RESUME',gameMenuSound:'🔊 SOUND ON/OFF',gameMenuLang:'🌍 LANGUAGE',gameMenuExit:'↩ BACK TO MAIN MENU'
+});
+const LANG_LABELS={tr:'🇹🇷 Türkçe',en:'🇬🇧 English',ar:'🇸🇦 العربية',ru:'🇷🇺 Русский',fr:'🇫🇷 Français',es:'🇪🇸 Español',de:'🇩🇪 Deutsch',it:'🇮🇹 Italiano',pt:'🇵🇹 Português',ja:'🇯🇵 日本語',zh:'🇨🇳 中文',ko:'🇰🇷 한국어'};
+function makeLang(o){return Object.assign({},EN,o,{controls:o.controls||EN.controls});}
+const LANG_PACKS={tr:TR,en:EN};
+LANG_PACKS.ar=makeLang({
+  ctrlH:'🎮 طريقة اللعب',ctrlGo:'▶ العب',tip:'💡 اختبئ خلف الكتل ولا تفوت المكافآت!',
+  controls:[{i:'🕹️',k:'عصا التحكم',d:'حرّك يمين/يسار\nلتحريك الشخصية'},{i:'🔥',k:'إطلاق',d:'الزر الكبير — اضغط باستمرار\nلإطلاق النار'},{i:'⚡',k:'شعاع',d:'ليزر قوي\nذخيرة محدودة'},{i:'👋',k:'صفعة',d:'صفعة عملاقة — ضرر 20%\nاستخدام محدود'},{i:'🔄',k:'تبديل السلاح',d:'بدّل بين الأسلحة\nفي المخزون'},{i:'⏸',k:'إيقاف مؤقت',d:'أوقف اللعبة\nأو تابع'},{i:'❤️',k:'الصحة',d:'حتى 10 قلوب\nزدها بالمكافآت'},{i:'💎',k:'مكافآت',d:'اجمع العناصر الساقطة\nللقوة والأسلحة'}],
+  charSel:'اختر الشخصية',charSub:'المس شخصيتك',startBtn:'ابدأ اللعبة',hiTitle:'🏆 أعلى النتائج',hiBack:'← رجوع',hiEmpty:'لا توجد نتائج بعد!',saveTit:'🏆 احفظ النتيجة',saveBtn:'حفظ ✓',nameHint:'اكتب الاسم',namePre:(sc)=>'نتيجتك: '+sc+' — اكتب اسمك!',endTitle:'🌟 اكتملت اللعبة 🌟',endHi:'🏆 احفظ النتيجة',endAgain:'↩ العب مجدداً',endScore:(sc)=>'🏆 مجموع النقاط: '+sc,endTime:(m,s)=>'⏱ الوقت: '+m+'د '+s+'ث',nxtBtn:'المستوى التالي ▶',goH2:'لقد مت!',goCode:'أدخل الكود للانتقال للمستوى التالي:',goCodeBtn:'تأكيد →',goRestart:'↩ أعد هذا المستوى',goScore:(sc,lv)=>'النقاط: '+sc+' | المستوى: '+lv,wrongCode:'❌ كود خاطئ! حاول مرة أخرى.',noBeam:'⚡ لا توجد ذخيرة شعاع!',noSlap:'👋 لا توجد صفعات!',speedPop:'⚡ تسريع 5 ثوان!',paused:'متوقف مؤقتاً',pauseHint:'اضغط ▶ للمتابعة',victory:'انتصار!',defeated:'تم القضاء عليه!',cmdHit:'تم تدمير كتلة الأوامر ✓',points:(sc)=>'★ +'+sc+' نقطة',inventory:'المخزون:',speedHud:(s)=>'⚡ تسريع '+s+'ث',levelHud:(lv,name)=>'المستوى '+(lv+1)+'  '+name,lvlBanner:(lv,name)=>'المستوى '+(lv+1)+'\n'+name,settingsBtn:'⚙ الإعدادات',settingsTitle:'⚙ الإعدادات',settingsInfo:'أدخل كلمة مرور لوحة الإدارة.',languageTitle:'🌍 اللغة',languageInfo:'اختر لغة القوائم والنصوص.',setPass:'كلمة المرور',setLogin:'دخول',adminInfo:'يمكنك مسح قائمة أعلى النتائج.',clearScores:'🗑 مسح النتائج',wrongPass:'❌ كلمة المرور خاطئة',clearDone:'✓ تم مسح النتائج',ctrlSelH:'🎮 اختر التحكم',ctrlSelGo:'▶ متابعة'});
+LANG_PACKS.ru=makeLang({ctrlH:'🎮 КАК ИГРАТЬ',ctrlGo:'▶ ИГРАТЬ',tip:'💡 Прячься за блоками и собирай бонусы!',controls:[{i:'🕹️',k:'ДЖОЙСТИК',d:'Двигай влево/вправо\nчтобы управлять героем'},{i:'🔥',k:'ОГОНЬ',d:'Большая кнопка — удерживай\nчтобы стрелять'},{i:'⚡',k:'ЛУЧ',d:'Мощный лазер\nпатроны ограничены'},{i:'👋',k:'УДАР',d:'Гигантский удар — 20% урона\nограничено'},{i:'🔄',k:'СМЕНА',d:'Меняй оружие\nв инвентаре'},{i:'⏸',k:'ПАУЗА',d:'Пауза или продолжить\nигру'},{i:'❤️',k:'ЗДОРОВЬЕ',d:'До 10 сердец\nувеличивай бонусами'},{i:'💎',k:'БОНУСЫ',d:'Собирай предметы\nдля оружия и силы'}],charSel:'ВЫБЕРИ ГЕРОЯ',charSub:'Нажми на героя',startBtn:'НАЧАТЬ ИГРУ',hiTitle:'🏆 РЕКОРДЫ',hiBack:'← НАЗАД',hiEmpty:'Рекордов пока нет!',saveTit:'🏆 СОХРАНИТЬ СЧЕТ',saveBtn:'СОХРАНИТЬ ✓',nameHint:'ВВЕДИ ИМЯ',namePre:(sc)=>'Твой счет: '+sc+' — введи имя!',endTitle:'🌟 ИГРА ПРОЙДЕНА 🌟',endHi:'🏆 СОХРАНИТЬ СЧЕТ',endAgain:'↩ ИГРАТЬ СНОВА',endScore:(sc)=>'🏆 Всего очков: '+sc,endTime:(m,s)=>'⏱ Время: '+m+'м '+s+'с',nxtBtn:'СЛЕДУЮЩИЙ УРОВЕНЬ ▶',goH2:'ТЫ ПОГИБ!',goCode:'Введи код для следующего уровня:',goCodeBtn:'ПОДТВЕРДИТЬ →',goRestart:'↩ ПОВТОРИТЬ УРОВЕНЬ',goScore:(sc,lv)=>'Счет: '+sc+' | Уровень: '+lv,wrongCode:'❌ Неверный код! Попробуй еще.',noBeam:'⚡ Нет зарядов луча!',noSlap:'👋 Нет ударов!',speedPop:'⚡ УСКОРЕНИЕ 5с!',paused:'ПАУЗА',pauseHint:'Нажми ▶ чтобы продолжить',victory:'ПОБЕДА!',defeated:'уничтожен!',cmdHit:'Командный блок уничтожен ✓',points:(sc)=>'★ +'+sc+' очков',inventory:'ИНВЕНТАРЬ:',speedHud:(s)=>'⚡ УСКОРЕНИЕ '+s+'с',levelHud:(lv,name)=>'УРОВЕНЬ '+(lv+1)+'  '+name,lvlBanner:(lv,name)=>'УРОВЕНЬ '+(lv+1)+'\n'+name,settingsBtn:'⚙ НАСТРОЙКИ',settingsTitle:'⚙ НАСТРОЙКИ',settingsInfo:'Введи пароль админ-панели.',languageTitle:'🌍 ЯЗЫК',languageInfo:'Выбери язык меню и текстов.',setPass:'ПАРОЛЬ',setLogin:'ВХОД',adminInfo:'Можно очистить таблицу рекордов.',clearScores:'🗑 ОЧИСТИТЬ РЕКОРДЫ',wrongPass:'❌ Неверный пароль',clearDone:'✓ Рекорды очищены',ctrlSelH:'🎮 ВЫБЕРИ УПРАВЛЕНИЕ',ctrlSelGo:'▶ ДАЛЬШЕ'});
+LANG_PACKS.fr=makeLang({ctrlH:'🎮 COMMENT JOUER',ctrlGo:'▶ JOUER',tip:'💡 Cache-toi derrière les blocs et prends les bonus!',charSel:'CHOISIR LE PERSONNAGE',charSub:'Touche ton personnage',startBtn:'COMMENCER',hiTitle:'🏆 MEILLEURS SCORES',hiBack:'← RETOUR',hiEmpty:'Aucun score!',saveTit:'🏆 SAUVER LE SCORE',saveBtn:'SAUVER ✓',nameHint:'ENTRE TON NOM',namePre:(sc)=>'Ton score: '+sc+' — entre ton nom!',endTitle:'🌟 JEU TERMINÉ 🌟',endHi:'🏆 SAUVER LE SCORE',endAgain:'↩ REJOUER',endScore:(sc)=>'🏆 Score total: '+sc,endTime:(m,s)=>'⏱ Temps total: '+m+'m '+s+'s',nxtBtn:'NIVEAU SUIVANT ▶',goH2:'TU ES MORT!',goCode:'Entre le code pour passer au niveau suivant:',goCodeBtn:'CONFIRMER →',goRestart:'↩ RECOMMENCER CE NIVEAU',goScore:(sc,lv)=>'Score: '+sc+' | Niveau: '+lv,wrongCode:'❌ Mauvais code! Réessaie.',noBeam:'⚡ Pas de munition laser!',noSlap:'👋 Plus de gifles!',speedPop:'⚡ BOOST VITESSE 5s!',paused:'PAUSE',pauseHint:'Appuie sur ▶',victory:'VICTOIRE!',defeated:'vaincu!',cmdHit:'Bloc de commande détruit ✓',points:(sc)=>'★ +'+sc+' points',inventory:'INVENTAIRE:',speedHud:(s)=>'⚡ BOOST '+s+'s',levelHud:(lv,name)=>'NIVEAU '+(lv+1)+'  '+name,lvlBanner:(lv,name)=>'NIVEAU '+(lv+1)+'\n'+name,settingsBtn:'⚙ PARAMÈTRES',settingsTitle:'⚙ PARAMÈTRES',settingsInfo:'Entre le mot de passe admin.',languageTitle:'🌍 LANGUE',languageInfo:'Choisis la langue du jeu.',setPass:'MOT DE PASSE',setLogin:'ENTRER',adminInfo:'Tu peux effacer les meilleurs scores.',clearScores:'🗑 EFFACER SCORES',wrongPass:'❌ Mot de passe incorrect',clearDone:'✓ Scores effacés',ctrlSelH:'🎮 CHOISIR CONTRÔLE',ctrlSelGo:'▶ CONTINUER'});
+LANG_PACKS.es=makeLang({ctrlH:'🎮 CÓMO JUGAR',ctrlGo:'▶ JUGAR',tip:'💡 Escóndete tras bloques y recoge bonus!',charSel:'ELEGIR PERSONAJE',charSub:'Toca tu personaje',startBtn:'EMPEZAR',hiTitle:'🏆 MEJORES PUNTOS',hiBack:'← ATRÁS',hiEmpty:'¡Sin puntuaciones!',saveTit:'🏆 GUARDAR PUNTOS',saveBtn:'GUARDAR ✓',nameHint:'ESCRIBE TU NOMBRE',namePre:(sc)=>'Tu puntuación: '+sc+' — escribe tu nombre!',endTitle:'🌟 JUEGO COMPLETADO 🌟',endHi:'🏆 GUARDAR PUNTOS',endAgain:'↩ JUGAR OTRA VEZ',endScore:(sc)=>'🏆 Puntos totales: '+sc,endTime:(m,s)=>'⏱ Tiempo total: '+m+'m '+s+'s',nxtBtn:'SIGUIENTE NIVEL ▶',goH2:'¡HAS MUERTO!',goCode:'Introduce el código para el siguiente nivel:',goCodeBtn:'CONFIRMAR →',goRestart:'↩ REINTENTAR NIVEL',goScore:(sc,lv)=>'Puntos: '+sc+' | Nivel: '+lv,wrongCode:'❌ Código incorrecto!',noBeam:'⚡ Sin munición de rayo!',noSlap:'👋 Sin bofetadas!',speedPop:'⚡ VELOCIDAD 5s!',paused:'PAUSA',pauseHint:'Pulsa ▶',victory:'¡VICTORIA!',defeated:'derrotado!',cmdHit:'Bloque de comando destruido ✓',points:(sc)=>'★ +'+sc+' puntos',inventory:'INVENTARIO:',speedHud:(s)=>'⚡ VELOCIDAD '+s+'s',levelHud:(lv,name)=>'NIVEL '+(lv+1)+'  '+name,lvlBanner:(lv,name)=>'NIVEL '+(lv+1)+'\n'+name,settingsBtn:'⚙ AJUSTES',settingsTitle:'⚙ AJUSTES',settingsInfo:'Introduce la contraseña admin.',languageTitle:'🌍 IDIOMA',languageInfo:'Elige el idioma del juego.',setPass:'CONTRASEÑA',setLogin:'ENTRAR',adminInfo:'Puedes borrar los mejores puntos.',clearScores:'🗑 BORRAR PUNTOS',wrongPass:'❌ Contraseña incorrecta',clearDone:'✓ Puntos borrados',ctrlSelH:'🎮 ELEGIR CONTROL',ctrlSelGo:'▶ CONTINUAR'});
+LANG_PACKS.de=makeLang({charSel:'CHARAKTER WÄHLEN',startBtn:'SPIEL STARTEN',hiTitle:'🏆 BESTENLISTE',hiBack:'← ZURÜCK',saveTit:'🏆 PUNKTZAHL SPEICHERN',saveBtn:'SPEICHERN ✓',nameHint:'NAME EINGEBEN',namePre:(sc)=>'Dein Score: '+sc+' — Name eingeben!',endTitle:'🌟 SPIEL BEENDET 🌟',endHi:'🏆 SPEICHERN',endAgain:'↩ NOCHMAL SPIELEN',nxtBtn:'NÄCHSTES LEVEL ▶',goH2:'DU BIST TOT!',settingsBtn:'⚙ EINSTELLUNGEN',settingsTitle:'⚙ EINSTELLUNGEN',settingsInfo:'Admin-Passwort eingeben.',languageTitle:'🌍 SPRACHE',languageInfo:'Sprache für Menüs und Texte wählen.',setPass:'PASSWORT',setLogin:'LOGIN',adminInfo:'Du kannst Highscores löschen.',clearScores:'🗑 HIGHSCORES LÖSCHEN',wrongPass:'❌ Falsches Passwort',clearDone:'✓ Highscores gelöscht',ctrlSelH:'🎮 STEUERUNG WÄHLEN',ctrlSelGo:'▶ WEITER'});
+LANG_PACKS.it=makeLang({charSel:'SCEGLI PERSONAGGIO',startBtn:'INIZIA GIOCO',hiTitle:'🏆 MIGLIORI PUNTEGGI',hiBack:'← INDIETRO',saveTit:'🏆 SALVA PUNTEGGIO',saveBtn:'SALVA ✓',nameHint:'INSERISCI NOME',namePre:(sc)=>'Punteggio: '+sc+' — inserisci nome!',endTitle:'🌟 GIOCO COMPLETATO 🌟',endHi:'🏆 SALVA',endAgain:'↩ GIOCA ANCORA',nxtBtn:'LIVELLO SUCCESSIVO ▶',goH2:'SEI MORTO!',settingsBtn:'⚙ IMPOSTAZIONI',settingsTitle:'⚙ IMPOSTAZIONI',settingsInfo:'Inserisci password admin.',languageTitle:'🌍 LINGUA',languageInfo:'Scegli la lingua del gioco.',setPass:'PASSWORD',setLogin:'LOGIN',adminInfo:'Puoi cancellare i migliori punteggi.',clearScores:'🗑 CANCELLA PUNTEGGI',wrongPass:'❌ Password errata',clearDone:'✓ Punteggi cancellati',ctrlSelH:'🎮 SCEGLI CONTROLLO',ctrlSelGo:'▶ CONTINUA'});
+LANG_PACKS.pt=makeLang({charSel:'ESCOLHER PERSONAGEM',startBtn:'COMEÇAR JOGO',hiTitle:'🏆 MELHORES PONTUAÇÕES',hiBack:'← VOLTAR',saveTit:'🏆 SALVAR PONTOS',saveBtn:'SALVAR ✓',nameHint:'DIGITE O NOME',namePre:(sc)=>'Sua pontuação: '+sc+' — digite o nome!',endTitle:'🌟 JOGO COMPLETO 🌟',endHi:'🏆 SALVAR',endAgain:'↩ JOGAR DE NOVO',nxtBtn:'PRÓXIMO NÍVEL ▶',goH2:'VOCÊ MORREU!',settingsBtn:'⚙ CONFIGURAÇÕES',settingsTitle:'⚙ CONFIGURAÇÕES',settingsInfo:'Digite a senha admin.',languageTitle:'🌍 IDIOMA',languageInfo:'Escolha o idioma do jogo.',setPass:'SENHA',setLogin:'ENTRAR',adminInfo:'Você pode limpar os recordes.',clearScores:'🗑 LIMPAR RECORDES',wrongPass:'❌ Senha errada',clearDone:'✓ Recordes limpos',ctrlSelH:'🎮 ESCOLHER CONTROLE',ctrlSelGo:'▶ CONTINUAR'});
+LANG_PACKS.ja=makeLang({ctrlH:'🎮 あそびかた',ctrlGo:'▶ プレイ',tip:'💡 ブロックに隠れてボーナスを取ろう！',charSel:'キャラクター選択',charSub:'キャラをタップ',startBtn:'ゲーム開始',hiTitle:'🏆 ハイスコア',hiBack:'← 戻る',hiEmpty:'まだスコアなし！',saveTit:'🏆 スコア保存',saveBtn:'保存 ✓',nameHint:'名前を入力',namePre:(sc)=>'スコア: '+sc+' — 名前を入力!',endTitle:'🌟 ゲームクリア 🌟',endHi:'🏆 スコア保存',endAgain:'↩ もう一度',endScore:(sc)=>'🏆 合計スコア: '+sc,endTime:(m,s)=>'⏱ 時間: '+m+'分 '+s+'秒',nxtBtn:'次のレベル ▶',goH2:'やられた!',goCode:'次のレベルへ進むコード:',goCodeBtn:'確認 →',goRestart:'↩ このレベルを再挑戦',goScore:(sc,lv)=>'スコア: '+sc+' | レベル: '+lv,settingsBtn:'⚙ 設定',settingsTitle:'⚙ 設定',settingsInfo:'管理パネルのパスワードを入力。',languageTitle:'🌍 言語',languageInfo:'ゲームの表示言語を選択。',setPass:'パスワード',setLogin:'ログイン',adminInfo:'ハイスコアを消去できます。',clearScores:'🗑 スコア消去',wrongPass:'❌ パスワード違い',clearDone:'✓ スコアを消去しました',ctrlSelH:'🎮 操作を選択',ctrlSelGo:'▶ 続ける'});
+LANG_PACKS.zh=makeLang({ctrlH:'🎮 玩法',ctrlGo:'▶ 开始',tip:'💡 躲在方块后面，别错过奖励！',charSel:'选择角色',charSub:'点击你的角色',startBtn:'开始游戏',hiTitle:'🏆 高分榜',hiBack:'← 返回',hiEmpty:'暂无分数！',saveTit:'🏆 保存分数',saveBtn:'保存 ✓',nameHint:'输入名字',namePre:(sc)=>'你的分数: '+sc+' — 输入名字!',endTitle:'🌟 游戏完成 🌟',endHi:'🏆 保存分数',endAgain:'↩ 再玩一次',endScore:(sc)=>'🏆 总分: '+sc,endTime:(m,s)=>'⏱ 总时间: '+m+'分 '+s+'秒',nxtBtn:'下一关 ▶',goH2:'你死了!',goCode:'输入代码进入下一关:',goCodeBtn:'确认 →',goRestart:'↩ 重试本关',goScore:(sc,lv)=>'分数: '+sc+' | 关卡: '+lv,settingsBtn:'⚙ 设置',settingsTitle:'⚙ 设置',settingsInfo:'输入管理员密码。',languageTitle:'🌍 语言',languageInfo:'选择游戏菜单和文字语言。',setPass:'密码',setLogin:'登录',adminInfo:'你可以清空高分榜。',clearScores:'🗑 清空高分',wrongPass:'❌ 密码错误',clearDone:'✓ 高分已清空',ctrlSelH:'🎮 选择控制',ctrlSelGo:'▶ 继续'});
+LANG_PACKS.ko=makeLang({ctrlH:'🎮 플레이 방법',ctrlGo:'▶ 플레이',tip:'💡 블록 뒤에 숨고 보너스를 모아!',charSel:'캐릭터 선택',charSub:'캐릭터를 터치',startBtn:'게임 시작',hiTitle:'🏆 최고 점수',hiBack:'← 뒤로',hiEmpty:'아직 점수 없음!',saveTit:'🏆 점수 저장',saveBtn:'저장 ✓',nameHint:'이름 입력',namePre:(sc)=>'점수: '+sc+' — 이름 입력!',endTitle:'🌟 게임 완료 🌟',endHi:'🏆 점수 저장',endAgain:'↩ 다시 플레이',endScore:(sc)=>'🏆 총점: '+sc,endTime:(m,s)=>'⏱ 시간: '+m+'분 '+s+'초',nxtBtn:'다음 레벨 ▶',goH2:'죽었습니다!',goCode:'다음 레벨 코드 입력:',goCodeBtn:'확인 →',goRestart:'↩ 이 레벨 다시하기',goScore:(sc,lv)=>'점수: '+sc+' | 레벨: '+lv,settingsBtn:'⚙ 설정',settingsTitle:'⚙ 설정',settingsInfo:'관리자 패널 비밀번호 입력.',languageTitle:'🌍 언어',languageInfo:'게임 메뉴와 텍스트 언어 선택.',setPass:'비밀번호',setLogin:'로그인',adminInfo:'최고 점수를 지울 수 있습니다.',clearScores:'🗑 점수 삭제',wrongPass:'❌ 비밀번호 오류',clearDone:'✓ 점수 삭제 완료',ctrlSelH:'🎮 조작 선택',ctrlSelGo:'▶ 계속'});
+
+// ── FULL IN-GAME LOCALIZATION PATCH ─────────────────────
+const WF_I18N_EXTRA={
+  tr:{
+    weaponNames:{fireball:'Ateş Topu',ice:'Buz Topu',lava:'Lav Topu',rocket:'Roket',saw:'Testere',water:'Su Damlası',thunder:'Şimşek Topu',void:'Void Küresi',slime:'Slime Bomb',nether:'Cehennem Alevi'},
+    bonusNames:{fireball:'Ateş Topu',ice:'Buz Topu',lava:'Lav Topu',rocket:'Roket',saw:'Testere',water:'Su Damlası',thunder:'Şimşek',void:'Void',slime:'Slime',nether:'Cehennem',shield:'Kalkan',heart:'Can +1',beam_ammo:'Işın +1',slap_ammo:'Şaplak +1',speed_boost:'Hız Boost'},
+    bossNames:['Mavi Çiçek Canavarı','Kızıl Örümcek','Yeşil Kanat','Ender Hükümdar','Şeytan Kral','Void Tanrısı','Fırtına Ruhu','Demir Kolossus','Ejderha Ruhu','Kıyamet Tanrısı'],
+    ultiNames:{0:'💎 Elmas Zırh',1:'⚡ Kasırga Koşusu',2:'🕷️ Spider Yumruk',3:'🌀 Kara Delik',4:'⚡ Şimşek Fırtınası'},
+    levelBonusDesc:{2:'+2 Can, Ateş Hızı %20↑',3:'+2 Can, Ateş Hızı %40↑, Ulti 2x Güçlü'},
+    ultiShort:'ULTİ',nextShort:'SONRAKİ',health:'CAN',xp:'XP',max:'MAX',levelShort:'SV',hp:'CAN',finalBoss:'FINAL BOSS',speedShort:'HIZ',boostShort:'BOOST',
+    weaponPicked:(icon,name,multi)=>icon+' '+name+(multi||'')+' alındı!',weaponUpgrade:(icon,name,x)=>icon+' '+name+' ateş hızı '+x+'x artırıldı!',shieldActive:'🛡 Kalkan aktif!',heartPlus:'❤ Can +1',levelUp:(lv,desc)=>'⭐ LEVEL '+lv+'! '+desc
+  },
+  en:{
+    weaponNames:{fireball:'Fireball',ice:'Ice Ball',lava:'Lava Ball',rocket:'Rocket',saw:'Saw Blade',water:'Water Drop',thunder:'Lightning Ball',void:'Void Orb',slime:'Slime Bomb',nether:'Nether Flame'},
+    bonusNames:{fireball:'Fireball',ice:'Ice Ball',lava:'Lava Ball',rocket:'Rocket',saw:'Saw Blade',water:'Water Drop',thunder:'Lightning',void:'Void',slime:'Slime',nether:'Nether',shield:'Shield',heart:'Health +1',beam_ammo:'Beam +1',slap_ammo:'Slap +1',speed_boost:'Speed Boost'},
+    bossNames:['Blue Flower Monster','Red Spider','Green Wing','Ender Ruler','Demon King','Void God','Storm Spirit','Iron Colossus','Dragon Spirit','Doom God'],
+    ultiNames:{0:'💎 Diamond Armor',1:'⚡ Tornado Dash',2:'🕷️ Spider Punch',3:'🌀 Black Hole',4:'⚡ Lightning Storm'},
+    levelBonusDesc:{2:'+2 HP, Fire Rate +20%',3:'+2 HP, Fire Rate +40%, Ulti 2x Power'},
+    ultiShort:'ULTI',nextShort:'NEXT',health:'HEALTH',xp:'XP',max:'MAX',levelShort:'LV',hp:'HP',finalBoss:'FINAL BOSS',speedShort:'SPEED',boostShort:'BOOST',
+    weaponPicked:(icon,name,multi)=>icon+' '+name+(multi||'')+' collected!',weaponUpgrade:(icon,name,x)=>icon+' '+name+' fire rate increased '+x+'x!',shieldActive:'🛡 Shield active!',heartPlus:'❤ Health +1',levelUp:(lv,desc)=>'⭐ LEVEL '+lv+'! '+desc
+  },
+  ru:{
+    weaponNames:{fireball:'Огненный шар',ice:'Ледяной шар',lava:'Лавовый шар',rocket:'Ракета',saw:'Пила',water:'Капля воды',thunder:'Шар молнии',void:'Сфера пустоты',slime:'Слизневая бомба',nether:'Адское пламя'},
+    bonusNames:{fireball:'Огненный шар',ice:'Ледяной шар',lava:'Лавовый шар',rocket:'Ракета',saw:'Пила',water:'Вода',thunder:'Молния',void:'Пустота',slime:'Слизь',nether:'Адское пламя',shield:'Щит',heart:'Здоровье +1',beam_ammo:'Луч +1',slap_ammo:'Удар +1',speed_boost:'Ускорение'},
+    bossNames:['Синий цветочный монстр','Красный паук','Зелёное крыло','Повелитель Эндера','Король демонов','Бог пустоты','Дух бури','Железный колосс','Дух дракона','Бог апокалипсиса'],
+    ultiNames:{0:'💎 Алмазная броня',1:'⚡ Рывок бури',2:'🕷️ Паучий удар',3:'🌀 Чёрная дыра',4:'⚡ Гроза молний'},
+    levelBonusDesc:{2:'+2 здоровья, скорость огня +20%',3:'+2 здоровья, скорость огня +40%, ульта 2x'},
+    ultiShort:'УЛЬТА',nextShort:'СМЕНА',health:'ЗДОРОВЬЕ',xp:'ОПЫТ',max:'МАКС',levelShort:'УР',hp:'ОЗ',finalBoss:'ФИНАЛЬНЫЙ БОСС',speedShort:'СКОРОСТЬ',boostShort:'БУСТ',
+    weaponPicked:(icon,name,multi)=>icon+' '+name+(multi||'')+' получено!',weaponUpgrade:(icon,name,x)=>icon+' '+name+' скорость огня увеличена '+x+'x!',shieldActive:'🛡 Щит активен!',heartPlus:'❤ Здоровье +1',levelUp:(lv,desc)=>'⭐ УРОВЕНЬ '+lv+'! '+desc
+  },
+  ar:{
+    weaponNames:{fireball:'كرة نار',ice:'كرة جليد',lava:'كرة حمم',rocket:'صاروخ',saw:'منشار',water:'قطرة ماء',thunder:'كرة برق',void:'كرة الفراغ',slime:'قنبلة سلايم',nether:'لهب الجحيم'},
+    bonusNames:{fireball:'كرة نار',ice:'كرة جليد',lava:'كرة حمم',rocket:'صاروخ',saw:'منشار',water:'ماء',thunder:'برق',void:'فراغ',slime:'سلايم',nether:'جحيم',shield:'درع',heart:'صحة +1',beam_ammo:'شعاع +1',slap_ammo:'صفعة +1',speed_boost:'تسريع'},
+    bossNames:['وحش الزهرة الزرقاء','العنكبوت الأحمر','الجناح الأخضر','حاكم الإندر','ملك الشياطين','إله الفراغ','روح العاصفة','العملاق الحديدي','روح التنين','إله القيامة'],
+    ultiNames:{0:'💎 درع ألماسي',1:'⚡ اندفاع الإعصار',2:'🕷️ لكمة العنكبوت',3:'🌀 ثقب أسود',4:'⚡ عاصفة برق'},
+    levelBonusDesc:{2:'+2 صحة، سرعة إطلاق +20%',3:'+2 صحة، سرعة إطلاق +40%، قوة خاصة 2x'},
+    ultiShort:'خاص',nextShort:'التالي',health:'الصحة',xp:'خبرة',max:'أقصى',levelShort:'م',hp:'صحة',finalBoss:'الزعيم الأخير',speedShort:'سرعة',boostShort:'تعزيز',
+    weaponPicked:(icon,name,multi)=>icon+' تم أخذ '+name+(multi||'')+'!',weaponUpgrade:(icon,name,x)=>icon+' '+name+' سرعة الإطلاق زادت '+x+'x!',shieldActive:'🛡 الدرع مفعل!',heartPlus:'❤ صحة +1',levelUp:(lv,desc)=>'⭐ المستوى '+lv+'! '+desc
+  },
+  fr:{
+    weaponNames:{fireball:'Boule de feu',ice:'Boule de glace',lava:'Boule de lave',rocket:'Roquette',saw:'Scie',water:'Goutte d’eau',thunder:'Boule de foudre',void:'Orbe du vide',slime:'Bombe slime',nether:'Flamme infernale'},
+    bonusNames:{fireball:'Boule de feu',ice:'Boule de glace',lava:'Boule de lave',rocket:'Roquette',saw:'Scie',water:'Eau',thunder:'Foudre',void:'Vide',slime:'Slime',nether:'Enfer',shield:'Bouclier',heart:'Vie +1',beam_ammo:'Laser +1',slap_ammo:'Gifle +1',speed_boost:'Boost vitesse'},
+    bossNames:['Monstre fleur bleue','Araignée rouge','Aile verte','Seigneur Ender','Roi démon','Dieu du vide','Esprit de tempête','Colosse de fer','Esprit dragon','Dieu de l’apocalypse'],
+    ultiNames:{0:'💎 Armure diamant',1:'⚡ Sprint tornade',2:'🕷️ Coup araignée',3:'🌀 Trou noir',4:'⚡ Tempête de foudre'},
+    levelBonusDesc:{2:'+2 Vie, cadence +20%',3:'+2 Vie, cadence +40%, ulti 2x'},ultiShort:'ULTI',nextShort:'SUIV.',health:'VIE',xp:'XP',max:'MAX',levelShort:'NV',hp:'PV',finalBoss:'BOSS FINAL',speedShort:'VITESSE',boostShort:'BOOST',
+    weaponPicked:(icon,name,multi)=>icon+' '+name+(multi||'')+' obtenu!',weaponUpgrade:(icon,name,x)=>icon+' '+name+' cadence augmentée '+x+'x!',shieldActive:'🛡 Bouclier actif!',heartPlus:'❤ Vie +1',levelUp:(lv,desc)=>'⭐ NIVEAU '+lv+'! '+desc
+  },
+  es:{
+    weaponNames:{fireball:'Bola de fuego',ice:'Bola de hielo',lava:'Bola de lava',rocket:'Cohete',saw:'Sierra',water:'Gota de agua',thunder:'Bola de rayo',void:'Orbe vacío',slime:'Bomba slime',nether:'Llama infernal'},
+    bonusNames:{fireball:'Bola de fuego',ice:'Bola de hielo',lava:'Bola de lava',rocket:'Cohete',saw:'Sierra',water:'Agua',thunder:'Rayo',void:'Vacío',slime:'Slime',nether:'Infierno',shield:'Escudo',heart:'Vida +1',beam_ammo:'Rayo +1',slap_ammo:'Bofetada +1',speed_boost:'Velocidad'},
+    bossNames:['Monstruo flor azul','Araña roja','Ala verde','Señor Ender','Rey demonio','Dios del vacío','Espíritu de tormenta','Coloso de hierro','Espíritu dragón','Dios del apocalipsis'],
+    ultiNames:{0:'💎 Armadura diamante',1:'⚡ Carrera tornado',2:'🕷️ Puño araña',3:'🌀 Agujero negro',4:'⚡ Tormenta eléctrica'},
+    levelBonusDesc:{2:'+2 Vida, disparo +20%',3:'+2 Vida, disparo +40%, ulti 2x'},ultiShort:'ULTI',nextShort:'SIG.',health:'VIDA',xp:'XP',max:'MAX',levelShort:'NV',hp:'PV',finalBoss:'JEFE FINAL',speedShort:'VELOC.',boostShort:'BOOST',
+    weaponPicked:(icon,name,multi)=>icon+' '+name+(multi||'')+' obtenido!',weaponUpgrade:(icon,name,x)=>icon+' '+name+' velocidad de disparo +'+x+'x!',shieldActive:'🛡 Escudo activo!',heartPlus:'❤ Vida +1',levelUp:(lv,desc)=>'⭐ NIVEL '+lv+'! '+desc
+  },
+  de:{
+    weaponNames:{fireball:'Feuerball',ice:'Eisball',lava:'Lavaball',rocket:'Rakete',saw:'Säge',water:'Wassertropfen',thunder:'Blitzball',void:'Leerenkugel',slime:'Schleimbombe',nether:'Höllenflamme'},
+    bonusNames:{fireball:'Feuerball',ice:'Eisball',lava:'Lavaball',rocket:'Rakete',saw:'Säge',water:'Wasser',thunder:'Blitz',void:'Leere',slime:'Schleim',nether:'Hölle',shield:'Schild',heart:'Leben +1',beam_ammo:'Strahl +1',slap_ammo:'Schlag +1',speed_boost:'Tempo'},
+    bossNames:['Blauer Blumenmonster','Rote Spinne','Grüner Flügel','Ender-Herrscher','Dämonenkönig','Gott der Leere','Sturmgeist','Eisenkoloss','Drachengeist','Gott des Untergangs'],
+    ultiNames:{0:'💎 Diamantrüstung',1:'⚡ Tornado-Lauf',2:'🕷️ Spinnen-Schlag',3:'🌀 Schwarzes Loch',4:'⚡ Blitzsturm'},levelBonusDesc:{2:'+2 Leben, Feuerrate +20%',3:'+2 Leben, Feuerrate +40%, Ulti 2x'},ultiShort:'ULTI',nextShort:'WECHS.',health:'LEBEN',xp:'XP',max:'MAX',levelShort:'LV',hp:'LP',finalBoss:'FINALER BOSS',speedShort:'TEMPO',boostShort:'BOOST',weaponPicked:(icon,name,multi)=>icon+' '+name+(multi||'')+' erhalten!',weaponUpgrade:(icon,name,x)=>icon+' '+name+' Feuerrate '+x+'x erhöht!',shieldActive:'🛡 Schild aktiv!',heartPlus:'❤ Leben +1',levelUp:(lv,desc)=>'⭐ LEVEL '+lv+'! '+desc
+  },
+  it:{
+    weaponNames:{fireball:'Palla di fuoco',ice:'Palla di ghiaccio',lava:'Palla di lava',rocket:'Razzo',saw:'Sega',water:'Goccia d’acqua',thunder:'Palla fulmine',void:'Sfera vuota',slime:'Bomba slime',nether:'Fiamma infernale'},
+    bonusNames:{fireball:'Palla di fuoco',ice:'Palla di ghiaccio',lava:'Palla di lava',rocket:'Razzo',saw:'Sega',water:'Acqua',thunder:'Fulmine',void:'Vuoto',slime:'Slime',nether:'Inferno',shield:'Scudo',heart:'Vita +1',beam_ammo:'Raggio +1',slap_ammo:'Schiaffo +1',speed_boost:'Velocità'},
+    bossNames:['Mostro fiore blu','Ragno rosso','Ala verde','Sovrano Ender','Re demone','Dio del vuoto','Spirito tempesta','Colosso di ferro','Spirito drago','Dio apocalisse'],
+    ultiNames:{0:'💎 Armatura diamante',1:'⚡ Corsa tornado',2:'🕷️ Pugno ragno',3:'🌀 Buco nero',4:'⚡ Tempesta fulmini'},levelBonusDesc:{2:'+2 Vita, fuoco +20%',3:'+2 Vita, fuoco +40%, ulti 2x'},ultiShort:'ULTI',nextShort:'CAMBIA',health:'VITA',xp:'XP',max:'MAX',levelShort:'LV',hp:'PV',finalBoss:'BOSS FINALE',speedShort:'VEL.',boostShort:'BOOST',weaponPicked:(icon,name,multi)=>icon+' '+name+(multi||'')+' ottenuto!',weaponUpgrade:(icon,name,x)=>icon+' '+name+' cadenza aumentata '+x+'x!',shieldActive:'🛡 Scudo attivo!',heartPlus:'❤ Vita +1',levelUp:(lv,desc)=>'⭐ LIVELLO '+lv+'! '+desc
+  },
+  pt:{
+    weaponNames:{fireball:'Bola de fogo',ice:'Bola de gelo',lava:'Bola de lava',rocket:'Foguete',saw:'Serra',water:'Gota de água',thunder:'Bola de raio',void:'Orbe vazio',slime:'Bomba slime',nether:'Chama infernal'},
+    bonusNames:{fireball:'Bola de fogo',ice:'Bola de gelo',lava:'Bola de lava',rocket:'Foguete',saw:'Serra',water:'Água',thunder:'Raio',void:'Vazio',slime:'Slime',nether:'Inferno',shield:'Escudo',heart:'Vida +1',beam_ammo:'Raio +1',slap_ammo:'Tapa +1',speed_boost:'Velocidade'},
+    bossNames:['Monstro flor azul','Aranha vermelha','Asa verde','Soberano Ender','Rei demônio','Deus do vazio','Espírito da tempestade','Colosso de ferro','Espírito dragão','Deus do apocalipse'],
+    ultiNames:{0:'💎 Armadura diamante',1:'⚡ Corrida tornado',2:'🕷️ Soco aranha',3:'🌀 Buraco negro',4:'⚡ Tempestade de raios'},levelBonusDesc:{2:'+2 Vida, disparo +20%',3:'+2 Vida, disparo +40%, ulti 2x'},ultiShort:'ULTI',nextShort:'TROCAR',health:'VIDA',xp:'XP',max:'MAX',levelShort:'NV',hp:'PV',finalBoss:'CHEFE FINAL',speedShort:'VEL.',boostShort:'BOOST',weaponPicked:(icon,name,multi)=>icon+' '+name+(multi||'')+' coletado!',weaponUpgrade:(icon,name,x)=>icon+' '+name+' cadência aumentada '+x+'x!',shieldActive:'🛡 Escudo ativo!',heartPlus:'❤ Vida +1',levelUp:(lv,desc)=>'⭐ NÍVEL '+lv+'! '+desc
+  },
+  ja:{
+    weaponNames:{fireball:'火の玉',ice:'氷の玉',lava:'溶岩の玉',rocket:'ロケット',saw:'ノコギリ',water:'水滴',thunder:'雷の玉',void:'虚空オーブ',slime:'スライム爆弾',nether:'地獄の炎'},
+    bonusNames:{fireball:'火の玉',ice:'氷の玉',lava:'溶岩の玉',rocket:'ロケット',saw:'ノコギリ',water:'水',thunder:'雷',void:'虚空',slime:'スライム',nether:'地獄',shield:'シールド',heart:'体力 +1',beam_ammo:'ビーム +1',slap_ammo:'パンチ +1',speed_boost:'スピード'},
+    bossNames:['青い花の怪物','赤いクモ','緑の翼','エンダー支配者','悪魔の王','虚空の神','嵐の精霊','鉄の巨像','ドラゴンの精霊','終末の神'],
+    ultiNames:{0:'💎 ダイヤ防具',1:'⚡ 竜巻ダッシュ',2:'🕷️ スパイダーパンチ',3:'🌀 ブラックホール',4:'⚡ 雷の嵐'},levelBonusDesc:{2:'+2 体力、連射 +20%',3:'+2 体力、連射 +40%、必殺 2x'},ultiShort:'必殺',nextShort:'次',health:'体力',xp:'XP',max:'最大',levelShort:'LV',hp:'HP',finalBoss:'ラスボス',speedShort:'速度',boostShort:'強化',weaponPicked:(icon,name,multi)=>icon+' '+name+(multi||'')+' 入手!',weaponUpgrade:(icon,name,x)=>icon+' '+name+' 連射速度 '+x+'x アップ!',shieldActive:'🛡 シールド発動!',heartPlus:'❤ 体力 +1',levelUp:(lv,desc)=>'⭐ レベル '+lv+'! '+desc
+  },
+  zh:{
+    weaponNames:{fireball:'火球',ice:'冰球',lava:'熔岩球',rocket:'火箭',saw:'锯刃',water:'水滴',thunder:'雷电球',void:'虚空球',slime:'史莱姆炸弹',nether:'地狱火'},
+    bonusNames:{fireball:'火球',ice:'冰球',lava:'熔岩球',rocket:'火箭',saw:'锯刃',water:'水',thunder:'雷电',void:'虚空',slime:'史莱姆',nether:'地狱',shield:'护盾',heart:'生命 +1',beam_ammo:'光束 +1',slap_ammo:'拍击 +1',speed_boost:'加速'},
+    bossNames:['蓝花怪物','红蜘蛛','绿翼','末影统治者','恶魔王','虚空之神','风暴之灵','钢铁巨像','龙之灵','末日之神'],
+    ultiNames:{0:'💎 钻石护甲',1:'⚡ 龙卷冲刺',2:'🕷️ 蜘蛛拳',3:'🌀 黑洞',4:'⚡ 雷暴'},levelBonusDesc:{2:'+2 生命，射速 +20%',3:'+2 生命，射速 +40%，大招 2x'},ultiShort:'大招',nextShort:'切换',health:'生命',xp:'经验',max:'最大',levelShort:'级',hp:'生命',finalBoss:'最终BOSS',speedShort:'速度',boostShort:'强化',weaponPicked:(icon,name,multi)=>icon+' '+name+(multi||'')+' 已获得!',weaponUpgrade:(icon,name,x)=>icon+' '+name+' 射速提升 '+x+'x!',shieldActive:'🛡 护盾已激活!',heartPlus:'❤ 生命 +1',levelUp:(lv,desc)=>'⭐ 等级 '+lv+'! '+desc
+  },
+  ko:{
+    weaponNames:{fireball:'불덩이',ice:'얼음 공',lava:'용암 공',rocket:'로켓',saw:'톱날',water:'물방울',thunder:'번개 공',void:'공허 구슬',slime:'슬라임 폭탄',nether:'지옥 불꽃'},
+    bonusNames:{fireball:'불덩이',ice:'얼음 공',lava:'용암 공',rocket:'로켓',saw:'톱날',water:'물',thunder:'번개',void:'공허',slime:'슬라임',nether:'지옥',shield:'방패',heart:'체력 +1',beam_ammo:'빔 +1',slap_ammo:'손바닥 +1',speed_boost:'속도'},
+    bossNames:['파란 꽃 괴물','붉은 거미','초록 날개','엔더 군주','악마 왕','공허의 신','폭풍의 영혼','철 거상','용의 영혼','종말의 신'],
+    ultiNames:{0:'💎 다이아 갑옷',1:'⚡ 토네이도 질주',2:'🕷️ 거미 펀치',3:'🌀 블랙홀',4:'⚡ 번개 폭풍'},levelBonusDesc:{2:'+2 체력, 발사 속도 +20%',3:'+2 체력, 발사 속도 +40%, 궁극기 2x'},ultiShort:'궁극',nextShort:'교체',health:'체력',xp:'XP',max:'최대',levelShort:'LV',hp:'HP',finalBoss:'최종 보스',speedShort:'속도',boostShort:'부스트',weaponPicked:(icon,name,multi)=>icon+' '+name+(multi||'')+' 획득!',weaponUpgrade:(icon,name,x)=>icon+' '+name+' 발사 속도 '+x+'x 증가!',shieldActive:'🛡 방패 활성!',heartPlus:'❤ 체력 +1',levelUp:(lv,desc)=>'⭐ 레벨 '+lv+'! '+desc
+  }
+};
+Object.keys(WF_I18N_EXTRA).forEach(k=>{LANG_PACKS[k]=Object.assign(LANG_PACKS[k]||{},WF_I18N_EXTRA[k]);});
+const WF_MENU_I18N={
+  ar:{gameMenuTitle:'⏸ إيقاف مؤقت',gameMenuResume:'▶ متابعة',gameMenuSound:'🔊 الصوت',gameMenuLang:'🌍 اللغة',gameMenuExit:'↩ العودة للقائمة'},
+  ru:{gameMenuTitle:'⏸ ПАУЗА',gameMenuResume:'▶ ПРОДОЛЖИТЬ',gameMenuSound:'🔊 ЗВУК ВКЛ/ВЫКЛ',gameMenuLang:'🌍 ЯЗЫК',gameMenuExit:'↩ В ГЛАВНОЕ МЕНЮ'},
+  fr:{gameMenuTitle:'⏸ PAUSE',gameMenuResume:'▶ CONTINUER',gameMenuSound:'🔊 SON ON/OFF',gameMenuLang:'🌍 LANGUE',gameMenuExit:'↩ MENU PRINCIPAL'},
+  es:{gameMenuTitle:'⏸ PAUSA',gameMenuResume:'▶ CONTINUAR',gameMenuSound:'🔊 SONIDO',gameMenuLang:'🌍 IDIOMA',gameMenuExit:'↩ MENÚ PRINCIPAL'},
+  de:{gameMenuTitle:'⏸ PAUSE',gameMenuResume:'▶ WEITER',gameMenuSound:'🔊 TON AN/AUS',gameMenuLang:'🌍 SPRACHE',gameMenuExit:'↩ HAUPTMENÜ'},
+  it:{gameMenuTitle:'⏸ PAUSA',gameMenuResume:'▶ CONTINUA',gameMenuSound:'🔊 AUDIO',gameMenuLang:'🌍 LINGUA',gameMenuExit:'↩ MENU PRINCIPALE'},
+  pt:{gameMenuTitle:'⏸ PAUSA',gameMenuResume:'▶ CONTINUAR',gameMenuSound:'🔊 SOM',gameMenuLang:'🌍 IDIOMA',gameMenuExit:'↩ MENU PRINCIPAL'},
+  ja:{gameMenuTitle:'⏸ ポーズ',gameMenuResume:'▶ 続ける',gameMenuSound:'🔊 音声',gameMenuLang:'🌍 言語',gameMenuExit:'↩ メインメニュー'},
+  zh:{gameMenuTitle:'⏸ 暂停',gameMenuResume:'▶ 继续',gameMenuSound:'🔊 声音',gameMenuLang:'🌍 语言',gameMenuExit:'↩ 返回主菜单'},
+  ko:{gameMenuTitle:'⏸ 일시정지',gameMenuResume:'▶ 계속',gameMenuSound:'🔊 소리',gameMenuLang:'🌍 언어',gameMenuExit:'↩ 메인 메뉴'}
+};
+Object.keys(WF_MENU_I18N).forEach(k=>{LANG_PACKS[k]=Object.assign(LANG_PACKS[k]||{},WF_MENU_I18N[k]);});
+function locMap(key){return (L()[key]||EN[key]||{});}
+function weaponName(id){return locMap('weaponNames')[id] || WEAPONS_BASE?.[id]?.name || id;}
+function bonusLabel(b){const key=(typeof b==='string')?b:(b.type==='weapon'?b.weapon:b.type);return locMap('bonusNames')[key] || (typeof b==='object'?(b.label||key):key);}
+function bossName(idx){idx=Math.max(0,Math.min(9,idx|0));return (L().bossNames||EN.bossNames||[])[idx] || BOSS_DEFS[idx]?.name || '';}
+function bossNameByDef(def){return bossName(def?.id??currentLevel);}
+function ultiName(ud){const id=Object.keys(CHAR_ULTIS||{}).find(k=>CHAR_ULTIS[k]===ud);return (L().ultiNames||EN.ultiNames||{})[id] || ud?.nameEN || ud?.name || '';}
+function levelBonusDesc(lv){return (L().levelBonusDesc||EN.levelBonusDesc||{})[lv] || LEVEL_BONUSES[lv]?.descEN || '';} 
+function levelUpText(lv){const f=L().levelUp||EN.levelUp;return f(lv,levelBonusDesc(lv));}
+
+function L(){return LANG_PACKS[LANG]||EN;}
+function txt(key,...args){const v=L()[key]??EN[key]??key;return typeof v==='function'?v(...args):v;}
+function updateLanguageButtons(){
+  ['langPickGrid','gameLangPickGrid'].forEach(id=>{
+    const grid=document.getElementById(id);
+    if(grid && !grid.dataset.ready){
+      grid.innerHTML=Object.entries(LANG_LABELS).map(([c,label])=>'<button class="langPick" data-lang="'+c+'">'+label+'</button>').join('');
+      grid.dataset.ready='1';
+      grid.addEventListener('click',e=>{const b=e.target.closest('.langPick');if(b)setLanguage(b.dataset.lang);});
+    }
+  });
+  document.querySelectorAll('.langPick').forEach(b=>b.classList.toggle('sel',b.dataset.lang===LANG));
+}
+function applyTexts(){
+  document.documentElement.lang=LANG;
+  const d=L();
+  const set=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=v;};
+  const ph=(id,v)=>{const el=document.getElementById(id);if(el)el.placeholder=v;};
+  set('logoBtn',d.charSel);set('nxtBtn',d.nxtBtn);set('ultiLabel',txt('ultiShort'));set('ultiLabel2',txt('ultiShort'));document.querySelectorAll('#bSw span,#bSw2 span').forEach(el=>{if(!/^🚀/.test(el.textContent))el.textContent=txt('nextShort');});set('settingsBtn',d.settingsBtn);set('settingsTitle',d.settingsTitle);set('settingsInfo',d.settingsInfo);set('adminOpenBtn',d.adminOpen||'🔐 ADMIN PANEL LOGIN');set('adminLoginInfo',d.adminLoginInfo||'Enter password for admin panel.');set('langSettingsTitle',d.languageTitle);set('langSettingsInfo',d.languageInfo);ph('setPass',d.setPass);set('setLogin',d.setLogin);set('adminInfo',d.adminInfo);set('clearScoresBtn',d.clearScores);set('settingsBack',d.hiBack);set('ctrlSelH',d.ctrlSelH);set('ctrlSelGo',d.ctrlSelGo);
+  const adminTitle=document.getElementById('adminTitle'); if(adminTitle)adminTitle.textContent=d.adminTitle||'ADMIN PANEL';
+  const ch=document.querySelector('#charSelect h2');if(ch)ch.textContent=d.charSel;
+  const cs=document.querySelector('#charSelect .sub');if(cs)cs.textContent=d.charSub;
+  set('startBtn',d.startBtn);set('gameMenuTitle',txt('gameMenuTitle'));set('gameMenuResume',txt('gameMenuResume'));set('gameMenuSound',txt('gameMenuSound'));set('gameMenuLangToggle',txt('gameMenuLang'));set('gameMenuExit',txt('gameMenuExit'));set('gameMenuLangTitle',d.languageTitle||txt('gameMenuLang'));
+  const hi=document.querySelector('#hiScreen h2');if(hi)hi.textContent=d.hiTitle;set('hiBack',d.hiBack);
+  const ns=document.querySelector('#nameScreen h2');if(ns)ns.textContent=d.saveTit;set('nameSbm',d.saveBtn);ph('nameInp',d.nameHint);
+  const et=document.querySelector('.etitle');if(et)et.textContent=d.endTitle;set('endHiBtn',d.endHi);set('endAgain',d.endAgain);
+  const gh=document.querySelector('#gameOverScreen h2');if(gh)gh.textContent=d.goH2;const gp=document.querySelector('#goCodeBox p');if(gp)gp.textContent=d.goCode;set('goCodeBtn',d.goCodeBtn);set('goRestartBtn',d.goRestart);
+  updateLanguageButtons();
+}
+function setLanguage(code){LANG=code;try{localStorage.setItem('wf_lang',code);}catch(e){};applyTexts();if(document.getElementById('ctrlScreen').style.display!=='none')showCtrl();}
+
 
 function showCtrl(){
   document.getElementById('langScreen').style.display='none';
@@ -375,30 +626,7 @@ function showCtrl(){
 
 function goToLogo(){
   document.getElementById('ctrlScreen').style.display='none';
-  const d=L();
-  // Logo screen
-  document.getElementById('logoBtn').textContent=d.charSel;
-  document.getElementById('nxtBtn').textContent=d.nxtBtn;
-  // Char select
-  document.querySelector('#charSelect h2').textContent=d.charSel;
-  document.querySelector('#charSelect .sub').textContent=d.charSub;
-  document.getElementById('startBtn').textContent=d.startBtn;
-  // Hi score
-  document.querySelector('#hiScreen h2').textContent=d.hiTitle;
-  document.getElementById('hiBack').textContent=d.hiBack;
-  // Name screen
-  document.querySelector('#nameScreen h2').textContent=d.saveTit;
-  document.getElementById('nameSbm').textContent=d.saveBtn;
-  document.getElementById('nameInp').placeholder=d.nameHint;
-  // End screen
-  document.querySelector('.etitle').textContent=d.endTitle;
-  document.getElementById('endHiBtn').textContent=d.endHi;
-  document.getElementById('endAgain').textContent=d.endAgain;
-  // Game over screen
-  document.querySelector('#gameOverScreen h2').textContent=d.goH2;
-  document.querySelector('#goCodeBox p').textContent=d.goCode;
-  document.getElementById('goCodeBtn').textContent=d.goCodeBtn;
-  document.getElementById('goRestartBtn').textContent=d.goRestart;
+  applyTexts();
   document.getElementById('logoScreen').style.display='flex';
 }
 
@@ -416,12 +644,13 @@ function drawLogoOn(id){
   lx.fillStyle='#333';lx.fillRect(40,104,360,2);lx.fillStyle='#ffaa00';lx.fillRect(160,104,120,2);
 }
 drawLogoOn('logoCanvas2');
+applyTexts();
 
 // Buton olayları
-document.getElementById('lbTR').onclick=()=>{LANG='tr';showCtrl();};
-document.getElementById('lbEN').onclick=()=>{LANG='en';showCtrl();};
-document.getElementById('lbTR').addEventListener('touchend',e=>{e.preventDefault();LANG='tr';showCtrl();},{passive:false});
-document.getElementById('lbEN').addEventListener('touchend',e=>{e.preventDefault();LANG='en';showCtrl();},{passive:false});
+document.getElementById('lbTR').onclick=()=>{setLanguage('tr');showCtrl();};
+document.getElementById('lbEN').onclick=()=>{setLanguage('en');showCtrl();};
+document.getElementById('lbTR').addEventListener('touchend',e=>{e.preventDefault();setLanguage('tr');showCtrl();},{passive:false});
+document.getElementById('lbEN').addEventListener('touchend',e=>{e.preventDefault();setLanguage('en');showCtrl();},{passive:false});
 // Kontrol seçimi
 let ctrlType='joystick';
 let btnLPressed=false,btnRPressed=false;
@@ -434,8 +663,8 @@ function selCtrl(type){
 function showCtrlSel(){
   document.getElementById('ctrlScreen').style.display='none';
   document.getElementById('ctrlSelScreen').style.display='flex';
-  document.getElementById('ctrlSelH').textContent=LANG==='tr'?'🎮 KONTROL SEÇ':'🎮 SELECT CONTROL';
-  document.getElementById('ctrlSelGo').textContent=LANG==='tr'?'▶ DEVAM':'▶ CONTINUE';
+  document.getElementById('ctrlSelH').textContent=txt('ctrlSelH');
+  document.getElementById('ctrlSelGo').textContent=txt('ctrlSelGo');
 }
 function applyCtrl(){
   document.getElementById('ctrlSelScreen').style.display='none';
@@ -472,9 +701,14 @@ const gc=document.getElementById('gameCanvas');
 const jz=document.getElementById('jz');
 for(const el of [gc,jz]){el.addEventListener('touchstart',e=>e.preventDefault(),{passive:false});el.addEventListener('touchmove',e=>e.preventDefault(),{passive:false});el.addEventListener('touchend',e=>e.preventDefault(),{passive:false});}
 function addTap(id,fn){const el=document.getElementById(id);if(!el)return;el.addEventListener('click',fn);el.addEventListener('touchend',e=>{e.preventDefault();e.stopPropagation();fn();},{passive:false});}
-addTap('logoBtn',showCharSelect);addTap('hiBtn',showHiScores);
-addTap('hiBack',()=>{document.getElementById('hiScreen').style.display='none';document.getElementById('logoScreen').style.display='flex';});
-addTap('startBtn',startGame);addTap('nxtBtn',nextLevel);addTap('sndBtn',toggleMute);
+addTap('logoBtn',showCharSelect);addTap('hiBtn',showHiScores);addTap('settingsBtn',showSettings);
+addTap('hiBack',()=>{hideAllGameScreens();document.getElementById('logoScreen').style.display='flex';});
+addTap('settingsBack',()=>{hideAllGameScreens();document.getElementById('logoScreen').style.display='flex';});
+addTap('adminOpenBtn',openAdminLogin);
+addTap('setLogin',adminLogin);
+addTap('clearScoresBtn',clearHiScores);
+const setPassEl=document.getElementById('setPass');if(setPassEl)setPassEl.addEventListener('keydown',e=>{if(e.key==='Enter')adminLogin();});
+addTap('startBtn',startGame);addTap('nxtBtn',nextLevel);addTap('sndBtn',toggleMute);addTap('gameSettingsBtn',openGameMenu);addTap('gameMenuResume',resumeGameFromMenu);addTap('gameMenuSound',()=>{toggleMute();applyTexts();});addTap('gameMenuLangToggle',toggleGameLangBox);addTap('gameMenuExit',exitToMainMenuFromGame);
 addTap('bPause',togglePause);addTap('bSw',switchWeapon);addTap('bBeam',activateBeam);addTap('bSlap',activateSlap);addTap('bUlti',activateUlti);
 addTap('endHiBtn',()=>{document.getElementById('endScreen').style.display='none';showNameEntry();});
 addTap('endAgain',()=>{document.getElementById('endScreen').style.display='none';document.getElementById('logoScreen').style.display='flex';});
@@ -489,13 +723,93 @@ document.getElementById('bFire').addEventListener('touchend',e=>{e.preventDefaul
 document.getElementById('bFire').addEventListener('click',tryFire);
 
 // ── HI-SCORE ─────────────────────────────────────────
+function escHtml(v){return String(v??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));}
 function getScores(){try{return JSON.parse(localStorage.getItem('wf_scores2')||'[]');}catch(e){return[];}}
 function saveScores(arr){try{localStorage.setItem('wf_scores2',JSON.stringify(arr));}catch(e){}}
+function renderScores(scores,online){
+  const tag=online?'<div style="color:#00ffaa;text-align:center;font-size:9px;margin-bottom:8px;">ONLINE GLOBAL LIST</div>':'<div style="color:#ffaa00;text-align:center;font-size:9px;margin-bottom:8px;">LOCAL / OFFLINE LIST</div>';
+  document.getElementById('hiList').innerHTML=scores.length?tag+scores.map((s,i)=>`<div class="hirow"><span class="rank">#${i+1}</span><span class="name">${escHtml(s.name)}</span><span class="sc">${Number(s.score||0).toLocaleString()}</span></div>`).join(''):'<div style="color:#444;text-align:center;padding:20px;">'+L().hiEmpty+'</div>';
+}
+async function getCloudScores(){
+  if(!wfCloudReady||!wfDb) throw new Error('cloud offline');
+  const snap=await wfDb.collection(WF_SCORE_COLLECTION).orderBy('score','desc').limit(10).get();
+  return snap.docs.map(d=>d.data());
+}
+async function addCloudScore(row){
+  if(!wfCloudReady||!wfDb) throw new Error('cloud offline');
+  await wfDb.collection(WF_SCORE_COLLECTION).add({
+    game:'wither-fight',
+    name:row.name,
+    score:row.score,
+    time:row.time,
+    level:row.level,
+    date:row.date,
+    createdAt:firebase.firestore.FieldValue.serverTimestamp()
+  });
+}
+function hideAllGameScreens(){
+  ['langScreen','ctrlScreen','ctrlSelScreen','logoScreen','hiScreen','settingsScreen','nameScreen','charSelect','endScreen','gameOverScreen','lvlBanner'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el)el.style.display='none';
+  });
+  gc.style.display='none';
+  document.getElementById('touchCtrl').style.display='none';
+  document.getElementById('btnCtrl').style.display='none';
+  document.getElementById('gameSettingsBtn').style.display='none';
+  document.getElementById('gameMenuOverlay').style.display='none';
+  document.getElementById('sndBtn').style.display='none';
+  const gs=document.getElementById('gameSettingsBtn');if(gs)gs.style.display='none';
+  document.getElementById('gameSettingsBtn').style.display='none';
+  document.getElementById('gameMenuOverlay').style.display='none';
+  document.getElementById('nxtBtn').style.display='none';
+}
+
+function showSettings(){
+  hideAllGameScreens();
+  const s=document.getElementById('settingsScreen');
+  s.style.display='flex';
+  applyTexts();
+  document.getElementById('setPass').value='';
+  document.getElementById('setErr').textContent='';
+  document.getElementById('adminMsg').textContent='';
+  document.getElementById('adminLoginPanel').style.display='none';
+  document.getElementById('adminBox').style.display='none';
+}
+function openAdminLogin(){
+  document.getElementById('adminBox').style.display='none';
+  document.getElementById('adminMsg').textContent='';
+  document.getElementById('setErr').textContent='';
+  document.getElementById('setPass').value='';
+  document.getElementById('adminLoginPanel').style.display='block';
+  setTimeout(()=>document.getElementById('setPass').focus(),120);
+}
+function adminLogin(){
+  const pass=document.getElementById('setPass').value;
+  if(pass==='Kalem123!'){
+    document.getElementById('setErr').textContent='';
+    document.getElementById('adminLoginPanel').style.display='none';
+    document.getElementById('adminBox').style.display='block';
+    document.getElementById('adminMsg').textContent='';
+  }else{
+    document.getElementById('adminBox').style.display='none';
+    document.getElementById('setErr').textContent=txt('wrongPass');
+    document.getElementById('setPass').value='';
+  }
+}
+function clearHiScores(){
+  try{localStorage.removeItem('wf_scores2');}catch(e){}
+  try{localStorage.removeItem('wf_scores');}catch(e){}
+  document.getElementById('adminMsg').textContent=txt('clearDone');
+}
+
 function showHiScores(){
-  document.getElementById('logoScreen').style.display='none';
-  document.getElementById('hiScreen').style.display='flex';
-  const scores=getScores().sort((a,b)=>b.score-a.score).slice(0,10);
-  document.getElementById('hiList').innerHTML=scores.length?scores.map((s,i)=>`<div class="hirow"><span class="rank">#${i+1}</span><span class="name">${s.name}</span><span class="sc">${s.score.toLocaleString()}</span></div>`).join(''):'<div style="color:#444;text-align:center;padding:20px;">'+L().hiEmpty+'</div>';
+  hideAllGameScreens();
+  const hi=document.getElementById('hiScreen');
+  hi.style.display='flex';
+  hi.style.zIndex='650';
+  const localScores=getScores().sort((a,b)=>b.score-a.score).slice(0,10);
+  renderScores(localScores,false);
+  // Firebase/Analytics bu sürümde kapalı: isim kaydedince direkt local listeye düşer.
 }
 function showNameEntry(){
   document.getElementById('nameScreen').style.display='flex';
@@ -504,11 +818,13 @@ function showNameEntry(){
   setTimeout(()=>inp.focus(),300);
 }
 function saveScore(){
-  const name=(document.getElementById('nameInp').value||'').trim()||'???';
+  const name=((document.getElementById('nameInp').value||'').trim()||'???').slice(0,12);
+  const row={name,score:Math.floor(gameScore),time:Math.floor(gameTime/1000),level:currentLevel+1,date:new Date().toLocaleDateString('tr-TR')};
   const scores=getScores();
-  scores.push({name,score:Math.floor(gameScore),time:Math.floor(gameTime/1000),level:currentLevel+1,date:new Date().toLocaleDateString('tr-TR')});
-  scores.sort((a,b)=>b.score-a.score);saveScores(scores.slice(0,20));
-  document.getElementById('nameScreen').style.display='none';
+  scores.push(row);
+  scores.sort((a,b)=>b.score-a.score);
+  saveScores(scores.slice(0,20));
+  document.querySelector('#nameScreen h2').textContent=L().saveTit;
   showHiScores();
 }
 
@@ -538,10 +854,10 @@ function tryCode(){
     document.getElementById('gameOverScreen').style.display='none';
     // Skoru kaydet, sonraki bölüme geç
     currentLevel=Math.min(currentLevel+1,9);
-    gc.style.display='block';document.getElementById('touchCtrl').style.display='block';
+    gc.style.display='block';document.getElementById('touchCtrl').style.display='block';document.getElementById('gameSettingsBtn').style.display='flex';
     gameOver=false;
     initLevel(currentLevel);startBGM();
-    showLvlBanner(L().lvlBanner(currentLevel,BOSS_DEFS[Math.min(currentLevel,9)].name));
+    showLvlBanner(L().lvlBanner(currentLevel,bossName(currentLevel)));
     requestAnimationFrame(loop);
   }else{
     document.getElementById('goCodeErr').textContent=L().wrongCode;
@@ -550,7 +866,7 @@ function tryCode(){
 }
 function restartLevel(){
   document.getElementById('gameOverScreen').style.display='none';
-  gc.style.display='block';document.getElementById('touchCtrl').style.display='block';
+  gc.style.display='block';document.getElementById('touchCtrl').style.display='block';document.getElementById('gameSettingsBtn').style.display='flex';
   gameOver=false;
   initLevel(currentLevel);startBGM();
   requestAnimationFrame(loop);
@@ -787,15 +1103,17 @@ function updateSpecialBtns(){
     const b=document.getElementById('bBeam'+s);if(b)b.textContent='⚡×'+beamAmmo;
     const sl=document.getElementById('bSlap'+s);if(sl)sl.textContent='👋×'+slapAmmo;
     const ub=document.getElementById('bUlti'+s);const ul=document.getElementById('ultiLabel'+s);
-    if(ub&&ul){const ud=CHAR_ULTIS[player?.char?.id]||CHAR_ULTIS[0];if(ultiCooldown>0){ub.style.opacity='0.45';ul.textContent=Math.ceil(ultiCooldown/1000)+'s';}else{ub.style.opacity='1';ub.style.borderColor=ud.color;ul.textContent='ULTI';if(ub.firstChild)ub.firstChild.textContent=ud.icon;}}
+    if(ub&&ul){const ud=CHAR_ULTIS[player?.char?.id]||CHAR_ULTIS[0];if(ultiCooldown>0){ub.style.opacity='0.45';ul.textContent=Math.ceil(ultiCooldown/1000)+'s';}else{ub.style.opacity='1';ub.style.borderColor=ud.color;ul.textContent=txt('ultiShort');if(ub.firstChild)ub.firstChild.textContent=ud.icon;}}
   });
   document.getElementById('bBeam').textContent='⚡×'+beamAmmo;
   document.getElementById('bSlap').textContent='👋×'+slapAmmo;
   // Roket ammo HUD'da göster
   if(player&&player.weapon==='rocket'){
     const sw=document.getElementById('bSw');
+    const sw2=document.getElementById('bSw2');
     if(sw)sw.querySelector('span').textContent='🚀×'+rocketAmmo;
-  }
+    if(sw2)sw2.querySelector('span').textContent='🚀×'+rocketAmmo;
+  }else{document.querySelectorAll('#bSw span,#bSw2 span').forEach(el=>el.textContent=txt('nextShort'));}
   const ud=getUltiDef();
   const ultiBtn=document.getElementById('bUlti');
   const ultiLbl=document.getElementById('ultiLabel');
@@ -807,14 +1125,14 @@ function updateSpecialBtns(){
     ultiBtn.style.opacity='1';
     ultiBtn.style.borderColor=ud.color;
     ultiBtn.style.background=`rgba(255,200,0,0.3)`;
-    ultiLbl.textContent='ULTI';
+    ultiLbl.textContent=txt('ultiShort');
     document.getElementById('bUlti').firstChild.textContent=ud.icon;
   }
 }
 
 function activateUlti(){
   if(gameOver||victory||paused||player.dead)return;
-  if(ultiCooldown>0){showPopup(LANG==='tr'?'⏳ Ulti hazır değil!':'⏳ Ulti not ready!');return;}
+  if(ultiCooldown>0){showPopup(txt('ultiNotReady'));return;}
   const ud=getUltiDef();
   const power=playerLevel>=3?2:1;
   ultiCooldown=ud.cd;
@@ -824,27 +1142,27 @@ function activateUlti(){
 
   if(ultiType===0){
     // Jessie — Elmas Zırh Çarpışı: zırh giy → boss'a fırla → 550 hasar
-    showPopup(LANG==='tr'?'💎 ELMAS ZIRH!':'💎 DIAMOND ARMOR!');
+    showPopup(txt('diamondArmor'));
     player._jessieUlti={phase:'armor',t:0,origX:player.x,origY:player.y,punchX:0,punchY:0};
     ultiActive=false;
   } else if(ultiType===1){
     // Hurry — Kasırga Koşusu: ekranı soldan sağa geçer, 450 hasar
-    showPopup(LANG==='tr'?'⚡ KASIRGA KOŞUSU!':'⚡ TORNADO DASH!');
+    showPopup(txt('tornadoDash'));
     player._hurryUlti={phase:'spin',t:0,origX:player.x,origY:player.y,dashX:W+60};
     ultiActive=false;
   } else if(ultiType===2){
     // Mikail — Spider Yumruk
-    showPopup(LANG==='tr'?'🕷️ SPİDER YUMRUK!':'🕷️ SPIDER PUNCH!');
+    showPopup(txt('spiderPunch'));
     player._spiderUlti={phase:'transform',t:0,origX:player.x,origY:player.y,punchX:0,punchY:0};
     ultiActive=false;
   } else if(ultiType===3){
     // Aria — Kara Delik: ortada kara delik açılır, boss'u çeker, 620 hasar
-    showPopup(LANG==='tr'?'🌀 KARA DELİK!':'🌀 BLACK HOLE!');
+    showPopup(txt('blackHole'));
     player._ariaUlti={phase:'open',t:0,cx:W/2,cy:H/3,radius:0,maxR:120,dmgDone:false};
     ultiActive=false;
   } else if(ultiType===4){
     // Zephyr — Şimşek Fırtınası: yukarıdan şimşek yağar, 480 hasar
-    showPopup(LANG==='tr'?'⚡ ŞİMŞEK FIRTINASI!':'⚡ LIGHTNING STORM!');
+    showPopup(txt('lightningStorm'));
     player._zephyrUlti={phase:'storm',t:0,strikes:0,maxStrikes:8,dmg:0};
     ultiActive=false;
   }
@@ -859,7 +1177,7 @@ function addXP(amount){
     playerLevel++;
     const bonus=LEVEL_BONUSES[playerLevel];
     player.maxHp+=bonus.hp;player.hp=Math.min(player.hp+bonus.hp,player.maxHp);
-    levelUpNotif={msg:LANG==='tr'?'⭐ LEVEL '+playerLevel+'! '+bonus.desc:'⭐ LEVEL '+playerLevel+'! '+bonus.descEN,timer:3500};
+    levelUpNotif={msg:levelUpText(playerLevel),timer:3500};
     // Ses efekti
     [523,659,784,1047,1318].forEach((f,i)=>setTimeout(()=>beep(f,0.2,'sine',0.18),i*100));
     burst(player.x+player.w/2,player.y+player.h/2,'#FFD700',40);
@@ -930,19 +1248,49 @@ function buildBlocks(lvl){
 }
 function mk(x,y,w,h){return{x,y,w,h,hp:1,shade:0.8+Math.random()*0.4};}
 
+
+function syncPauseButtons(){
+  const p1=document.getElementById('bPause'); if(p1)p1.textContent=paused?'▶':'⏸';
+  const p2=document.getElementById('bPause2'); if(p2)p2.textContent=paused?'▶':'⏸';
+}
+function openGameMenu(){
+  if(gameOver||victory)return;
+  paused=true;syncPauseButtons();applyTexts();
+  const box=document.getElementById('gameMenuLangBox');if(box)box.style.display='none';
+  document.getElementById('gameMenuOverlay').style.display='flex';
+}
+function resumeGameFromMenu(){
+  document.getElementById('gameMenuOverlay').style.display='none';
+  paused=false;syncPauseButtons();
+}
+function toggleGameLangBox(){
+  const box=document.getElementById('gameMenuLangBox');
+  if(!box)return;
+  box.style.display=(box.style.display==='block')?'none':'block';
+  updateLanguageButtons();
+}
+function exitToMainMenuFromGame(){
+  stopBGM();
+  paused=false;gameOver=false;victory=false;syncPauseButtons();
+  document.getElementById('gameMenuOverlay').style.display='none';
+  hideAllGameScreens();
+  document.getElementById('logoScreen').style.display='flex';
+  applyTexts();
+}
+
 // ── FLOW ─────────────────────────────────────────────
 function showCharSelect(){document.getElementById('logoScreen').style.display='none';document.getElementById('charSelect').style.display='flex';}
 function startGame(){
   if(!selectedChar)return;initAudio();
   document.getElementById('charSelect').style.display='none';
-  gc.style.display='block';document.getElementById('sndBtn').style.display='flex';
+  gc.style.display='block';document.getElementById('sndBtn').style.display='flex';document.getElementById('gameSettingsBtn').style.display='flex';
   if(ctrlType==='buttons'){document.getElementById('touchCtrl').style.display='none';document.getElementById('btnCtrl').style.display='block';}
   else{document.getElementById('touchCtrl').style.display='block';document.getElementById('btnCtrl').style.display='none';}
   currentLevel=0;gameScore=0;gameTime=0;initLevel(0);startBGM();requestAnimationFrame(loop);
 }
-function nextLevel(){document.getElementById('nxtBtn').style.display='none';currentLevel++;initLevel(currentLevel);startBGM();showLvlBanner(L().lvlBanner(currentLevel,BOSS_DEFS[Math.min(currentLevel,9)].name));}
+function nextLevel(){document.getElementById('nxtBtn').style.display='none';currentLevel++;initLevel(currentLevel);startBGM();showLvlBanner(L().lvlBanner(currentLevel,bossName(currentLevel)));}
 function showLvlBanner(msg){const el=document.getElementById('lvlBannerTxt'),b=document.getElementById('lvlBanner');el.textContent=msg;el.style.opacity='0';b.style.display='flex';let a=0;const fi=setInterval(()=>{a+=0.05;el.style.opacity=a;if(a>=1)clearInterval(fi);},40);setTimeout(()=>{let a=1;const fo=setInterval(()=>{a-=0.05;el.style.opacity=a;if(a<=0){clearInterval(fo);b.style.display='none';}},50);},2200);}
-function togglePause(){paused=!paused;document.getElementById('bPause').textContent=paused?'▶':'⏸';}
+function togglePause(){paused=!paused;syncPauseButtons();if(!paused){const gm=document.getElementById('gameMenuOverlay');if(gm)gm.style.display='none';}}
 
 // ── INPUT ─────────────────────────────────────────────
 window.addEventListener('keydown',e=>{keys[e.code]=true;if(e.code==='Space'){e.preventDefault();tryFire();}if(e.code==='KeyP')togglePause();if(e.code==='KeyS')switchWeapon();if(e.code==='KeyM')toggleMute();if(e.code==='KeyB')activateBeam();if(e.code==='KeyV')activateSlap();});
@@ -958,7 +1306,7 @@ function tryFire(){
   if(player.weapon==='rocket'){
     if(rocketAmmo<=0){
       switchWeapon();
-      showPopup(LANG==='tr'?'🚀 Roket mermisi bitti!':'🚀 No rockets left!');
+      showPopup(txt('rocketEmpty'));
       return;
     }
     rocketAmmo--;updateSpecialBtns();
@@ -993,7 +1341,7 @@ function activateSlap(){
   // Şaplak animasyonu başlat
   slapAnim={phase:'approach',t:0,duration:600,lx:player.x+player.w/2-60,rx:player.x+player.w/2+60,ly:player.y,ry:player.y,scale:1,done:false};
 }
-function switchWeapon(){if(inventory.length<=1)return;player.weaponIdx=(player.weaponIdx+1)%inventory.length;player.weapon=inventory[player.weaponIdx];const wd=WEAPONS_BASE[player.weapon];showPopup((wd?.icon||'🔫')+' '+wd?.name);beep(440,0.08,'sine',0.13);}
+function switchWeapon(){if(inventory.length<=1)return;player.weaponIdx=(player.weaponIdx+1)%inventory.length;player.weapon=inventory[player.weaponIdx];const wd=WEAPONS_BASE[player.weapon];showPopup((wd?.icon||'🔫')+' '+weaponName(player.weapon));beep(440,0.08,'sine',0.13);}
 function showPopup(msg){wpMsg=msg;wpTimer=1800;}
 
 // ── UPDATE ────────────────────────────────────────────
@@ -1174,7 +1522,7 @@ function updateSpiderUlti(dt){
       s.phase='done';
       // Geri dönüş parlaması
       burst(player.x+player.w/2,player.y+player.h/2,'#3a7d44',20);
-      showPopup(LANG==='tr'?'💚 Mikail geri döndü!':'💚 Mikail returned!');
+      showPopup(txt('mikailReturn'));
     }
   } else {
     player._spiderUlti=null;
@@ -1250,7 +1598,7 @@ function updateJessieUlti(dt){
     if(prog>=1){player.x=s.origX;player.y=s.origY;player.invincible=3000;
       speedBoostActive=true;speedBoostTimer=3000;// bonus: 3sn invincible+hız
       burst(player.x+player.w/2,player.y+player.h/2,'#00BFFF',25);
-      showPopup(LANG==='tr'?'💎 3sn Koruma!':'💎 3s Shield!');
+      showPopup(txt('shield3'));
       s.phase='done';}
   } else {player._jessieUlti=null;}
 }
@@ -1307,7 +1655,7 @@ function updateHurryUlti(dt){
     if(prog>=1){player.x=s.origX;player.y=s.origY;
       speedBoostActive=true;speedBoostTimer=4000;
       burst(player.x+player.w/2,player.y+player.h/2,'#FFD700',30);
-      showPopup(LANG==='tr'?'⚡ 4sn Hız Boost!':'⚡ 4s Speed Boost!');
+      showPopup(txt('speed4'));
       s.phase='done';}
   } else {player._hurryUlti=null;}
 }
@@ -1400,7 +1748,7 @@ function updateZephyrUlti(dt){
     if(s.t>s.maxStrikes*interval+300){
       // Tüm düşman mermilerini de temizle
       projectiles=projectiles.filter(p=>p.owner==='player');
-      showPopup(LANG==='tr'?'⚡ Mermiler temizlendi!':'⚡ Bullets cleared!');
+      showPopup(txt('bulletsCleared'));
       player._zephyrUlti=null;
     }
   }
@@ -1480,18 +1828,18 @@ function applyBonus(b){
       weaponUpgrades[b.weapon].multiplier=newMult;
       const xFactor=(1/newMult).toFixed(1);
       const wd=WEAPONS_BASE[b.weapon];
-      upgradeNotif={msg:(wd?.icon||'')+'  '+wd?.name+' ateş hızı '+xFactor+'x artırıldı!',timer:2500};
+      upgradeNotif={msg:txt('weaponUpgrade',wd?.icon||'',weaponName(b.weapon),xFactor),timer:2500};
       playSpeedUp();
     }
     player.weapon=b.weapon;player.weaponIdx=inventory.indexOf(b.weapon);
     const pc2=weaponUpgrades[b.weapon]?.pickCount||0;
     const shots=Math.min(pc2+1,4);
     const multiStr=(b.weapon==='fireball'||b.weapon==='lava')&&shots>1?' ×'+shots+'🔥':'';
-    showPopup((WEAPONS_BASE[b.weapon]?.icon||'🔫')+' '+b.label+multiStr+' alındı!');playPickup();
-  }else if(b.type==='beam_ammo'){beamAmmo++;updateSpecialBtns();showPopup(LANG==='tr'?'⚡ Işın mermisi +1!':'⚡ Beam ammo +1!');playPickup();}
-  else if(b.type==='slap_ammo'){slapAmmo++;updateSpecialBtns();showPopup(LANG==='tr'?'👋 Şaplak hakkı +1!':'👋 Slap charge +1!');playPickup();}
-  else if(b.type==='shield'){player.shield=true;showPopup('🛡 Kalkan aktif!');playPickup();}
-  else if(b.type==='heart'){player.hp=Math.min(player.hp+1,10);player.maxHp=Math.max(player.maxHp,player.hp);showPopup('❤ Can +1');playPickup();}
+    showPopup(txt('weaponPicked',WEAPONS_BASE[b.weapon]?.icon||'🔫',bonusLabel(b),multiStr));playPickup();
+  }else if(b.type==='beam_ammo'){beamAmmo++;updateSpecialBtns();showPopup(txt('beamPlus'));playPickup();}
+  else if(b.type==='slap_ammo'){slapAmmo++;updateSpecialBtns();showPopup(txt('slapPlus'));playPickup();}
+  else if(b.type==='shield'){player.shield=true;showPopup(txt('shieldActive'));playPickup();}
+  else if(b.type==='heart'){player.hp=Math.min(player.hp+1,10);player.maxHp=Math.max(player.maxHp,player.hp);showPopup(txt('heartPlus'));playPickup();}
   else if(b.type==='speed_boost'){speedBoostActive=true;speedBoostTimer=5000;showPopup(L().speedPop);playSpeedUp();}
 }
 function triggerPlayerDeath(){
@@ -1519,7 +1867,7 @@ function burst(x,y,col,n=10){for(let i=0;i<n;i++){const a=Math.random()*Math.PI*
 
 // ── END SCREEN ────────────────────────────────────────
 function showEndScreen(){
-  stopBGM();gc.style.display='none';document.getElementById('touchCtrl').style.display='none';document.getElementById('btnCtrl').style.display='none';
+  stopBGM();gc.style.display='none';document.getElementById('touchCtrl').style.display='none';document.getElementById('btnCtrl').style.display='none';document.getElementById('gameSettingsBtn').style.display='none';document.getElementById('gameMenuOverlay').style.display='none';
   const es=document.getElementById('endScreen');es.style.display='flex';
   const ending=ENDINGS[selectedChar.id]||ENDINGS[0];
   document.getElementById('endSub').textContent=ending.fam;
@@ -1852,7 +2200,7 @@ function drawBossGreenWing(x,y,w,h,animT){
   // "Final Boss" yazı — yeşil
   ctx.fillStyle=`rgba(0,255,80,${0.5+Math.sin(t*4)*0.3})`;
   ctx.font='bold 10px Courier New';ctx.textAlign='center';
-  ctx.fillText('FINAL BOSS',cx,y+8);ctx.fillText('HP: 999',cx,y+20);
+  ctx.fillText(txt('finalBoss'),cx,y+8);ctx.fillText(txt('hp')+': 999',cx,y+20);
   ctx.restore();
 }
 
@@ -1885,7 +2233,7 @@ function drawBoss(){
   ctx.beginPath();ctx.roundRect(barX-4,barY-4,barW+8,barH+22,8);ctx.stroke();
   // Boss adı
   ctx.fillStyle='rgba(255,255,255,0.9)';ctx.font=`bold ${clamp(9,W*0.022,12)}px Courier New`;
-  ctx.textAlign='center';ctx.fillText(bd.name,W/2,barY-7);
+  ctx.textAlign='center';ctx.fillText(bossNameByDef(bd),W/2,barY-7);
   // HP bar gölge
   ctx.fillStyle='rgba(0,0,0,0.8)';ctx.beginPath();ctx.roundRect(barX,barY,barW,barH,4);ctx.fill();
   // HP gradient renk
@@ -1949,10 +2297,10 @@ function drawBonuses(){
     else if(wk==='heart'){ctx.fillStyle='#f25';ctx.beginPath();ctx.moveTo(0,9);ctx.bezierCurveTo(-13,-2,-16,-16,0,-16);ctx.bezierCurveTo(16,-16,13,-2,0,9);ctx.fill();}
     else if(wk==='beam_ammo'){ctx.strokeStyle='#0ff';ctx.lineWidth=3;ctx.shadowColor='#0ff';ctx.shadowBlur=8;ctx.beginPath();ctx.moveTo(0,-14);ctx.lineTo(0,14);ctx.stroke();ctx.beginPath();ctx.moveTo(-8,-5);ctx.lineTo(8,5);ctx.stroke();ctx.beginPath();ctx.moveTo(8,-5);ctx.lineTo(-8,5);ctx.stroke();ctx.shadowBlur=0;}
     else if(wk==='slap_ammo'){ctx.font='22px sans-serif';ctx.textAlign='center';ctx.fillText('👋',0,7);}
-    else if(wk==='speed_boost'){ctx.fillStyle='#fa0';ctx.font='bold 11px Courier New';ctx.textAlign='center';ctx.fillText('HIZ',0,-2);ctx.fillStyle='#ff0';ctx.font='bold 8px Courier New';ctx.fillText('BOOST',0,8);}
+    else if(wk==='speed_boost'){ctx.fillStyle='#fa0';ctx.font='bold 11px Courier New';ctx.textAlign='center';ctx.fillText(txt('speedShort'),0,-2);ctx.fillStyle='#ff0';ctx.font='bold 8px Courier New';ctx.fillText(txt('boostShort'),0,8);}
     else{const wd=WEAPONS_BASE[wk];ctx.fillStyle=wd?wd.color:'#aaa';ctx.beginPath();ctx.arc(0,0,12,0,Math.PI*2);ctx.fill();}
     ctx.restore();
-    ctx.fillStyle='rgba(255,220,60,0.85)';ctx.font='bold 7px Courier New';ctx.textAlign='center';ctx.fillText(b.label||'',0,28);ctx.restore();
+    ctx.fillStyle='rgba(255,220,60,0.85)';ctx.font='bold 7px Courier New';ctx.textAlign='center';ctx.fillText(bonusLabel(b),0,28);ctx.restore();
   });
 }
 
@@ -1984,7 +2332,7 @@ function drawHUD(){
   const upg=weaponUpgrades[player.weapon];
   const multStr=upg&&upg.multiplier<1?(1/upg.multiplier).toFixed(1)+'x':'';
   ctx.fillStyle=wd.wc||'#fa0';ctx.font=`bold ${7*sc}px Courier New`;
-  ctx.fillText((wd.icon||'')+' '+wd.name+(multStr?' ⚡'+multStr:''),bx+34*sc,by+35*sc);
+  ctx.fillText((wd.icon||'')+' '+weaponName(player.weapon)+(multStr?' ⚡'+multStr:''),bx+34*sc,by+35*sc);
 
   // Silah cooldown bar
   const cd=getWeaponCooldown(player.weapon);
@@ -2014,23 +2362,23 @@ function drawHUD(){
     if(up&&up.multiplier<1){ctx.fillStyle='#0f8';ctx.fillRect(bx+34*sc+i*16*sc,by+71*sc,3*sc,3*sc);}
     ctx.fillStyle=active?'#000':'rgba(150,150,150,0.9)';
     ctx.font=`${5*sc}px Courier New`;ctx.textAlign='center';
-    ctx.fillText(iw.icon||iw.name.slice(0,2),bx+41*sc+i*16*sc,by+80*sc);
+    ctx.fillText(iw.icon||weaponName(w).slice(0,2),bx+41*sc+i*16*sc,by+80*sc);
   });
 
   // Level + XP bar
   const lvlColors=['','#88ff44','#ffaa00','#ff44ff'];
   ctx.fillStyle=lvlColors[playerLevel]||'#88ff44';
   ctx.font=`bold ${8*sc}px Courier New`;ctx.textAlign='left';
-  ctx.fillText('LV'+playerLevel,bx+170*sc,by+10*sc);
+  ctx.fillText(txt('levelShort')+playerLevel,bx+170*sc,by+10*sc);
   if(playerLevel<3){
     const xpR=playerXP/XP_PER_LEVEL[playerLevel];
     ctx.fillStyle='rgba(0,0,0,0.3)';ctx.fillRect(bx+186*sc,by+3*sc,60*sc,6*sc);
     ctx.fillStyle=lvlColors[playerLevel];ctx.fillRect(bx+186*sc,by+3*sc,60*sc*xpR,6*sc);
     ctx.fillStyle='rgba(255,255,255,0.3)';ctx.font=`${5*sc}px Courier New`;
-    ctx.fillText('XP',bx+248*sc,by+9*sc);
+    ctx.fillText(txt('xp'),bx+248*sc,by+9*sc);
   }else{
     ctx.fillStyle='#ff44ff';ctx.font=`${6*sc}px Courier New`;
-    ctx.fillText('MAX',bx+186*sc,by+9*sc);
+    ctx.fillText(txt('max'),bx+186*sc,by+9*sc);
   }
 
   // Ulti bilgisi
@@ -2038,14 +2386,14 @@ function drawHUD(){
   const ultiR=ultiCooldown>0?1-(ultiCooldown/ud.cd):1;
   ctx.fillStyle=ultiCooldown>0?'rgba(255,200,0,0.4)':'rgba(255,200,0,0.9)';
   ctx.font=`${6*sc}px Courier New`;ctx.textAlign='left';
-  ctx.fillText(ud.icon+' '+(LANG==='tr'?ud.name:ud.nameEN).slice(0,12),bx+34*sc,by+85*sc);
+  ctx.fillText(ultiName(ud).slice(0,14),bx+34*sc,by+85*sc);
   ctx.fillStyle='rgba(0,0,0,0.3)';ctx.fillRect(bx+34*sc,by+88*sc,160*sc,4*sc);
   ctx.fillStyle=ultiCooldown>0?'#888':'#FFD700';
   ctx.fillRect(bx+34*sc,by+88*sc,160*sc*ultiR,4*sc);
 
   // Bölüm göstergesi sağ üst
   ctx.fillStyle='rgba(255,255,255,0.15)';ctx.font=`bold ${8*sc}px Courier New`;ctx.textAlign='right';
-  ctx.fillText(L().levelHud(currentLevel,BOSS_DEFS[Math.min(currentLevel,9)].name),W-8,24);
+  ctx.fillText(L().levelHud(currentLevel,bossName(currentLevel)),W-8,24);
 
   // Level-up bildirimi
   if(levelUpNotif){
@@ -2059,7 +2407,7 @@ function drawHUD(){
     ctx.fillStyle='#FFD700';ctx.font=`bold ${clamp(14,W*0.035,20)}px Courier New`;
     ctx.textAlign='center';ctx.fillText(ln.msg,W/2,H/2-38);
     ctx.fillStyle='#aaf';ctx.font=`${clamp(9,W*0.022,13)}px Courier New`;
-    ctx.fillText(LANG==='tr'?LEVEL_BONUSES[playerLevel]?.desc:LEVEL_BONUSES[playerLevel]?.descEN,W/2,H/2-18);
+    ctx.fillText(levelBonusDesc(playerLevel),W/2,H/2-18);
     ctx.globalAlpha=1;
   }
 
@@ -2083,7 +2431,7 @@ function drawHUD(){
 
 function drawOverlays(){
   if(paused){ctx.fillStyle='rgba(0,0,0,0.55)';ctx.fillRect(0,0,W,H);ctx.fillStyle='#fff';ctx.font='bold 30px Courier New';ctx.textAlign='center';ctx.fillText(L().paused,W/2,H/2-18);ctx.fillStyle='#888';ctx.font='14px Courier New';ctx.fillText(L().pauseHint,W/2,H/2+18);}
-  if(victory&&victoryAlpha>0){ctx.fillStyle=`rgba(0,0,0,${victoryAlpha*0.7})`;ctx.fillRect(0,0,W,H);ctx.globalAlpha=victoryAlpha;ctx.fillStyle='#FFD700';ctx.font='bold 40px Courier New';ctx.textAlign='center';ctx.fillText(L().victory,W/2,H/2-44);ctx.fillStyle='#0f8';ctx.font='17px Courier New';ctx.fillText(boss.def.name+' '+L().defeated,W/2,H/2-4);ctx.fillStyle='#aaf';ctx.font='12px Courier New';ctx.fillText(L().cmdHit,W/2,H/2+20);ctx.fillStyle='#fa0';ctx.font='12px Courier New';ctx.fillText(L().points(Math.floor(gameScore).toLocaleString()),W/2,H/2+38);ctx.globalAlpha=1;}
+  if(victory&&victoryAlpha>0){ctx.fillStyle=`rgba(0,0,0,${victoryAlpha*0.7})`;ctx.fillRect(0,0,W,H);ctx.globalAlpha=victoryAlpha;ctx.fillStyle='#FFD700';ctx.font='bold 40px Courier New';ctx.textAlign='center';ctx.fillText(L().victory,W/2,H/2-44);ctx.fillStyle='#0f8';ctx.font='17px Courier New';ctx.fillText(bossNameByDef(boss.def)+' '+L().defeated,W/2,H/2-4);ctx.fillStyle='#aaf';ctx.font='12px Courier New';ctx.fillText(L().cmdHit,W/2,H/2+20);ctx.fillStyle='#fa0';ctx.font='12px Courier New';ctx.fillText(L().points(Math.floor(gameScore).toLocaleString()),W/2,H/2+38);ctx.globalAlpha=1;}
 }
 
 function loop(ts){const dt=Math.min(ts-lastTime,50);lastTime=ts;update(dt);render();requestAnimationFrame(loop);}
