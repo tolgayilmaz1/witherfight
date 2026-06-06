@@ -2369,9 +2369,9 @@ function drawBoss(){
   }
   // ── GÜZEL BOSS HP BARI ──
   const isMobHud=W<700 || Math.min(W,H)<500;
-  const barW=isMobHud?Math.min(W*0.70,285):Math.min(W*0.6,340);
+  const barW=isMobHud?Math.min(W*0.58,235):Math.min(W*0.6,340);
   const barX=W/2-barW/2;
-  const barY=isMobHud?60:28;
+  const barY=isMobHud?48:28;
   const barH=isMobHud?20:20;
   // Arka plan + kenar
   ctx.fillStyle='rgba(0,0,0,0.75)';
@@ -2380,7 +2380,7 @@ function drawBoss(){
   ctx.beginPath();ctx.roundRect(barX-4,barY-4,barW+8,barH+22,8);ctx.stroke();
   // Boss adı
   ctx.fillStyle='rgba(255,255,255,0.95)';ctx.font=`bold ${isMobHud?12:clamp(9,W*0.022,12)}px Courier New`;
-  ctx.textAlign='center';ctx.fillText(bossNameByDef(bd),W/2,barY-7);
+  ctx.textAlign='center';ctx.fillText(isMobHud?bossNameByDef(bd).slice(0,22):bossNameByDef(bd),W/2,barY-7);
   // HP bar gölge
   ctx.fillStyle='rgba(0,0,0,0.8)';ctx.beginPath();ctx.roundRect(barX,barY,barW,barH,4);ctx.fill();
   // HP gradient renk
@@ -2453,62 +2453,133 @@ function drawBonuses(){
 
 function clamp(mn,v,mx){return Math.max(mn,Math.min(mx,v));}
 function drawHUD(){
-  // Mobilde üst çentik/status bar altında kalmasın diye ayrı HUD düzeni
   const isMob=W<700 || Math.min(W,H)<500;
-  const topPad=isMob?92:8;
-  const sc=isMob?1.55:(Math.min(W,H)<400?0.75:0.85);
-  const bx=isMob?12:6, by=topPad;
-  const pw=220*sc, ph=isMob?118*sc:96*sc;
-  // Mobilde yazılar okunabilsin diye hafif koyu zemin
+
+  // MOBİLDE TEMİZ HUD: ekranı kapatan büyük panel yok.
+  // Sadece küçük can/skor/silah kutusu gösterilir. Diğer bilgiler sağ butonlarda ve boss barında zaten var.
   if(isMob){
-    ctx.fillStyle='rgba(0,0,0,0.42)';
-    ctx.beginPath();ctx.roundRect(bx-8,by-10,Math.min(pw,W*0.78),ph,12);ctx.fill();
-    ctx.strokeStyle='rgba(255,255,255,0.10)';ctx.lineWidth=1;
-    ctx.beginPath();ctx.roundRect(bx-8,by-10,Math.min(pw,W*0.78),ph,12);ctx.stroke();
-  }else{
-    ctx.fillStyle='rgba(0,0,0,0.0)';
+    const safeTop=44;
+    const bx=8, by=safeTop+28;
+    const boxW=Math.min(160,W*0.48), boxH=46;
+
+    ctx.save();
+    ctx.fillStyle='rgba(0,0,0,0.34)';
+    ctx.strokeStyle='rgba(255,255,255,0.10)';
+    ctx.lineWidth=1;
+    ctx.beginPath();ctx.roundRect(bx,by,boxW,boxH,10);ctx.fill();ctx.stroke();
+
+    // Mini karakter
+    if(player && !player.dead){
+      drawChar(ctx,bx+11,by+29,player.char,0.28,walkT);
+    }
+
+    // İsim kısa + skor
+    ctx.textAlign='left';
+    ctx.fillStyle='rgba(255,255,255,0.95)';
+    ctx.font='bold 8px Courier New';
+    const pname=(player?.char?.name||'').slice(0,10);
+    ctx.fillText(pname,bx+26,by+10);
+    ctx.fillStyle='#ffd24a';
+    ctx.font='bold 8px Courier New';
+    ctx.fillText('★ '+Math.floor(gameScore).toLocaleString(),bx+98,by+10);
+
+    // Canlar
+    ctx.font='bold 12px sans-serif';
+    for(let i=0;i<Math.min(player.maxHp,10);i++){
+      ctx.fillStyle=i<player.hp?'#ff3366':'rgba(90,0,0,0.70)';
+      ctx.fillText('❤',bx+26+i*12,by+24);
+    }
+
+    // Aktif silah + cooldown mini bar
+    const wd=WEAPONS_BASE[player.weapon]||WEAPONS_BASE.fireball;
+    ctx.fillStyle=wd.wc||'#fa0';
+    ctx.font='bold 8px Courier New';
+    ctx.fillText((wd.icon||'')+' '+weaponName(player.weapon).slice(0,16),bx+26,by+38);
+    const cd=getWeaponCooldown(player.weapon);
+    const cdR=Math.min((performance.now()-lastFireTime)/cd,1);
+    ctx.fillStyle='rgba(0,0,0,0.45)';ctx.fillRect(bx+26,by+40,boxW-36,3);
+    ctx.fillStyle=cdR>=1?'#0f8':(wd.wc||'#fa0');ctx.fillRect(bx+26,by+40,(boxW-36)*cdR,3);
+    ctx.restore();
+
+    // Level-up bildirimi
+    if(levelUpNotif){
+      const ln=levelUpNotif;
+      const alpha=ln.timer>2800?1:ln.timer/2800;
+      ctx.save();ctx.globalAlpha=alpha;
+      ctx.fillStyle='rgba(0,0,0,0.88)';ctx.strokeStyle='#FFD700';ctx.lineWidth=2;
+      const lw=Math.min(W-20,320),lx2=W/2-lw/2;
+      ctx.fillRect(lx2,H/2-60,lw,50);ctx.strokeRect(lx2,H/2-60,lw,50);
+      ctx.fillStyle='#FFD700';ctx.font=`bold ${clamp(14,W*0.035,20)}px Courier New`;
+      ctx.textAlign='center';ctx.fillText(ln.msg,W/2,H/2-38);
+      ctx.fillStyle='#aaf';ctx.font=`${clamp(9,W*0.022,13)}px Courier New`;
+      ctx.fillText(levelBonusDesc(playerLevel),W/2,H/2-18);
+      ctx.restore();
+    }
+
+    // Popup
+    if(wpTimer>0){
+      ctx.save();
+      ctx.fillStyle='rgba(0,0,0,0.82)';ctx.strokeStyle='#fa0';ctx.lineWidth=1.5;
+      const ppw=Math.min(180,W-70),pph=24,ppx=W/2-ppw/2,ppy=H/2-12;
+      ctx.fillRect(ppx,ppy,ppw,pph);ctx.strokeRect(ppx,ppy,ppw,pph);
+      ctx.fillStyle='#fa0';ctx.font='bold 9px Courier New';ctx.textAlign='center';
+      ctx.fillText(wpMsg,W/2,ppy+16);
+      ctx.restore();
+    }
+    if(upgradeNotif){
+      const un=upgradeNotif;ctx.save();ctx.fillStyle='rgba(0,30,0,0.85)';ctx.strokeStyle='#0f8';ctx.lineWidth=1.5;
+      const uw=Math.min(W-30,260),ux=W/2-uw/2;
+      ctx.fillRect(ux,H/2+40,uw,32);ctx.strokeRect(ux,H/2+40,uw,32);
+      ctx.fillStyle='#0f8';ctx.font='bold 9px Courier New';ctx.textAlign='center';
+      ctx.fillText('🚀 '+un.msg,W/2,H/2+60);
+      ctx.fillStyle='rgba(0,255,136,0.2)';ctx.fillRect(ux,H/2+40,uw*(1-un.timer/2500),4);
+      ctx.restore();
+    }
+    return;
   }
+
+  // PC / geniş ekran HUD
+  const topPad=8;
+  const sc=(Math.min(W,H)<400?0.75:0.85);
+  const bx=6, by=topPad;
+  const pw=220*sc, ph=96*sc;
 
   // Karakter mini
   if(!player.dead)drawChar(ctx,bx+16*sc,by+62*sc,player.char,0.48*sc,walkT);
 
   // İsim
-  ctx.fillStyle='rgba(255,255,255,0.95)';ctx.font=`bold ${isMob?13:8*sc}px Courier New`;ctx.textAlign='left';
+  ctx.fillStyle='rgba(255,255,255,0.95)';ctx.font=`bold ${8*sc}px Courier New`;ctx.textAlign='left';
   ctx.fillText(player.char.name,bx+34*sc,by+10*sc);
 
-  // Canlar (küçük)
+  // Canlar
   for(let i=0;i<Math.min(player.maxHp,10);i++){
-    ctx.font=`bold ${isMob?16:8*sc}px sans-serif`;
+    ctx.font=`bold ${8*sc}px sans-serif`;
     ctx.fillStyle=i<player.hp?'#ff3366':'rgba(80,0,0,0.65)';
-    ctx.fillText('❤',bx+34*sc+(i%10)*(isMob?17:12*sc),by+(i<10?22*sc:32*sc));
+    ctx.fillText('❤',bx+34*sc+(i%10)*(12*sc),by+(i<10?22*sc:32*sc));
   }
 
   // Silah bilgisi
   const wd=WEAPONS_BASE[player.weapon]||WEAPONS_BASE.fireball;
   const upg=weaponUpgrades[player.weapon];
   const multStr=upg&&upg.multiplier<1?(1/upg.multiplier).toFixed(1)+'x':'';
-  ctx.fillStyle=wd.wc||'#fa0';ctx.font=`bold ${isMob?11:7*sc}px Courier New`;
+  ctx.fillStyle=wd.wc||'#fa0';ctx.font=`bold ${7*sc}px Courier New`;
   ctx.fillText((wd.icon||'')+' '+weaponName(player.weapon)+(multStr?' ⚡'+multStr:''),bx+34*sc,by+35*sc);
 
-  // Silah cooldown bar
   const cd=getWeaponCooldown(player.weapon);
   const cdR=Math.min((performance.now()-lastFireTime)/cd,1);
   ctx.fillStyle='rgba(0,0,0,0.4)';ctx.fillRect(bx+34*sc,by+38*sc,100*sc,3*sc);
   ctx.fillStyle=cdR>=1?'#0f8':(wd.wc||'#fa0');ctx.fillRect(bx+34*sc,by+38*sc,100*sc*cdR,3*sc);
 
-  // Işın bar
   const beamR=beamActive?(beamTimer/BEAM_DUR):beamCooldown>0?Math.max(0,1-beamCooldown/BEAM_CD):1;
-  ctx.fillStyle='rgba(255,255,255,0.85)';ctx.font=`bold ${isMob?10:6*sc}px Courier New`;
+  ctx.fillStyle='rgba(255,255,255,0.85)';ctx.font=`bold ${6*sc}px Courier New`;
   ctx.fillText(`⚡×${beamAmmo}`,bx+34*sc,by+50*sc);
   ctx.fillStyle='rgba(0,0,0,0.3)';ctx.fillRect(bx+60*sc,by+44*sc,60*sc,5*sc);
   ctx.fillStyle=beamActive?'#0ff':beamAmmo>0?'#0f8':'#333';ctx.fillRect(bx+60*sc,by+44*sc,60*sc*beamR,5*sc);
   ctx.fillText(`👋×${slapAmmo}`,bx+125*sc,by+50*sc);
 
-  // Hız boost
   if(speedBoostActive){ctx.fillStyle='#fa0';ctx.font=`bold ${6*sc}px Courier New`;ctx.fillText(L().speedHud(Math.ceil(speedBoostTimer/1000)),bx+34*sc,by+60*sc);}
 
-  // Envanter
-  ctx.fillStyle='rgba(220,220,220,0.85)';ctx.font=`bold ${isMob?9:6*sc}px Courier New`;ctx.fillText(L().inventory,bx+34*sc,by+70*sc);
+  ctx.fillStyle='rgba(220,220,220,0.85)';ctx.font=`bold ${6*sc}px Courier New`;ctx.fillText(L().inventory,bx+34*sc,by+70*sc);
   inventory.forEach((w,i)=>{
     const iw=WEAPONS_BASE[w];if(!iw)return;
     const active=w===player.weapon;
@@ -2521,23 +2592,21 @@ function drawHUD(){
     ctx.fillText(iw.icon||weaponName(w).slice(0,2),bx+41*sc+i*16*sc,by+80*sc);
   });
 
-  // Level + XP bar
   const lvlColors=['','#88ff44','#ffaa00','#ff44ff'];
   ctx.fillStyle=lvlColors[playerLevel]||'#88ff44';
   ctx.font=`bold ${8*sc}px Courier New`;ctx.textAlign='left';
-  ctx.fillText(txt('levelShort')+playerLevel,isMob?bx+150*sc:bx+170*sc,by+10*sc);
+  ctx.fillText(txt('levelShort')+playerLevel,bx+170*sc,by+10*sc);
   if(playerLevel<3){
     const xpR=playerXP/XP_PER_LEVEL[playerLevel];
-    ctx.fillStyle='rgba(0,0,0,0.3)';ctx.fillRect(isMob?bx+166*sc:bx+186*sc,by+3*sc,60*sc,6*sc);
-    ctx.fillStyle=lvlColors[playerLevel];ctx.fillRect(isMob?bx+166*sc:bx+186*sc,by+3*sc,60*sc*xpR,6*sc);
+    ctx.fillStyle='rgba(0,0,0,0.3)';ctx.fillRect(bx+186*sc,by+3*sc,60*sc,6*sc);
+    ctx.fillStyle=lvlColors[playerLevel];ctx.fillRect(bx+186*sc,by+3*sc,60*sc*xpR,6*sc);
     ctx.fillStyle='rgba(255,255,255,0.3)';ctx.font=`${5*sc}px Courier New`;
-    ctx.fillText(txt('xp'),isMob?bx+228*sc:bx+248*sc,by+9*sc);
+    ctx.fillText(txt('xp'),bx+248*sc,by+9*sc);
   }else{
     ctx.fillStyle='#ff44ff';ctx.font=`${6*sc}px Courier New`;
-    ctx.fillText(txt('max'),isMob?bx+166*sc:bx+186*sc,by+9*sc);
+    ctx.fillText(txt('max'),bx+186*sc,by+9*sc);
   }
 
-  // Ulti bilgisi
   const ud=getUltiDef();
   const ultiR=ultiCooldown>0?1-(ultiCooldown/ud.cd):1;
   ctx.fillStyle=ultiCooldown>0?'rgba(255,200,0,0.4)':'rgba(255,200,0,0.9)';
@@ -2547,21 +2616,9 @@ function drawHUD(){
   ctx.fillStyle=ultiCooldown>0?'#888':'#FFD700';
   ctx.fillRect(bx+34*sc,by+88*sc,160*sc*ultiR,4*sc);
 
-  // Bölüm göstergesi — mobilde boss bar altına okunur şekilde, PC'de sağ üst
-  if(isMob){
-    ctx.fillStyle='rgba(0,0,0,0.48)';
-    const lvlTxt=L().levelHud(currentLevel,bossName(currentLevel));
-    ctx.font=`bold ${Math.max(10,8*sc)}px Courier New`;ctx.textAlign='center';
-    const tw=Math.min(W-120,ctx.measureText(lvlTxt).width+18);
-    ctx.beginPath();ctx.roundRect(W/2-tw/2,126,tw,20,8);ctx.fill();
-    ctx.fillStyle='rgba(255,255,255,0.92)';
-    ctx.fillText(lvlTxt,W/2,140);
-  }else{
-    ctx.fillStyle='rgba(255,255,255,0.15)';ctx.font=`bold ${8*sc}px Courier New`;ctx.textAlign='right';
-    ctx.fillText(L().levelHud(currentLevel,bossName(currentLevel)),W-8,24);
-  }
+  ctx.fillStyle='rgba(255,255,255,0.15)';ctx.font=`bold ${8*sc}px Courier New`;ctx.textAlign='right';
+  ctx.fillText(L().levelHud(currentLevel,bossName(currentLevel)),W-8,24);
 
-  // Level-up bildirimi
   if(levelUpNotif){
     const ln=levelUpNotif;
     const alpha=ln.timer>2800?1:ln.timer/2800;
@@ -2577,7 +2634,6 @@ function drawHUD(){
     ctx.globalAlpha=1;
   }
 
-  // Popup
   if(wpTimer>0){
     ctx.fillStyle='rgba(0,0,0,0.82)';ctx.strokeStyle='#fa0';ctx.lineWidth=1.5;
     const ppw=180,pph=24,ppx=W/2-ppw/2,ppy=H/2-12;
