@@ -332,13 +332,31 @@ canvas{display:block;}
 <button id="nxtBtn">SONRAKI BÖLÜM ▶</button>
 
 
-<!-- Firebase online high score SDK KAPALI
-     İzin popup çıkmasın diye online Firebase/Analytics bağlantıları kaldırıldı.
-     Skorlar localStorage ile cihazda tutulur. -->
+<!-- Firebase online high score SDK
+     Sadece Firestore kullanılır. Google Analytics YOK, getAnalytics YOK. -->
+<script src="https://www.gstatic.com/firebasejs/12.14.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/12.14.0/firebase-firestore-compat.js"></script>
 <script>
 const WF_SCORE_COLLECTION = 'witherfight_scores';
 let wfDb = null;
 let wfCloudReady = false;
+try {
+  const firebaseConfig = {
+    apiKey: "AIzaSyB7-tyQXRhfj7YLLLE0An3a_gvHMZJuCTo",
+    authDomain: "witherfighting.firebaseapp.com",
+    projectId: "witherfighting",
+    storageBucket: "witherfighting.firebasestorage.app",
+    messagingSenderId: "72856332737",
+    appId: "1:72856332737:web:ca8a1b780e0a55b1086740"
+  };
+  if (window.firebase && !firebase.apps.length) firebase.initializeApp(firebaseConfig);
+  if (window.firebase && firebase.firestore) {
+    wfDb = firebase.firestore();
+    wfCloudReady = true;
+  }
+} catch(e) {
+  console.warn('Firebase Firestore offline, local scores will be used.', e);
+}
 </script>
 
 <script>
@@ -800,10 +818,24 @@ function adminLogin(){
     document.getElementById('setPass').value='';
   }
 }
-function clearHiScores(){
+async function clearHiScores(){
   try{localStorage.removeItem('wf_scores2');}catch(e){}
   try{localStorage.removeItem('wf_scores');}catch(e){}
-  document.getElementById('adminMsg').textContent=txt('clearDone');
+  const msg=document.getElementById('adminMsg');
+  msg.textContent=txt('clearDone');
+  if(wfCloudReady&&wfDb){
+    msg.textContent='online skorlar temizleniyor...';
+    try{
+      const snap=await wfDb.collection(WF_SCORE_COLLECTION).limit(100).get();
+      const batch=wfDb.batch();
+      snap.docs.forEach(doc=>batch.delete(doc.ref));
+      await batch.commit();
+      msg.textContent=txt('clearDone')+' / online temizlendi';
+    }catch(e){
+      console.warn('Cloud scores could not be cleared:',e);
+      msg.textContent='local temizlendi, online temizlenemedi';
+    }
+  }
 }
 
 function showHiScores(){
@@ -814,7 +846,17 @@ function showHiScores(){
   hi.style.zIndex='650';
   const localScores=getScores().sort((a,b)=>b.score-a.score).slice(0,10);
   renderScores(localScores,false);
-  // Firebase/Analytics bu sürümde kapalı: isim kaydedince direkt local listeye düşer.
+  const list=document.getElementById('hiList');
+  if(wfCloudReady&&wfDb){
+    list.insertAdjacentHTML('afterbegin','<div id="hiLoading" style="color:#777;text-align:center;font-size:9px;margin-bottom:8px;">online skorlar yükleniyor...</div>');
+    getCloudScores().then(scores=>{
+      renderScores(scores,true);
+    }).catch(err=>{
+      console.warn('Cloud scores could not be loaded:',err);
+      const l=document.getElementById('hiLoading');
+      if(l)l.textContent='online skor okunamadı, local skor gösteriliyor';
+    });
+  }
 }
 function showNameEntry(){
   document.getElementById('nameScreen').style.display='flex';
@@ -830,7 +872,21 @@ function saveScore(){
   scores.sort((a,b)=>b.score-a.score);
   saveScores(scores.slice(0,20));
   document.querySelector('#nameScreen h2').textContent=L().saveTit;
-  showHiScores();
+  document.getElementById('nameScreen').style.display='none';
+  if(wfCloudReady&&wfDb){
+    const hi=document.getElementById('hiScreen');
+    hideAllGameScreens();
+    hi.style.display='flex';
+    hi.style.zIndex='650';
+    document.getElementById('hiList').innerHTML='<div style="color:#00ffaa;text-align:center;padding:20px;font-size:11px;">online skor kaydediliyor...</div>';
+    addCloudScore(row).then(showHiScores).catch(err=>{
+      console.warn('Cloud score could not be saved:',err);
+      document.getElementById('hiList').innerHTML='<div style="color:#ffaa00;text-align:center;padding:20px;font-size:11px;">online kayıt olmadı, local skor kaydedildi</div>';
+      setTimeout(showHiScores,700);
+    });
+  }else{
+    showHiScores();
+  }
 }
 
 // ── GAME OVER SCREEN ─────────────────────────────────
