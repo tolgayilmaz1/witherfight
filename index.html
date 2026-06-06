@@ -338,24 +338,34 @@ canvas{display:block;}
 <script src="https://www.gstatic.com/firebasejs/12.14.0/firebase-firestore-compat.js"></script>
 <script>
 const WF_SCORE_COLLECTION = 'witherfight_scores';
+const firebaseConfig = {
+  apiKey: "AIzaSyB7-tyQXRhfj7YLLLE0An3a_gvHMZJuCTo",
+  authDomain: "witherfighting.firebaseapp.com",
+  projectId: "witherfighting",
+  storageBucket: "witherfighting.firebasestorage.app",
+  messagingSenderId: "72856332737",
+  appId: "1:72856332737:web:ca8a1b780e0a55b1086740"
+};
+const WF_REST_BASE = `https://firestore.googleapis.com/v1/projects/${firebaseConfig.projectId}/databases/(default)/documents/${WF_SCORE_COLLECTION}`;
 let wfDb = null;
 let wfCloudReady = false;
+let wfCloudMode = 'offline';
 try {
-  const firebaseConfig = {
-    apiKey: "AIzaSyB7-tyQXRhfj7YLLLE0An3a_gvHMZJuCTo",
-    authDomain: "witherfighting.firebaseapp.com",
-    projectId: "witherfighting",
-    storageBucket: "witherfighting.firebasestorage.app",
-    messagingSenderId: "72856332737",
-    appId: "1:72856332737:web:ca8a1b780e0a55b1086740"
-  };
   if (window.firebase && !firebase.apps.length) firebase.initializeApp(firebaseConfig);
   if (window.firebase && firebase.firestore) {
     wfDb = firebase.firestore();
     wfCloudReady = true;
+    wfCloudMode = 'sdk';
+  } else if (window.fetch) {
+    wfCloudReady = true;
+    wfCloudMode = 'rest';
   }
 } catch(e) {
-  console.warn('Firebase Firestore offline, local scores will be used.', e);
+  console.warn('Firebase SDK offline, REST fallback will be used if possible.', e);
+  if (window.fetch) {
+    wfCloudReady = true;
+    wfCloudMode = 'rest';
+  }
 }
 </script>
 
@@ -747,26 +757,110 @@ document.getElementById('bFire').addEventListener('click',tryFire);
 function escHtml(v){return String(v??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));}
 function getScores(){try{return JSON.parse(localStorage.getItem('wf_scores2')||'[]');}catch(e){return[];}}
 function saveScores(arr){try{localStorage.setItem('wf_scores2',JSON.stringify(arr));}catch(e){}}
-function renderScores(scores,online){
+function renderScores(scores,online,msg){
   const tag=online?'<div style="color:#00ffaa;text-align:center;font-size:9px;margin-bottom:8px;">ONLINE GLOBAL LIST</div>':'<div style="color:#ffaa00;text-align:center;font-size:9px;margin-bottom:8px;">LOCAL / OFFLINE LIST</div>';
-  document.getElementById('hiList').innerHTML=scores.length?tag+scores.map((s,i)=>`<div class="hirow"><span class="rank">#${i+1}</span><span class="name">${escHtml(s.name)}</span><span class="sc">${Number(s.score||0).toLocaleString()}</span></div>`).join(''):'<div style="color:#444;text-align:center;padding:20px;">'+L().hiEmpty+'</div>';
+  const info=msg?'<div style="color:#888;text-align:center;font-size:9px;margin-bottom:8px;line-height:1.5;">'+escHtml(msg)+'</div>':'';
+  const empty='<div style="color:#555;text-align:center;padding:20px;font-size:11px;line-height:1.6;">'+(online?'Online skor listesi boş. İlk skoru kaydedince burada görünecek.':L().hiEmpty)+'</div>';
+  document.getElementById('hiList').innerHTML=tag+info+(scores.length?scores.map((s,i)=>`<div class="hirow"><span class="rank">#${i+1}</span><span class="name">${escHtml(s.name)}</span><span class="sc">${Number(s.score||0).toLocaleString()}</span></div>`).join(''):empty);
+}
+function fsVal(v){
+  if(!v)return '';
+  if(v.stringValue!==undefined)return v.stringValue;
+  if(v.integerValue!==undefined)return Number(v.integerValue);
+  if(v.doubleValue!==undefined)return Number(v.doubleValue);
+  if(v.booleanValue!==undefined)return !!v.booleanValue;
+  return '';
+}
+function docToScore(doc){
+  const f=doc.fields||{};
+  return {
+    id:(doc.name||'').split('/').pop(),
+    name:fsVal(f.name)||'???',
+    score:Number(fsVal(f.score)||0),
+    time:Number(fsVal(f.time)||0),
+    level:Number(fsVal(f.level)||1),
+    date:fsVal(f.date)||''
+  };
 }
 async function getCloudScores(){
-  if(!wfCloudReady||!wfDb) throw new Error('cloud offline');
-  const snap=await wfDb.collection(WF_SCORE_COLLECTION).orderBy('score','desc').limit(10).get();
-  return snap.docs.map(d=>d.data());
+  if(wfDb){
+    const snap=await wfDb.collection(WF_SCORE_COLLECTION).orderBy('score','desc').limit(10).get();
+    return snap.docs.map(d=>({id:d.id,...d.data()}));
+  }
+  if(!window.fetch) throw new Error('cloud offline');
+
+  // Önce düzgün sıralı Firestore structuredQuery dene.
+  // Bazı WebView'lerde collection list boş dönebiliyor; bu daha sağlam.
+  const queryUrl=`https://firestore.googleapis.com/v1/projects/${firebaseConfig.projectId}/databases/(default)/documents:runQuery?key=${encodeURIComponent(firebaseConfig.apiKey)}`;
+  const queryBody={structuredQuery:{
+    from:[{collectionId:WF_SCORE_COLLECTION}],
+    orderBy:[{field:{fieldPath:'score'},direction:'DESCENDING'}],
+    limit:10
+  }};
+  const qr=await fetch(queryUrl,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(queryBody),cache:'no-store'});
+  if(qr.ok){
+    const rows=await qr.json();
+    const docs=rows.map(r=>r.document).filter(Boolean);
+    return docs.map(docToScore).sort((a,b)=>b.score-a.score).slice(0,10);
+  }
+
+  // Fallback: collection oku.
+  const url=WF_REST_BASE+'?pageSize=50&key='+encodeURIComponent(firebaseConfig.apiKey);
+  const res=await fetch(url,{cache:'no-store'});
+  if(!res.ok) throw new Error('REST read failed '+res.status+' '+await res.text());
+  const data=await res.json();
+  return (data.documents||[]).map(docToScore).sort((a,b)=>b.score-a.score).slice(0,10);
+}
+async function syncLocalScoresToCloud(){
+  const local=getScores().sort((a,b)=>b.score-a.score).slice(0,10);
+  if(!local.length||!wfCloudReady)return 0;
+  let ok=0;
+  for(const row of local){
+    try{await addCloudScore(row);ok++;}catch(e){console.warn('Local score sync failed:',e);break;}
+  }
+  return ok;
 }
 async function addCloudScore(row){
-  if(!wfCloudReady||!wfDb) throw new Error('cloud offline');
-  await wfDb.collection(WF_SCORE_COLLECTION).add({
-    game:'wither-fight',
-    name:row.name,
-    score:row.score,
-    time:row.time,
-    level:row.level,
-    date:row.date,
-    createdAt:firebase.firestore.FieldValue.serverTimestamp()
+  if(wfDb){
+    await wfDb.collection(WF_SCORE_COLLECTION).add({
+      game:'wither-fight',
+      name:row.name,
+      score:row.score,
+      time:row.time,
+      level:row.level,
+      date:row.date,
+      createdAt:firebase.firestore.FieldValue.serverTimestamp()
+    });
+    return;
+  }
+  if(!window.fetch) throw new Error('cloud offline');
+  const body={fields:{
+    game:{stringValue:'wither-fight'},
+    name:{stringValue:String(row.name||'???')},
+    score:{integerValue:String(Math.floor(Number(row.score)||0))},
+    time:{integerValue:String(Math.floor(Number(row.time)||0))},
+    level:{integerValue:String(Math.floor(Number(row.level)||1))},
+    date:{stringValue:String(row.date||new Date().toLocaleDateString('tr-TR'))},
+    createdAt:{timestampValue:new Date().toISOString()}
+  }};
+  const res=await fetch(WF_REST_BASE+'?key='+encodeURIComponent(firebaseConfig.apiKey),{
+    method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)
   });
+  if(!res.ok) throw new Error('REST write failed '+res.status+' '+await res.text());
+}
+async function deleteCloudScores(){
+  if(wfDb){
+    const snap=await wfDb.collection(WF_SCORE_COLLECTION).limit(100).get();
+    const batch=wfDb.batch();
+    snap.docs.forEach(doc=>batch.delete(doc.ref));
+    await batch.commit();
+    return;
+  }
+  if(!window.fetch) throw new Error('cloud offline');
+  const res=await fetch(WF_REST_BASE+'?pageSize=100&key='+encodeURIComponent(firebaseConfig.apiKey),{cache:'no-store'});
+  if(!res.ok) throw new Error('REST list delete failed '+res.status+' '+await res.text());
+  const data=await res.json();
+  await Promise.all((data.documents||[]).map(d=>fetch('https://firestore.googleapis.com/v1/'+d.name+'?key='+encodeURIComponent(firebaseConfig.apiKey),{method:'DELETE'})));
 }
 function hideAllGameScreens(){
   ['langScreen','ctrlScreen','ctrlSelScreen','logoScreen','hiScreen','settingsScreen','nameScreen','charSelect','endScreen','gameOverScreen','lvlBanner'].forEach(id=>{
@@ -823,17 +917,14 @@ async function clearHiScores(){
   try{localStorage.removeItem('wf_scores');}catch(e){}
   const msg=document.getElementById('adminMsg');
   msg.textContent=txt('clearDone');
-  if(wfCloudReady&&wfDb){
+  if(wfCloudReady){
     msg.textContent='online skorlar temizleniyor...';
     try{
-      const snap=await wfDb.collection(WF_SCORE_COLLECTION).limit(100).get();
-      const batch=wfDb.batch();
-      snap.docs.forEach(doc=>batch.delete(doc.ref));
-      await batch.commit();
+      await deleteCloudScores();
       msg.textContent=txt('clearDone')+' / online temizlendi';
     }catch(e){
       console.warn('Cloud scores could not be cleared:',e);
-      msg.textContent='local temizlendi, online temizlenemedi';
+      msg.textContent='local temizlendi, online temizlenemedi: '+(e&&e.message?e.message:'hata');
     }
   }
 }
@@ -847,14 +938,25 @@ function showHiScores(){
   const localScores=getScores().sort((a,b)=>b.score-a.score).slice(0,10);
   renderScores(localScores,false);
   const list=document.getElementById('hiList');
-  if(wfCloudReady&&wfDb){
-    list.insertAdjacentHTML('afterbegin','<div id="hiLoading" style="color:#777;text-align:center;font-size:9px;margin-bottom:8px;">online skorlar yükleniyor...</div>');
-    getCloudScores().then(scores=>{
-      renderScores(scores,true);
+  if(wfCloudReady){
+    list.insertAdjacentHTML('afterbegin','<div id="hiLoading" style="color:#777;text-align:center;font-size:9px;margin-bottom:8px;">online skorlar yükleniyor... ('+wfCloudMode+')</div>');
+    getCloudScores().then(async scores=>{
+      if((!scores||!scores.length) && localScores.length){
+        // Online boşsa bu cihazdaki local skorları otomatik cloud'a basıp tekrar oku.
+        renderScores(localScores,false,'Online liste boştu, local skorlar buluta eşitleniyor...');
+        const pushed=await syncLocalScoresToCloud();
+        if(pushed>0){
+          const again=await getCloudScores();
+          renderScores(again,true,'Local skorlar online listeye aktarıldı.');
+        }else{
+          renderScores(localScores,false,'Online liste boş, local skor gösteriliyor.');
+        }
+      }else{
+        renderScores(scores||[],true);
+      }
     }).catch(err=>{
       console.warn('Cloud scores could not be loaded:',err);
-      const l=document.getElementById('hiLoading');
-      if(l)l.textContent='online skor okunamadı, local skor gösteriliyor';
+      renderScores(localScores,false,'Online skor okunamadı: '+(err&&err.message?err.message:'hata'));
     });
   }
 }
@@ -873,7 +975,7 @@ function saveScore(){
   saveScores(scores.slice(0,20));
   document.querySelector('#nameScreen h2').textContent=L().saveTit;
   document.getElementById('nameScreen').style.display='none';
-  if(wfCloudReady&&wfDb){
+  if(wfCloudReady){
     const hi=document.getElementById('hiScreen');
     hideAllGameScreens();
     hi.style.display='flex';
@@ -881,7 +983,7 @@ function saveScore(){
     document.getElementById('hiList').innerHTML='<div style="color:#00ffaa;text-align:center;padding:20px;font-size:11px;">online skor kaydediliyor...</div>';
     addCloudScore(row).then(showHiScores).catch(err=>{
       console.warn('Cloud score could not be saved:',err);
-      document.getElementById('hiList').innerHTML='<div style="color:#ffaa00;text-align:center;padding:20px;font-size:11px;">online kayıt olmadı, local skor kaydedildi</div>';
+      document.getElementById('hiList').innerHTML='<div style="color:#ffaa00;text-align:center;padding:20px;font-size:11px;">online kayıt olmadı: '+(err&&err.message?err.message:'hata')+'<br>local skor kaydedildi</div>';
       setTimeout(showHiScores,700);
     });
   }else{
@@ -2375,12 +2477,9 @@ function drawBoss(){
   const barH=isMobHud?20:20;
   // Arka plan + kenar
   ctx.fillStyle='rgba(0,0,0,0.75)';
-  ctx.beginPath();ctx.roundRect(barX-4,barY-4,barW+8,barH+22,8);ctx.fill();
+  ctx.beginPath();ctx.roundRect(barX-4,barY-4,barW+8,barH+28,8);ctx.fill();
   ctx.strokeStyle='rgba(255,255,255,0.12)';ctx.lineWidth=1;
-  ctx.beginPath();ctx.roundRect(barX-4,barY-4,barW+8,barH+22,8);ctx.stroke();
-  // Boss adı
-  ctx.fillStyle='rgba(255,255,255,0.95)';ctx.font=`bold ${isMobHud?12:clamp(9,W*0.022,12)}px Courier New`;
-  ctx.textAlign='center';ctx.fillText(isMobHud?bossNameByDef(bd).slice(0,22):bossNameByDef(bd),W/2,barY-7);
+  ctx.beginPath();ctx.roundRect(barX-4,barY-4,barW+8,barH+28,8);ctx.stroke();
   // HP bar gölge
   ctx.fillStyle='rgba(0,0,0,0.8)';ctx.beginPath();ctx.roundRect(barX,barY,barW,barH,4);ctx.fill();
   // HP gradient renk
@@ -2410,6 +2509,13 @@ function drawBoss(){
   // HP yazısı
   ctx.fillStyle='#fff';ctx.font=`bold ${isMobHud?12:clamp(8,W*0.02,11)}px Courier New`;ctx.textAlign='center';
   ctx.fillText(Math.ceil(hp)+' / '+maxHp,W/2,barY+barH-4);
+
+  // Boss adı artık barın ALTINDA. Mobilde üst çentik/ikonların altında kaybolmasın diye buraya alındı.
+  const bnm=isMobHud?bossNameByDef(bd).slice(0,24):bossNameByDef(bd);
+  ctx.fillStyle='rgba(255,255,255,0.96)';
+  ctx.font=`bold ${isMobHud?10:clamp(9,W*0.022,12)}px Courier New`;
+  ctx.textAlign='center';
+  ctx.fillText(bnm,W/2,barY+barH+14);
 }
 function drawFragments(){bossFragments.forEach(f=>{ctx.save();ctx.translate(f.x,f.y);ctx.rotate(f.spin);const a=f.life/f.maxLife;ctx.globalAlpha=a;ctx.fillStyle=f.color;ctx.fillRect(-f.size/2,-f.size/2,f.size,f.size);ctx.fillStyle=f.color2;ctx.globalAlpha=a*0.6;ctx.beginPath();ctx.arc(0,0,f.size*0.3,0,Math.PI*2);ctx.fill();ctx.restore();});ctx.globalAlpha=1;}
 
