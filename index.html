@@ -333,39 +333,35 @@ canvas{display:block;}
 
 
 <!-- Firebase online high score SDK
-     Sadece Firestore kullanılır. Google Analytics YOK, getAnalytics YOK. -->
+     Realtime Database kullanılır. Google Analytics YOK. -->
 <script src="https://www.gstatic.com/firebasejs/12.14.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/12.14.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/12.14.0/firebase-database-compat.js"></script>
 <script>
 const WF_SCORE_COLLECTION = 'witherfight_scores';
 const firebaseConfig = {
   apiKey: "AIzaSyB7-tyQXRhfj7YLLLE0An3a_gvHMZJuCTo",
   authDomain: "witherfighting.firebaseapp.com",
+  databaseURL: "https://witherfighting-default-rtdb.europe-west1.firebasedatabase.app",
   projectId: "witherfighting",
   storageBucket: "witherfighting.firebasestorage.app",
   messagingSenderId: "72856332737",
   appId: "1:72856332737:web:ca8a1b780e0a55b1086740"
 };
-const WF_REST_BASE = `https://firestore.googleapis.com/v1/projects/${firebaseConfig.projectId}/databases/(default)/documents/${WF_SCORE_COLLECTION}`;
 let wfDb = null;
 let wfCloudReady = false;
 let wfCloudMode = 'offline';
 try {
   if (window.firebase && !firebase.apps.length) firebase.initializeApp(firebaseConfig);
-  if (window.firebase && firebase.firestore) {
-    wfDb = firebase.firestore();
+  if (window.firebase && firebase.database) {
+    wfDb = firebase.database();
     wfCloudReady = true;
-    wfCloudMode = 'sdk';
-  } else if (window.fetch) {
-    wfCloudReady = true;
-    wfCloudMode = 'rest';
+    wfCloudMode = 'rtdb';
   }
 } catch(e) {
-  console.warn('Firebase SDK offline, REST fallback will be used if possible.', e);
-  if (window.fetch) {
-    wfCloudReady = true;
-    wfCloudMode = 'rest';
-  }
+  console.warn('Firebase Realtime Database offline.', e);
+  wfDb = null;
+  wfCloudReady = false;
+  wfCloudMode = 'offline';
 }
 </script>
 
@@ -763,69 +759,33 @@ function renderScores(scores,online,msg){
   const empty='<div style="color:#555;text-align:center;padding:20px;font-size:11px;line-height:1.6;">'+(online?'Online skor listesi boş. İlk skoru kaydedince burada görünecek.':L().hiEmpty)+'</div>';
   document.getElementById('hiList').innerHTML=tag+info+(scores.length?scores.map((s,i)=>`<div class="hirow"><span class="rank">#${i+1}</span><span class="name">${escHtml(s.name)}</span><span class="sc">${Number(s.score||0).toLocaleString()}</span></div>`).join(''):empty);
 }
-function fsVal(v){
-  if(!v)return '';
-  if(v.stringValue!==undefined)return v.stringValue;
-  if(v.integerValue!==undefined)return Number(v.integerValue);
-  if(v.doubleValue!==undefined)return Number(v.doubleValue);
-  if(v.booleanValue!==undefined)return !!v.booleanValue;
-  return '';
-}
-function docToScore(doc){
-  const f=doc.fields||{};
-  return {
-    id:(doc.name||'').split('/').pop(),
-    name:fsVal(f.name)||'???',
-    score:Number(fsVal(f.score)||0),
-    time:Number(fsVal(f.time)||0),
-    level:Number(fsVal(f.level)||1),
-    date:fsVal(f.date)||''
-  };
-}
 function withTimeout(promise,ms,label){
   return Promise.race([
     promise,
     new Promise((_,reject)=>setTimeout(()=>reject(new Error((label||'işlem')+' zaman aşımı')),ms))
   ]);
 }
-async function getCloudScoresRest(){
-  if(!window.fetch) throw new Error('cloud offline');
-  const queryUrl=`https://firestore.googleapis.com/v1/projects/${firebaseConfig.projectId}/databases/(default)/documents:runQuery?key=${encodeURIComponent(firebaseConfig.apiKey)}`;
-  const queryBody={structuredQuery:{
-    from:[{collectionId:WF_SCORE_COLLECTION}],
-    orderBy:[{field:{fieldPath:'score'},direction:'DESCENDING'}],
-    limit:10
-  }};
-  const qr=await withTimeout(fetch(queryUrl,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(queryBody),cache:'no-store'}),4500,'REST skor okuma');
-  if(qr.ok){
-    const rows=await qr.json();
-    const docs=rows.map(r=>r.document).filter(Boolean);
-    return docs.map(docToScore).sort((a,b)=>b.score-a.score).slice(0,10);
-  }
-  const txtErr=await qr.text();
-  // Fallback: collection oku.
-  const url=WF_REST_BASE+'?pageSize=50&key='+encodeURIComponent(firebaseConfig.apiKey);
-  const res=await withTimeout(fetch(url,{cache:'no-store'}),4500,'REST collection okuma');
-  if(!res.ok) throw new Error('REST read failed '+res.status+' '+await res.text()+' / query: '+txtErr);
-  const data=await res.json();
-  return (data.documents||[]).map(docToScore).sort((a,b)=>b.score-a.score).slice(0,10);
+function rtdbRowToScore(key,row){
+  row=row||{};
+  return {
+    id:key||'',
+    name:String(row.name||'???'),
+    score:Number(row.score||0),
+    time:Number(row.time||0),
+    level:Number(row.level||1),
+    date:String(row.date||'')
+  };
 }
 async function getCloudScores(){
-  // Okumada REST öncelikli: ana menü ve oyun sonu aynı global listeyi görsün.
-  // SDK bazı tarayıcılarda beklemede kalabiliyor; o yüzden timeout + fallback var.
-  try{
-    return await getCloudScoresRest();
-  }catch(restErr){
-    if(wfDb){
-      try{
-        const snap=await withTimeout(wfDb.collection(WF_SCORE_COLLECTION).orderBy('score','desc').limit(10).get(),4500,'SDK skor okuma');
-        return snap.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>b.score-a.score).slice(0,10);
-      }catch(sdkErr){
-        throw new Error((restErr&&restErr.message?restErr.message:'REST hata')+' | '+(sdkErr&&sdkErr.message?sdkErr.message:'SDK hata'));
-      }
-    }
-    throw restErr;
-  }
+  if(!wfDb) throw new Error('Realtime Database bağlantısı yok');
+  const snap=await withTimeout(
+    wfDb.ref(WF_SCORE_COLLECTION).orderByChild('score').limitToLast(10).once('value'),
+    6000,
+    'Realtime Database skor okuma'
+  );
+  const arr=[];
+  snap.forEach(child=>{ arr.push(rtdbRowToScore(child.key,child.val())); });
+  return arr.sort((a,b)=>b.score-a.score).slice(0,10);
 }
 async function syncLocalScoresToCloud(){
   const local=getScores().sort((a,b)=>b.score-a.score).slice(0,10);
@@ -837,46 +797,26 @@ async function syncLocalScoresToCloud(){
   return ok;
 }
 async function addCloudScore(row){
-  if(wfDb){
-    await wfDb.collection(WF_SCORE_COLLECTION).add({
+  if(!wfDb) throw new Error('Realtime Database bağlantısı yok');
+  const cleanName=String(row.name||'???').slice(0,12);
+  const cleanScore=Math.floor(Number(row.score)||0);
+  await withTimeout(
+    wfDb.ref(WF_SCORE_COLLECTION).push({
       game:'wither-fight',
-      name:row.name,
-      score:row.score,
-      time:row.time,
-      level:row.level,
-      date:row.date,
-      createdAt:firebase.firestore.FieldValue.serverTimestamp()
-    });
-    return;
-  }
-  if(!window.fetch) throw new Error('cloud offline');
-  const body={fields:{
-    game:{stringValue:'wither-fight'},
-    name:{stringValue:String(row.name||'???')},
-    score:{integerValue:String(Math.floor(Number(row.score)||0))},
-    time:{integerValue:String(Math.floor(Number(row.time)||0))},
-    level:{integerValue:String(Math.floor(Number(row.level)||1))},
-    date:{stringValue:String(row.date||new Date().toLocaleDateString('tr-TR'))},
-    createdAt:{timestampValue:new Date().toISOString()}
-  }};
-  const res=await fetch(WF_REST_BASE+'?key='+encodeURIComponent(firebaseConfig.apiKey),{
-    method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)
-  });
-  if(!res.ok) throw new Error('REST write failed '+res.status+' '+await res.text());
+      name:cleanName,
+      score:cleanScore,
+      time:Math.floor(Number(row.time)||0),
+      level:Math.floor(Number(row.level)||1),
+      date:String(row.date||new Date().toLocaleDateString('tr-TR')),
+      createdAt:Date.now()
+    }),
+    6000,
+    'Realtime Database skor yazma'
+  );
 }
 async function deleteCloudScores(){
-  if(wfDb){
-    const snap=await wfDb.collection(WF_SCORE_COLLECTION).limit(100).get();
-    const batch=wfDb.batch();
-    snap.docs.forEach(doc=>batch.delete(doc.ref));
-    await batch.commit();
-    return;
-  }
-  if(!window.fetch) throw new Error('cloud offline');
-  const res=await fetch(WF_REST_BASE+'?pageSize=100&key='+encodeURIComponent(firebaseConfig.apiKey),{cache:'no-store'});
-  if(!res.ok) throw new Error('REST list delete failed '+res.status+' '+await res.text());
-  const data=await res.json();
-  await Promise.all((data.documents||[]).map(d=>fetch('https://firestore.googleapis.com/v1/'+d.name+'?key='+encodeURIComponent(firebaseConfig.apiKey),{method:'DELETE'})));
+  if(!wfDb) throw new Error('Realtime Database bağlantısı yok');
+  await withTimeout(wfDb.ref(WF_SCORE_COLLECTION).remove(),6000,'Realtime Database skor silme');
 }
 function hideAllGameScreens(){
   ['langScreen','ctrlScreen','ctrlSelScreen','logoScreen','hiScreen','settingsScreen','nameScreen','charSelect','endScreen','gameOverScreen','lvlBanner'].forEach(id=>{
