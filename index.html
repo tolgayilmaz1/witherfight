@@ -1005,7 +1005,7 @@ window.addEventListener('resize',()=>{
   }
   if(boss&&boss.alive){
     boss.w=Math.min(W*0.40,240); boss.h=boss.w*0.64;
-    boss.y=Math.max(H*0.04,Math.min(H*0.12,boss.y));
+    boss.y=Math.max((W<700?H*0.10:H*0.04),Math.min(H*0.14,boss.y));
     boss.x=Math.max(0,Math.min(W-boss.w,boss.x));
   }
 });
@@ -1305,7 +1305,7 @@ function initLevel(lvl){
   makeStars();makeBgParts(lvl);
   const bdef=BOSS_DEFS[Math.min(lvl,9)];
   const bw=Math.min(W*0.40,240); const bh=bw*0.64;
-  boss={x:W/2-bw/2,y:H*0.06,w:bw,h:bh,dx:2*bdef.spdMul,dy:0,hp:Math.floor(1500*bdef.hpMul),maxHp:Math.floor(1500*bdef.hpMul),def:bdef,animT:0,specialTimer:0,alive:true,moveMode:bdef.moveMode,_tx:null,_ty:null,slapShake:0};
+  boss={x:W/2-bw/2,y:(W<700?H*0.10:H*0.06),w:bw,h:bh,dx:2*bdef.spdMul,dy:0,hp:Math.floor(1500*bdef.hpMul),maxHp:Math.floor(1500*bdef.hpMul),def:bdef,animT:0,specialTimer:0,alive:true,moveMode:bdef.moveMode,_tx:null,_ty:null,slapShake:0};
   player={x:W/2-20,y:H*0.82,w:40,h:70,speed:4,hp:5,maxHp:5,char:selectedChar,invincible:0,shield:false,weapon:'fireball',weaponIdx:0,dead:false,deathTimer:0};
   inventory=['fireball'];beamAmmo=0;slapAmmo=0;rocketAmmo=0;speedBoostActive=false;speedBoostTimer=0;
   if(lvl===0){playerLevel=1;playerXP=0;}// Yeni oyunda sıfırla, bölümler arası korunur
@@ -2312,10 +2312,11 @@ function drawBoss(){
     for(let i=0;i<nhds;i++){const cx2=x+hstep*(i+1),bob=Math.sin(animT+i*1.8)*6,hy=y+6+bob,hw=Math.max(24,34-nhds*2),hh=26;ctx.fillStyle=bd.color1;ctx.fillRect(cx2-hw/2,hy,hw,hh);ctx.fillStyle=bd.color2;ctx.fillRect(cx2-hw/2+2,hy+2,hw-4,hh-4);ctx.fillStyle=bd.eyeColor;ctx.fillRect(cx2-hw/2+3,hy+5,6,5);ctx.fillRect(cx2+hw/2-9,hy+5,6,5);if(beamActive){ctx.fillStyle=`rgba(0,255,255,${0.5+Math.sin(Date.now()*0.02)*0.3})`;ctx.beginPath();ctx.arc(cx2,hy+7,10,0,Math.PI*2);ctx.fill();}ctx.fillStyle='#000';ctx.fillRect(cx2-6,hy+17,12,5);ctx.fillStyle=bd.color1;ctx.fillRect(cx2-4,hy+hh,8,9);}
   }
   // ── GÜZEL BOSS HP BARI ──
-  const barW=Math.min(W*0.6,340);
+  const isMobHud=W<700 || Math.min(W,H)<500;
+  const barW=isMobHud?Math.min(W*0.58,250):Math.min(W*0.6,340);
   const barX=W/2-barW/2;
-  const barY=28;
-  const barH=20;
+  const barY=isMobHud?72:28;
+  const barH=isMobHud?17:20;
   // Arka plan + kenar
   ctx.fillStyle='rgba(0,0,0,0.75)';
   ctx.beginPath();ctx.roundRect(barX-4,barY-4,barW+8,barH+22,8);ctx.fill();
@@ -2396,14 +2397,23 @@ function drawBonuses(){
 
 function clamp(mn,v,mx){return Math.max(mn,Math.min(mx,v));}
 function drawHUD(){
-  // Küçük, şeffaf HUD — sol alt köşe
-  const sc=Math.min(W,H)<400?0.75:0.85;
-  const bx=6, by=8;
-  const pw=200*sc, ph=90*sc;
-  // Arkaplan YOK — sadece hafif gölge efekti için çok düşük opacity
-  ctx.fillStyle='rgba(0,0,0,0.0)'; // tamamen şeffaf
+  // Mobilde üst çentik/status bar altında kalmasın diye ayrı HUD düzeni
+  const isMob=W<700 || Math.min(W,H)<500;
+  const topPad=isMob?44:8;
+  const sc=isMob?1.08:(Math.min(W,H)<400?0.75:0.85);
+  const bx=isMob?10:6, by=topPad;
+  const pw=220*sc, ph=96*sc;
+  // Mobilde yazılar okunabilsin diye hafif koyu zemin
+  if(isMob){
+    ctx.fillStyle='rgba(0,0,0,0.42)';
+    ctx.beginPath();ctx.roundRect(bx-6,by-8,Math.min(pw,W*0.58),ph,10);ctx.fill();
+    ctx.strokeStyle='rgba(255,255,255,0.10)';ctx.lineWidth=1;
+    ctx.beginPath();ctx.roundRect(bx-6,by-8,Math.min(pw,W*0.58),ph,10);ctx.stroke();
+  }else{
+    ctx.fillStyle='rgba(0,0,0,0.0)';
+  }
 
-  // Karakter mini (daha küçük)
+  // Karakter mini
   if(!player.dead)drawChar(ctx,bx+16*sc,by+62*sc,player.char,0.48*sc,walkT);
 
   // İsim
@@ -2481,9 +2491,19 @@ function drawHUD(){
   ctx.fillStyle=ultiCooldown>0?'#888':'#FFD700';
   ctx.fillRect(bx+34*sc,by+88*sc,160*sc*ultiR,4*sc);
 
-  // Bölüm göstergesi sağ üst
-  ctx.fillStyle='rgba(255,255,255,0.15)';ctx.font=`bold ${8*sc}px Courier New`;ctx.textAlign='right';
-  ctx.fillText(L().levelHud(currentLevel,bossName(currentLevel)),W-8,24);
+  // Bölüm göstergesi — mobilde boss bar altına okunur şekilde, PC'de sağ üst
+  if(isMob){
+    ctx.fillStyle='rgba(0,0,0,0.48)';
+    const lvlTxt=L().levelHud(currentLevel,bossName(currentLevel));
+    ctx.font=`bold ${Math.max(10,8*sc)}px Courier New`;ctx.textAlign='center';
+    const tw=Math.min(W-120,ctx.measureText(lvlTxt).width+18);
+    ctx.beginPath();ctx.roundRect(W/2-tw/2,104,tw,18,8);ctx.fill();
+    ctx.fillStyle='rgba(255,255,255,0.82)';
+    ctx.fillText(lvlTxt,W/2,117);
+  }else{
+    ctx.fillStyle='rgba(255,255,255,0.15)';ctx.font=`bold ${8*sc}px Courier New`;ctx.textAlign='right';
+    ctx.fillText(L().levelHud(currentLevel,bossName(currentLevel)),W-8,24);
+  }
 
   // Level-up bildirimi
   if(levelUpNotif){
