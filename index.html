@@ -782,34 +782,50 @@ function docToScore(doc){
     date:fsVal(f.date)||''
   };
 }
-async function getCloudScores(){
-  if(wfDb){
-    const snap=await wfDb.collection(WF_SCORE_COLLECTION).orderBy('score','desc').limit(10).get();
-    return snap.docs.map(d=>({id:d.id,...d.data()}));
-  }
+function withTimeout(promise,ms,label){
+  return Promise.race([
+    promise,
+    new Promise((_,reject)=>setTimeout(()=>reject(new Error((label||'işlem')+' zaman aşımı')),ms))
+  ]);
+}
+async function getCloudScoresRest(){
   if(!window.fetch) throw new Error('cloud offline');
-
-  // Önce düzgün sıralı Firestore structuredQuery dene.
-  // Bazı WebView'lerde collection list boş dönebiliyor; bu daha sağlam.
   const queryUrl=`https://firestore.googleapis.com/v1/projects/${firebaseConfig.projectId}/databases/(default)/documents:runQuery?key=${encodeURIComponent(firebaseConfig.apiKey)}`;
   const queryBody={structuredQuery:{
     from:[{collectionId:WF_SCORE_COLLECTION}],
     orderBy:[{field:{fieldPath:'score'},direction:'DESCENDING'}],
     limit:10
   }};
-  const qr=await fetch(queryUrl,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(queryBody),cache:'no-store'});
+  const qr=await withTimeout(fetch(queryUrl,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(queryBody),cache:'no-store'}),4500,'REST skor okuma');
   if(qr.ok){
     const rows=await qr.json();
     const docs=rows.map(r=>r.document).filter(Boolean);
     return docs.map(docToScore).sort((a,b)=>b.score-a.score).slice(0,10);
   }
-
+  const txtErr=await qr.text();
   // Fallback: collection oku.
   const url=WF_REST_BASE+'?pageSize=50&key='+encodeURIComponent(firebaseConfig.apiKey);
-  const res=await fetch(url,{cache:'no-store'});
-  if(!res.ok) throw new Error('REST read failed '+res.status+' '+await res.text());
+  const res=await withTimeout(fetch(url,{cache:'no-store'}),4500,'REST collection okuma');
+  if(!res.ok) throw new Error('REST read failed '+res.status+' '+await res.text()+' / query: '+txtErr);
   const data=await res.json();
   return (data.documents||[]).map(docToScore).sort((a,b)=>b.score-a.score).slice(0,10);
+}
+async function getCloudScores(){
+  // Okumada REST öncelikli: ana menü ve oyun sonu aynı global listeyi görsün.
+  // SDK bazı tarayıcılarda beklemede kalabiliyor; o yüzden timeout + fallback var.
+  try{
+    return await getCloudScoresRest();
+  }catch(restErr){
+    if(wfDb){
+      try{
+        const snap=await withTimeout(wfDb.collection(WF_SCORE_COLLECTION).orderBy('score','desc').limit(10).get(),4500,'SDK skor okuma');
+        return snap.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>b.score-a.score).slice(0,10);
+      }catch(sdkErr){
+        throw new Error((restErr&&restErr.message?restErr.message:'REST hata')+' | '+(sdkErr&&sdkErr.message?sdkErr.message:'SDK hata'));
+      }
+    }
+    throw restErr;
+  }
 }
 async function syncLocalScoresToCloud(){
   const local=getScores().sort((a,b)=>b.score-a.score).slice(0,10);
@@ -929,6 +945,7 @@ async function clearHiScores(){
   }
 }
 
+let hiScoreLoadToken=0;
 function showHiScores(){
   gameRunning=false;startMenuMusic();
   hideAllGameScreens();
@@ -936,28 +953,35 @@ function showHiScores(){
   hi.style.display='flex';
   hi.style.zIndex='650';
   const localScores=getScores().sort((a,b)=>b.score-a.score).slice(0,10);
-  renderScores(localScores,false);
   const list=document.getElementById('hiList');
+  const token=++hiScoreLoadToken;
+
   if(wfCloudReady){
-    list.insertAdjacentHTML('afterbegin','<div id="hiLoading" style="color:#777;text-align:center;font-size:9px;margin-bottom:8px;">online skorlar yükleniyor... ('+wfCloudMode+')</div>');
+    list.innerHTML='<div style="color:#00ffaa;text-align:center;padding:18px;font-size:11px;line-height:1.7;">ONLINE GLOBAL LIST<br><span style="color:#777;font-size:9px;">online skorlar yükleniyor...</span></div>';
     getCloudScores().then(async scores=>{
+      if(token!==hiScoreLoadToken)return;
       if((!scores||!scores.length) && localScores.length){
-        // Online boşsa bu cihazdaki local skorları otomatik cloud'a basıp tekrar oku.
-        renderScores(localScores,false,'Online liste boştu, local skorlar buluta eşitleniyor...');
+        // Online boşsa bu cihazdaki local skorları cloud'a basıp tekrar oku.
+        list.innerHTML='<div style="color:#00ffaa;text-align:center;padding:18px;font-size:11px;line-height:1.7;">online liste boş, local skorlar aktarılıyor...</div>';
         const pushed=await syncLocalScoresToCloud();
+        if(token!==hiScoreLoadToken)return;
         if(pushed>0){
           const again=await getCloudScores();
-          renderScores(again,true,'Local skorlar online listeye aktarıldı.');
+          if(token!==hiScoreLoadToken)return;
+          renderScores(again,true);
         }else{
-          renderScores(localScores,false,'Online liste boş, local skor gösteriliyor.');
+          renderScores([],true,'Online liste boş.');
         }
       }else{
         renderScores(scores||[],true);
       }
     }).catch(err=>{
+      if(token!==hiScoreLoadToken)return;
       console.warn('Cloud scores could not be loaded:',err);
       renderScores(localScores,false,'Online skor okunamadı: '+(err&&err.message?err.message:'hata'));
     });
+  }else{
+    renderScores(localScores,false,'Online bağlantı kapalı.');
   }
 }
 function showNameEntry(){
