@@ -127,11 +127,7 @@ canvas{display:block;}
 #gameOverScreen h1{color:#f22;font-size:clamp(28px,8vw,52px);letter-spacing:4px;text-shadow:0 0 30px #f00;margin-bottom:6px;}
 #gameOverScreen h2{color:#f66;font-size:clamp(18px,5vw,28px);margin-bottom:4px;}
 #goScore{color:#fa0;font-size:13px;margin-bottom:20px;}
-#goCodeBox{background:#111;border:2px solid #555;border-radius:10px;padding:14px 18px;margin-bottom:14px;text-align:center;width:260px;}
-#goCodeBox p{color:#888;font-size:10px;margin-bottom:8px;}
-#goCodeInp{background:#000;border:2px solid #666;border-radius:6px;color:#0f8;font-size:16px;font-family:'Courier New',monospace;padding:8px 12px;text-align:center;width:130px;-webkit-appearance:none;outline:none;letter-spacing:4px;}
-#goCodeErr{color:#f44;font-size:9px;margin-top:4px;min-height:12px;}
-#goCodeBtn{margin-top:8px;padding:9px 26px;background:linear-gradient(135deg,#006622,#003311);color:#0f8;border:2px solid #0f8;border-radius:8px;font-size:12px;font-family:'Courier New',monospace;letter-spacing:2px;cursor:pointer;-webkit-appearance:none;}
+
 #goRestartBtn{padding:12px 36px;background:linear-gradient(135deg,#880000,#440000);color:#f88;border:2px solid #f44;border-radius:10px;font-size:14px;font-family:'Courier New',monospace;letter-spacing:2px;cursor:pointer;-webkit-appearance:none;}
 </style>
 </head>
@@ -268,12 +264,6 @@ canvas{display:block;}
   <h1>GAME OVER</h1>
   <h2 id="goH2txt">ÖLDÜN!</h2>
   <div id="goScore"></div>
-  <div id="goCodeBox">
-    <p>Kod girerek sonraki bölüme geç:</p>
-    <input id="goCodeInp" maxlength="8" placeholder="- - - - -" autocomplete="off">
-    <div id="goCodeErr"></div>
-    <button id="goCodeBtn">DOĞRULA →</button>
-  </div>
   <button id="goRestartBtn">↩ BU BÖLÜMÜ YENİDEN BAŞLAT</button>
 </div>
 
@@ -603,7 +593,7 @@ function applyTexts(){
   const hi=document.querySelector('#hiScreen h2');if(hi)hi.textContent=d.hiTitle;set('hiBack',d.hiBack);
   const ns=document.querySelector('#nameScreen h2');if(ns)ns.textContent=d.saveTit;set('nameSbm',d.saveBtn);ph('nameInp',d.nameHint);
   const et=document.querySelector('.etitle');if(et)et.textContent=d.endTitle;set('endHiBtn',d.endHi);set('endAgain',d.endAgain);
-  const gh=document.querySelector('#gameOverScreen h2');if(gh)gh.textContent=d.goH2;const gp=document.querySelector('#goCodeBox p');if(gp)gp.textContent=d.goCode;set('goCodeBtn',d.goCodeBtn);set('goRestartBtn',d.goRestart);
+  const gh=document.querySelector('#gameOverScreen h2');if(gh)gh.textContent=d.goH2;set('goRestartBtn',d.goRestart);
   updateLanguageButtons();
 }
 function setLanguage(code){LANG=code;try{localStorage.setItem('wf_lang',code);}catch(e){};applyTexts();if(document.getElementById('ctrlScreen').style.display!=='none')showCtrl();}
@@ -716,7 +706,7 @@ addTap('bPause',togglePause);addTap('bSw',switchWeapon);addTap('bBeam',activateB
 addTap('endHiBtn',()=>{document.getElementById('endScreen').style.display='none';showNameEntry();});
 addTap('endAgain',()=>{gameRunning=false;startMenuMusic();document.getElementById('endScreen').style.display='none';document.getElementById('logoScreen').style.display='flex';});
 addTap('nameSbm',saveScore);
-addTap('goCodeBtn',tryCode);
+
 addTap('goRestartBtn',restartLevel);
 document.getElementById('chars').addEventListener('touchend',e=>{const c=e.target.closest('.cc');if(c){e.preventDefault();selectChar(parseInt(c.dataset.idx));}},{passive:false});
 document.getElementById('chars').addEventListener('click',e=>{const c=e.target.closest('.cc');if(c)selectChar(parseInt(c.dataset.idx));});
@@ -906,23 +896,6 @@ function showGameOverScreen(){
   }
   document.getElementById('gameOverScreen').style.display='flex';
   document.getElementById('goScore').textContent=L().goScore(Math.floor(gameScore).toLocaleString(),currentLevel+1);
-  document.getElementById('goCodeInp').value='';document.getElementById('goCodeErr').textContent='';
-}
-function tryCode(){
-  const code=document.getElementById('goCodeInp').value.trim();
-  if(code==='12345'){
-    document.getElementById('gameOverScreen').style.display='none';
-    // Skoru kaydet, sonraki bölüme geç
-    currentLevel=Math.min(currentLevel+1,9);
-    gc.style.display='block';document.getElementById('touchCtrl').style.display='block';document.getElementById('gameSettingsBtn').style.display='flex';
-    gameOver=false;
-    initLevel(currentLevel);startBGM();
-    showLvlBanner(L().lvlBanner(currentLevel,bossName(currentLevel)));
-    requestAnimationFrame(loop);
-  }else{
-    document.getElementById('goCodeErr').textContent=L().wrongCode;
-    document.getElementById('goCodeInp').value='';
-  }
 }
 function restartLevel(){
   document.getElementById('gameOverScreen').style.display='none';
