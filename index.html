@@ -1095,7 +1095,16 @@ const ENDINGS=[
   {charId:2,title:"Mikail'in Dönüşü",story:`Mikail okul çantasını sırtına astı ve koştu.\nKöpeği Fındık havlayarak geldi.\nBabası güldü ve saçlarını karıştırdı.\n"Şimdi ödev zamanı, kahraman."`,fam:'Ailesiyle ve köpeği Fındık ile buluştu'},
   {charId:3,title:"Aria'nın Huzuru",story:`Aria büyü kitabını kapattı.\nKapı çalındı — büyükannesi elinde çayla geldi.\n"Hep bilirdim döneceğini."\nAria ilk kez yıllardır ağladı.`,fam:'Büyükannesiyle buluştu'},
   {charId:4,title:"Zephyr'in Hızı",story:`Zephyr son kez arkasına baktı.\nGenç kardeşleri onu bekliyordu — üçü birden sarıldı.\n"Hiç bu kadar hızlı olmamıştım," dedi Zephyr.\nO gece dört kardeş yıldızlara baktı.`,fam:'Üç kardeşiyle buluştu'},
-  {charId:5,title:"Baris'in Ateşli Dokunaçları",story:`Baris mor dokunaçlarını gökyüzüne kaldırdı.\nAteş artık düşmanları değil, eve dönüş yolunu aydınlatıyordu.\nKafatası işareti sönünce herkes onun gerçek bir kahraman olduğunu anladı.`,fam:'Ailesiyle güvenli bölgeye döndü'},
+  {charId:5,title:"Baris'in Şampiyonluğu",story:`Baris, büyük maceradan sonra daha da güçlenmek istedi.
+Bir gün cesaretini topladı ve kick box kursuna yazıldı.
+İlk başta yumruk atarken dengesini kaybediyor, tekme atarken kendi etrafında dönüyordu.
+Ama Baris hiç pes etmedi.
+Her gün çalıştı, zıpladı, savunma yaptı ve mor dokunaçlarını daha iyi kullanmayı öğrendi.
+Sonunda turnuva günü geldi. Karşısına çok güçlü dövüşçüler çıktı ama Baris korkmadı.
+Önce hepsine selam verdi, sonra hızlı hareketleriyle onları tek tek yendi.
+Finalde en büyük rakibi gelince derin bir nefes aldı ve süper vuruşunu yaptı.
+Bütün salon alkışladı.
+Baris artık sadece güçlü değil; cesur, çalışkan ve iyi kalpli bir şampiyon olmuştu.`,fam:'Kick box kursunda şampiyon oldu'},
 ];
 
 const CHARS=[
@@ -2112,6 +2121,7 @@ function showEndScreen(){
 }
 function drawFamilyScene(ch,ending){
   const fc=document.getElementById('endFamilyCanvas'),fx=fc.getContext('2d'),fw=fc.width,fh=fc.height;
+  if(ch.id===5){drawBarisChampionScene(fc,fx,fw,fh,ending,ch);return;}
   const bg=fx.createLinearGradient(0,0,0,fh);bg.addColorStop(0,'#ff8844');bg.addColorStop(0.5,'#ffcc66');bg.addColorStop(1,'#88cc44');fx.fillStyle=bg;fx.fillRect(0,0,fw,fh);
   fx.fillStyle='#ffdd00';fx.beginPath();fx.arc(fw*0.8,fh*0.25,30,0,Math.PI*2);fx.fill();fx.fillStyle='rgba(255,220,50,0.3)';fx.beginPath();fx.arc(fw*0.8,fh*0.25,46,0,Math.PI*2);fx.fill();
   fx.fillStyle='#44aa44';fx.fillRect(0,fh*0.65,fw,fh);fx.fillStyle='#338833';fx.fillRect(0,fh*0.65,fw,7);
@@ -2126,6 +2136,32 @@ function drawFamilyScene(ch,ending){
   fx.fillStyle='rgba(0,0,0,0.5)';fx.fillRect(0,0,fw,22);fx.fillStyle='#FFD700';fx.font='bold 12px Courier New';fx.textAlign='center';fx.fillText(ending.title,fw/2,15);
 }
 function dsc(c,x,y,hc,sc,isF,s=1){c.save();c.translate(x,y);c.scale(s,s);c.fillStyle='#333388';c.fillRect(-6,18,5,14);c.fillRect(1,18,5,14);c.fillStyle=sc;c.fillRect(-8,-2,16,20);c.fillStyle='#FDBCB4';c.fillRect(-12,0,4,12);c.fillRect(8,0,4,12);c.fillStyle='#FDBCB4';c.beginPath();c.roundRect(-7,-18,14,16,3);c.fill();c.fillStyle=hc;if(isF){c.fillRect(-8,-19,16,6);c.fillRect(-10,-16,4,10);c.fillRect(6,-16,4,10);c.beginPath();c.ellipse(0,-21,7,4,0,0,Math.PI*2);c.fill();}else{c.fillRect(-7,-19,14,6);c.beginPath();c.ellipse(0,-21,6,4,0,0,Math.PI*2);c.fill();}c.fillStyle='#222';c.fillRect(-4,-12,3,3);c.fillRect(1,-12,3,3);c.restore();}
+function drawBarisChampionScene(fc,fx,fw,fh,ending,ch){
+  fx.clearRect(0,0,fw,fh);
+  const bg=fx.createLinearGradient(0,0,0,fh);bg.addColorStop(0,'#12061f');bg.addColorStop(0.55,'#3a1060');bg.addColorStop(1,'#13254c');fx.fillStyle=bg;fx.fillRect(0,0,fw,fh);
+  fx.fillStyle='rgba(255,255,255,0.08)';
+  for(let i=0;i<18;i++){fx.beginPath();fx.arc(20+i*16,24+Math.sin(i)*3,2+((i%3)===0?1:0),0,Math.PI*2);fx.fill();}
+  const spot=fx.createRadialGradient(fw/2,72,18,fw/2,92,116);spot.addColorStop(0,'rgba(255,255,210,0.92)');spot.addColorStop(0.4,'rgba(255,245,170,0.35)');spot.addColorStop(1,'rgba(255,240,150,0)');fx.fillStyle=spot;fx.fillRect(0,0,fw,fh);
+  fx.fillStyle='#262626';fx.fillRect(16,126,fw-32,44);
+  fx.fillStyle='#3d3d3d';fx.fillRect(18,128,fw-36,40);
+  fx.strokeStyle='#f44';fx.lineWidth=4;
+  [114,126,138].forEach(y=>{fx.beginPath();fx.moveTo(24,y);fx.lineTo(fw-24,y);fx.stroke();});
+  fx.fillStyle='#888';[24,fw-24].forEach(x=>{fx.fillRect(x-4,108,8,48);});
+  fx.fillStyle='rgba(0,0,0,0.25)';fx.beginPath();fx.ellipse(fw/2,146,64,14,0,0,Math.PI*2);fx.fill();
+  const cols=['#ffdd00','#00ffaa','#ff66aa','#66ccff','#ff8844'];
+  for(let i=0;i<24;i++){fx.fillStyle=cols[i%cols.length];fx.fillRect(18+(i*11)%260,20+((i*19)%58),4,9);}
+  fx.fillStyle='rgba(0,0,0,0.42)';fx.fillRect(28,8,fw-56,22);
+  fx.fillStyle='#FFD700';fx.font='bold 12px Courier New';fx.textAlign='center';fx.fillText('CHAMPION BARIS',fw/2,23);
+  fx.fillStyle='#FFD700';fx.beginPath();fx.moveTo(36,36);fx.lineTo(54,36);fx.lineTo(50,52);fx.lineTo(40,52);fx.closePath();fx.fill();fx.fillRect(43,52,4,10);fx.fillRect(38,62,14,4);
+  fx.strokeStyle='#d4af37';fx.lineWidth=2;fx.beginPath();fx.arc(35,42,7,Math.PI*1.5,Math.PI*0.5,true);fx.stroke();fx.beginPath();fx.arc(55,42,7,Math.PI*1.5,Math.PI*0.5,false);fx.stroke();
+  function flop(x,y,shirt,rot){fx.save();fx.translate(x,y);fx.rotate(rot);fx.fillStyle='rgba(0,0,0,0.2)';fx.beginPath();fx.ellipse(0,15,15,5,0,0,Math.PI*2);fx.fill();fx.fillStyle='#f2c8a0';fx.beginPath();fx.roundRect(-8,-18,16,16,4);fx.fill();fx.fillStyle=shirt;fx.fillRect(-10,-2,20,18);fx.fillStyle='#335';fx.fillRect(-10,16,7,12);fx.fillRect(3,16,7,12);fx.fillStyle='#f2c8a0';fx.fillRect(-15,1,5,11);fx.fillRect(10,1,5,11);fx.fillStyle='#222';fx.fillRect(-4,-12,2,2);fx.fillRect(2,-12,2,2);fx.font='bold 12px Courier New';fx.fillText('x',-5,-4);fx.fillText('x',1,-4);fx.restore();}
+  flop(58,146,'#3366cc',-0.35); flop(244,148,'#cc6633',0.35);
+  drawChar(fx,fw/2,fh*0.71,ch,1.18,0.4);
+  fx.fillStyle='#d22';fx.beginPath();fx.arc(fw/2-34,119,9,0,Math.PI*2);fx.fill();fx.beginPath();fx.arc(fw/2+35,119,9,0,Math.PI*2);fx.fill();
+  fx.fillStyle='#ff9a00';fx.beginPath();fx.arc(fw/2-44,98,8,0,Math.PI*2);fx.fill();fx.beginPath();fx.arc(fw/2+46,98,8,0,Math.PI*2);fx.fill();
+  fx.fillStyle='#fff';fx.font='bold 10px Courier New';fx.fillText('★',fw/2,108);
+  fx.fillStyle='rgba(0,0,0,0.45)';fx.fillRect(0,0,fw,22);fx.fillStyle='#FFD700';fx.font='bold 12px Courier New';fx.textAlign='center';fx.fillText(ending.title,fw/2,15);
+}
 function drawDog(c,x,y){c.save();c.translate(x,y);c.fillStyle='#cc8844';c.fillRect(-14,-6,28,12);c.fillRect(-6,-14,12,10);c.fillRect(-18,-2,6,6);c.fillRect(12,-2,6,6);c.fillRect(14,-8,3,12);c.fillStyle='#333';c.fillRect(-3,-11,2,2);c.fillRect(1,-11,2,2);c.fillRect(-10,-14,4,5);c.fillRect(6,-14,4,5);c.restore();}
 
 // ── RENDER ────────────────────────────────────────────
