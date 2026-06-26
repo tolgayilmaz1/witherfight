@@ -332,13 +332,13 @@ canvas{display:block;}
 <button id="nxtBtn">SONRAKI BÖLÜM ▶</button>
 
 
-<!-- Firebase online high score SDK KAPALI
-     İzin popup çıkmasın diye online Firebase/Analytics bağlantıları kaldırıldı.
-     Skorlar localStorage ile cihazda tutulur. -->
+<!-- High-score: Firebase Realtime Database REST aktif.
+     SDK gerekmez; skorlar hem localStorage'a hem Realtime Database'e yazılır. -->
 <script>
 const WF_SCORE_COLLECTION = 'witherfight_scores';
+const WF_RTDB_URL = 'https://witherfighting-default-rtdb.europe-west1.firebasedatabase.app';
 let wfDb = null;
-let wfCloudReady = false;
+let wfCloudReady = true;
 </script>
 
 <script>
@@ -751,21 +751,36 @@ function renderScores(scores,online){
   document.getElementById('hiList').innerHTML=scores.length?tag+scores.map((s,i)=>`<div class="hirow"><span class="rank">#${i+1}</span><span class="name">${escHtml(s.name)}</span><span class="sc">${Number(s.score||0).toLocaleString()}</span></div>`).join(''):'<div style="color:#444;text-align:center;padding:20px;">'+L().hiEmpty+'</div>';
 }
 async function getCloudScores(){
-  if(!wfCloudReady||!wfDb) throw new Error('cloud offline');
-  const snap=await wfDb.collection(WF_SCORE_COLLECTION).orderBy('score','desc').limit(10).get();
-  return snap.docs.map(d=>d.data());
+  if(!wfCloudReady||!WF_RTDB_URL) throw new Error('cloud offline');
+  const url=WF_RTDB_URL.replace(/\/$/,'')+'/'+WF_SCORE_COLLECTION+'.json';
+  const res=await fetch(url,{method:'GET',cache:'no-store'});
+  if(!res.ok) throw new Error('cloud read failed');
+  const data=await res.json();
+  const rows=Object.values(data||{}).filter(Boolean).map(r=>({
+    name:String(r.name||'???').slice(0,12),
+    score:Number(r.score||0),
+    time:Number(r.time||0),
+    level:Number(r.level||0),
+    date:r.date||''
+  }));
+  rows.sort((a,b)=>b.score-a.score);
+  return rows.slice(0,10);
 }
 async function addCloudScore(row){
-  if(!wfCloudReady||!wfDb) throw new Error('cloud offline');
-  await wfDb.collection(WF_SCORE_COLLECTION).add({
+  if(!wfCloudReady||!WF_RTDB_URL) throw new Error('cloud offline');
+  const url=WF_RTDB_URL.replace(/\/$/,'')+'/'+WF_SCORE_COLLECTION+'.json';
+  const clean={
     game:'wither-fight',
-    name:row.name,
-    score:row.score,
-    time:row.time,
-    level:row.level,
-    date:row.date,
-    createdAt:firebase.firestore.FieldValue.serverTimestamp()
-  });
+    name:String(row.name||'???').slice(0,12),
+    score:Number(row.score||0),
+    time:Number(row.time||0),
+    level:Number(row.level||0),
+    date:String(row.date||''),
+    createdAt:Date.now()
+  };
+  const res=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(clean)});
+  if(!res.ok) throw new Error('cloud write failed');
+  return await res.json();
 }
 function hideAllGameScreens(){
   ['langScreen','ctrlScreen','ctrlSelScreen','logoScreen','hiScreen','settingsScreen','nameScreen','charSelect','endScreen','gameOverScreen','lvlBanner'].forEach(id=>{
@@ -831,7 +846,11 @@ function showHiScores(){
   hi.style.zIndex='650';
   const localScores=getScores().sort((a,b)=>b.score-a.score).slice(0,10);
   renderScores(localScores,false);
-  // Firebase/Analytics bu sürümde kapalı: isim kaydedince direkt local listeye düşer.
+  getCloudScores().then(scores=>{
+    if(scores&&scores.length)renderScores(scores,true);
+  }).catch(()=>{
+    renderScores(localScores,false);
+  });
 }
 function showNameEntry(){
   document.getElementById('nameScreen').style.display='flex';
@@ -847,6 +866,7 @@ function saveScore(){
   scores.sort((a,b)=>b.score-a.score);
   saveScores(scores.slice(0,20));
   document.querySelector('#nameScreen h2').textContent=L().saveTit;
+  addCloudScore(row).catch(err=>console.warn('Realtime DB score save failed',err));
   showHiScores();
 }
 
