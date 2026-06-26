@@ -23,6 +23,13 @@ canvas{display:block;}
 #settingsScreen{background:linear-gradient(180deg,#020210,#061428,#020210);display:none;z-index:650;text-align:center;}
 #settingsScreen h2{color:#00aaff;font-size:clamp(16px,4vw,24px);letter-spacing:3px;text-shadow:0 0 18px #00aaff;margin-bottom:12px;}
 #settingsScreen p{color:#888;font-size:10px;line-height:1.7;max-width:320px;margin:0 auto 10px;}
+#adminOpenBtn{background:linear-gradient(135deg,#222244,#111122);border:2px solid #5555aa;color:#fff;border-radius:10px;padding:12px 22px;font-family:'Courier New',monospace;font-size:12px;letter-spacing:2px;cursor:pointer;margin:8px auto 4px;}
+#adminLoginPanel{display:none;background:rgba(0,0,0,0.28);border:1px solid #26384a;border-radius:12px;padding:12px 10px;width:100%;max-width:330px;margin:8px auto;}
+#setPass{background:#070707;border:2px solid #00aaff;border-radius:9px;color:#fff;font-size:16px;font-family:'Courier New',monospace;padding:10px 14px;text-align:center;width:210px;-webkit-appearance:none;outline:none;margin:6px 0;}
+#setErr{color:#ff5555;font-size:10px;min-height:16px;margin:4px 0 8px;}
+#adminBox{display:none;background:rgba(255,255,255,0.05);border:1px solid #24445a;border-radius:12px;padding:14px 12px;width:100%;max-width:330px;margin:8px auto;}
+#clearScoresBtn{background:linear-gradient(135deg,#880000,#440000);border:2px solid #ff4444;color:#fff;border-radius:10px;padding:12px 18px;font-family:'Courier New',monospace;font-size:12px;letter-spacing:2px;cursor:pointer;margin-top:8px;}
+#adminMsg{color:#00ffaa;font-size:10px;min-height:16px;margin-top:8px;}
 #langSettings{width:100%;max-width:360px;margin:4px auto 12px;padding:10px;border:1px solid #1d3444;border-radius:12px;background:rgba(255,255,255,0.04);}
 #langSettingsTitle{color:#ffaa00;font-size:12px;letter-spacing:2px;margin-bottom:4px;}
 #langSettingsInfo{color:#777;font-size:9px;margin-bottom:8px;}
@@ -127,7 +134,11 @@ canvas{display:block;}
 #gameOverScreen h1{color:#f22;font-size:clamp(28px,8vw,52px);letter-spacing:4px;text-shadow:0 0 30px #f00;margin-bottom:6px;}
 #gameOverScreen h2{color:#f66;font-size:clamp(18px,5vw,28px);margin-bottom:4px;}
 #goScore{color:#fa0;font-size:13px;margin-bottom:20px;}
-
+#goCodeBox{background:#111;border:2px solid #555;border-radius:10px;padding:14px 18px;margin-bottom:14px;text-align:center;width:260px;}
+#goCodeBox p{color:#888;font-size:10px;margin-bottom:8px;}
+#goCodeInp{background:#000;border:2px solid #666;border-radius:6px;color:#0f8;font-size:16px;font-family:'Courier New',monospace;padding:8px 12px;text-align:center;width:130px;-webkit-appearance:none;outline:none;letter-spacing:4px;}
+#goCodeErr{color:#f44;font-size:9px;margin-top:4px;min-height:12px;}
+#goCodeBtn{margin-top:8px;padding:9px 26px;background:linear-gradient(135deg,#006622,#003311);color:#0f8;border:2px solid #0f8;border-radius:8px;font-size:12px;font-family:'Courier New',monospace;letter-spacing:2px;cursor:pointer;-webkit-appearance:none;}
 #goRestartBtn{padding:12px 36px;background:linear-gradient(135deg,#880000,#440000);color:#f88;border:2px solid #f44;border-radius:10px;font-size:14px;font-family:'Courier New',monospace;letter-spacing:2px;cursor:pointer;-webkit-appearance:none;}
 </style>
 </head>
@@ -233,6 +244,19 @@ canvas{display:block;}
     <div class="langPickGrid" id="langPickGrid"></div>
   </div>
   <p id="settingsInfo">Dil seçimini buradan yapabilirsin.</p>
+  <button class="bb2" id="adminOpenBtn">🔐 ADMIN PANEL GİRİŞ</button>
+  <div id="adminLoginPanel">
+    <p id="adminLoginInfo">Admin panel için şifre gir.</p>
+    <input id="setPass" type="password" placeholder="ŞİFRE" autocomplete="off" autocorrect="off" spellcheck="false">
+    <div id="setErr"></div>
+    <button class="bb2" id="setLogin">GİRİŞ</button>
+  </div>
+  <div id="adminBox">
+    <p id="adminTitle" style="color:#00ffaa;font-size:12px;letter-spacing:2px;margin-bottom:4px;">ADMIN PANEL</p>
+    <p id="adminInfo">High score listesini temizleyebilirsin.</p>
+    <button id="clearScoresBtn">🗑 HI-SCORE TEMİZLE</button>
+    <div id="adminMsg"></div>
+  </div>
   <button class="bb2" id="settingsBack" style="margin-top:12px;">← GERİ</button>
 </div>
 
@@ -264,6 +288,12 @@ canvas{display:block;}
   <h1>GAME OVER</h1>
   <h2 id="goH2txt">ÖLDÜN!</h2>
   <div id="goScore"></div>
+  <div id="goCodeBox">
+    <p>Kod girerek sonraki bölüme geç:</p>
+    <input id="goCodeInp" maxlength="8" placeholder="- - - - -" autocomplete="off">
+    <div id="goCodeErr"></div>
+    <button id="goCodeBtn">DOĞRULA →</button>
+  </div>
   <button id="goRestartBtn">↩ BU BÖLÜMÜ YENİDEN BAŞLAT</button>
 </div>
 
@@ -302,64 +332,51 @@ canvas{display:block;}
 <button id="nxtBtn">SONRAKI BÖLÜM ▶</button>
 
 
-<!-- Firebase online high score SDK
-     Realtime Database kullanılır. Google Analytics YOK. -->
-<script src="https://www.gstatic.com/firebasejs/12.14.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/12.14.0/firebase-database-compat.js"></script>
+<!-- Firebase online high score SDK KAPALI
+     İzin popup çıkmasın diye online Firebase/Analytics bağlantıları kaldırıldı.
+     Skorlar localStorage ile cihazda tutulur. -->
 <script>
 const WF_SCORE_COLLECTION = 'witherfight_scores';
-const firebaseConfig = {
-  apiKey: "AIzaSyB7-tyQXRhfj7YLLLE0An3a_gvHMZJuCTo",
-  authDomain: "witherfighting.firebaseapp.com",
-  databaseURL: "https://witherfighting-default-rtdb.europe-west1.firebasedatabase.app",
-  projectId: "witherfighting",
-  storageBucket: "witherfighting.firebasestorage.app",
-  messagingSenderId: "72856332737",
-  appId: "1:72856332737:web:ca8a1b780e0a55b1086740"
-};
 let wfDb = null;
 let wfCloudReady = false;
-let wfCloudMode = 'offline';
-try {
-  if (window.firebase && !firebase.apps.length) firebase.initializeApp(firebaseConfig);
-  if (window.firebase && firebase.database) {
-    wfDb = firebase.database();
-    wfCloudReady = true;
-    wfCloudMode = 'rtdb';
-  }
-} catch(e) {
-  console.warn('Firebase Realtime Database offline.', e);
-  wfDb = null;
-  wfCloudReady = false;
-  wfCloudMode = 'offline';
-}
 </script>
 
 <script>
 // ── YÖN KONTROLÜ ─────────────────────────────────────
+let orientationPauseLock=false;
+let lastOrientationWrong=null;
+function isRealMobileDevice(){
+  const ua=navigator.userAgent||'';
+  const coarse=window.matchMedia&&window.matchMedia('(pointer: coarse)').matches;
+  return /Android|iPhone|iPad|iPod|Mobile/i.test(ua) || (coarse&&navigator.maxTouchPoints>1&&Math.min(window.innerWidth,window.innerHeight)<900);
+}
 function checkOrientation(){
   const overlay=document.getElementById('rotateOverlay');
+  if(!overlay)return;
+  const wrong=isRealMobileDevice() && window.innerWidth>window.innerHeight;
+  if(wrong===lastOrientationWrong)return;
+  lastOrientationWrong=wrong;
 
-  // PC / laptop ekranında bu uyarı çıkmasın.
-  // Sadece telefon-tablet gibi dokunmatik mobil cihazlarda yatay ekran uyarısı ver.
-  const ua=navigator.userAgent||'';
-  const isMobile=/Android|iPhone|iPad|iPod|Mobile/i.test(ua) || (navigator.maxTouchPoints>1 && Math.min(window.innerWidth,window.innerHeight)<900);
-
-  if(isMobile && window.innerWidth>window.innerHeight){
-    // Mobil yatay mod — overlay göster, oyunu duraklat
+  if(wrong){
     overlay.style.display='flex';
     if(typeof paused!=='undefined'&&!paused&&typeof gameOver!=='undefined'&&!gameOver&&typeof victory!=='undefined'&&!victory){
       paused=true;
+      orientationPauseLock=true;
+      if(typeof syncPauseButtons==='function')syncPauseButtons();
     }
-  } else {
-    // PC veya mobil dikey mod — overlay gizle
+  }else{
     overlay.style.display='none';
-    // Otomatik devam ettirme — kullanıcı zaten pause butonuyla kontrol etsin
+    // Sadece orientation yüzünden pause ettiysek otomatik devam et; kullanıcı pause'una dokunma.
+    if(orientationPauseLock&&typeof paused!=='undefined'&&paused&&typeof gameOver!=='undefined'&&!gameOver&&typeof victory!=='undefined'&&!victory){
+      paused=false;
+      if(typeof syncPauseButtons==='function')syncPauseButtons();
+    }
+    orientationPauseLock=false;
   }
 }
 checkOrientation();
-window.addEventListener('resize',checkOrientation);
-window.addEventListener('orientationchange',()=>setTimeout(checkOrientation,100));
+window.addEventListener('resize',()=>setTimeout(checkOrientation,120));
+window.addEventListener('orientationchange',()=>setTimeout(checkOrientation,300));
 
 // ── DİL / LANGUAGE ───────────────────────────────────
 let LANG=localStorage.getItem('wf_lang')||'tr';
@@ -430,11 +447,11 @@ const EN={
 
 
 Object.assign(TR,{
-  settingsBtn:'⚙ AYARLAR',settingsTitle:'⚙ AYARLAR',settingsInfo:'Dil seçimini buradan yapabilirsin.',languageTitle:'🌍 DİL',languageInfo:'Oyunun menü ve yazı dilini seç.',ctrlSelH:'🎮 KONTROL SEÇ',ctrlSelGo:'▶ DEVAM',
+  settingsBtn:'⚙ AYARLAR',settingsTitle:'⚙ AYARLAR',settingsInfo:'Dil seçimini buradan yapabilirsin.',adminOpen:'🔐 ADMIN PANEL GİRİŞ',adminLoginInfo:'Admin panel için şifre gir.',languageTitle:'🌍 DİL',languageInfo:'Oyunun menü ve yazı dilini seç.',adminTitle:'ADMIN PANEL',adminInfo:'High score listesini temizleyebilirsin.',setPass:'ŞİFRE',setLogin:'GİRİŞ',clearScores:'🗑 HI-SCORE TEMİZLE',wrongPass:'❌ Şifre yanlış',clearDone:'✓ High score listesi temizlendi',ctrlSelH:'🎮 KONTROL SEÇ',ctrlSelGo:'▶ DEVAM',
   ultiNotReady:'⏳ Ulti hazır değil!',diamondArmor:'💎 ELMAS ZIRH!',tornadoDash:'⚡ KASIRGA KOŞUSU!',spiderPunch:'🕷️ SPİDER YUMRUK!',blackHole:'🌀 KARA DELİK!',lightningStorm:'⚡ ŞİMŞEK FIRTINASI!',rocketEmpty:'🚀 Roket mermisi bitti!',mikailReturn:'💚 Mikail geri döndü!',shield3:'💎 3sn Koruma!',speed4:'⚡ 4sn Hız Boost!',bulletsCleared:'⚡ Mermiler temizlendi!',beamPlus:'⚡ Işın mermisi +1!',slapPlus:'👋 Şaplak hakkı +1!',gameMenuTitle:'⏸ OYUN DURDU',gameMenuResume:'▶ DEVAM ET',gameMenuSound:'🔊 SES AÇ/KAPAT',gameMenuLang:'🌍 DİL SEÇ',gameMenuExit:'↩ ANA MENÜYE DÖN'
 });
 Object.assign(EN,{
-  settingsBtn:'⚙ SETTINGS',settingsTitle:'⚙ SETTINGS',settingsInfo:'Choose language here.',languageTitle:'🌍 LANGUAGE',languageInfo:'Choose the game menu and text language.',ctrlSelH:'🎮 SELECT CONTROL',ctrlSelGo:'▶ CONTINUE',
+  settingsBtn:'⚙ SETTINGS',settingsTitle:'⚙ SETTINGS',settingsInfo:'Choose language here. Admin panel is separate below.',adminOpen:'🔐 ADMIN PANEL LOGIN',adminLoginInfo:'Enter password for admin panel.',languageTitle:'🌍 LANGUAGE',languageInfo:'Choose the game menu and text language.',adminTitle:'ADMIN PANEL',adminInfo:'You can clear the high score list.',setPass:'PASSWORD',setLogin:'LOGIN',clearScores:'🗑 CLEAR HI-SCORES',wrongPass:'❌ Wrong password',clearDone:'✓ High score list cleared',ctrlSelH:'🎮 SELECT CONTROL',ctrlSelGo:'▶ CONTINUE',
   ultiNotReady:'⏳ Ulti not ready!',diamondArmor:'💎 DIAMOND ARMOR!',tornadoDash:'⚡ TORNADO DASH!',spiderPunch:'🕷️ SPIDER PUNCH!',blackHole:'🌀 BLACK HOLE!',lightningStorm:'⚡ LIGHTNING STORM!',rocketEmpty:'🚀 No rockets left!',mikailReturn:'💚 Mikail returned!',shield3:'💎 3s Shield!',speed4:'⚡ 4s Speed Boost!',bulletsCleared:'⚡ Bullets cleared!',beamPlus:'⚡ Beam ammo +1!',slapPlus:'👋 Slap charge +1!',gameMenuTitle:'⏸ PAUSED',gameMenuResume:'▶ RESUME',gameMenuSound:'🔊 SOUND ON/OFF',gameMenuLang:'🌍 LANGUAGE',gameMenuExit:'↩ BACK TO MAIN MENU'
 });
 const LANG_LABELS={tr:'🇹🇷 Türkçe',en:'🇬🇧 English',ar:'🇸🇦 العربية',ru:'🇷🇺 Русский',fr:'🇫🇷 Français',es:'🇪🇸 Español',de:'🇩🇪 Deutsch',it:'🇮🇹 Italiano',pt:'🇵🇹 Português',ja:'🇯🇵 日本語',zh:'🇨🇳 中文',ko:'🇰🇷 한국어'};
@@ -443,16 +460,16 @@ const LANG_PACKS={tr:TR,en:EN};
 LANG_PACKS.ar=makeLang({
   ctrlH:'🎮 طريقة اللعب',ctrlGo:'▶ العب',tip:'💡 اختبئ خلف الكتل ولا تفوت المكافآت!',
   controls:[{i:'🕹️',k:'عصا التحكم',d:'حرّك يمين/يسار\nلتحريك الشخصية'},{i:'🔥',k:'إطلاق',d:'الزر الكبير — اضغط باستمرار\nلإطلاق النار'},{i:'⚡',k:'شعاع',d:'ليزر قوي\nذخيرة محدودة'},{i:'👋',k:'صفعة',d:'صفعة عملاقة — ضرر 20%\nاستخدام محدود'},{i:'🔄',k:'تبديل السلاح',d:'بدّل بين الأسلحة\nفي المخزون'},{i:'⏸',k:'إيقاف مؤقت',d:'أوقف اللعبة\nأو تابع'},{i:'❤️',k:'الصحة',d:'حتى 10 قلوب\nزدها بالمكافآت'},{i:'💎',k:'مكافآت',d:'اجمع العناصر الساقطة\nللقوة والأسلحة'}],
-  charSel:'اختر الشخصية',charSub:'المس شخصيتك',startBtn:'ابدأ اللعبة',hiTitle:'🏆 أعلى النتائج',hiBack:'← رجوع',hiEmpty:'لا توجد نتائج بعد!',saveTit:'🏆 احفظ النتيجة',saveBtn:'حفظ ✓',nameHint:'اكتب الاسم',namePre:(sc)=>'نتيجتك: '+sc+' — اكتب اسمك!',endTitle:'🌟 اكتملت اللعبة 🌟',endHi:'🏆 احفظ النتيجة',endAgain:'↩ العب مجدداً',endScore:(sc)=>'🏆 مجموع النقاط: '+sc,endTime:(m,s)=>'⏱ الوقت: '+m+'د '+s+'ث',nxtBtn:'المستوى التالي ▶',goH2:'لقد مت!',goCode:'أدخل الكود للانتقال للمستوى التالي:',goCodeBtn:'تأكيد →',goRestart:'↩ أعد هذا المستوى',goScore:(sc,lv)=>'النقاط: '+sc+' | المستوى: '+lv,wrongCode:'❌ كود خاطئ! حاول مرة أخرى.',noBeam:'⚡ لا توجد ذخيرة شعاع!',noSlap:'👋 لا توجد صفعات!',speedPop:'⚡ تسريع 5 ثوان!',paused:'متوقف مؤقتاً',pauseHint:'اضغط ▶ للمتابعة',victory:'انتصار!',defeated:'تم القضاء عليه!',cmdHit:'تم تدمير كتلة الأوامر ✓',points:(sc)=>'★ +'+sc+' نقطة',inventory:'المخزون:',speedHud:(s)=>'⚡ تسريع '+s+'ث',levelHud:(lv,name)=>'المستوى '+(lv+1)+'  '+name,lvlBanner:(lv,name)=>'المستوى '+(lv+1)+'\n'+name,settingsBtn:'⚙ الإعدادات',settingsTitle:'⚙ الإعدادات',settingsInfo:'اختر لغة القوائم والنصوص.',languageTitle:'🌍 اللغة',languageInfo:'اختر لغة القوائم والنصوص.',ctrlSelH:'🎮 اختر التحكم',ctrlSelGo:'▶ متابعة'});
-LANG_PACKS.ru=makeLang({ctrlH:'🎮 КАК ИГРАТЬ',ctrlGo:'▶ ИГРАТЬ',tip:'💡 Прячься за блоками и собирай бонусы!',controls:[{i:'🕹️',k:'ДЖОЙСТИК',d:'Двигай влево/вправо\nчтобы управлять героем'},{i:'🔥',k:'ОГОНЬ',d:'Большая кнопка — удерживай\nчтобы стрелять'},{i:'⚡',k:'ЛУЧ',d:'Мощный лазер\nпатроны ограничены'},{i:'👋',k:'УДАР',d:'Гигантский удар — 20% урона\nограничено'},{i:'🔄',k:'СМЕНА',d:'Меняй оружие\nв инвентаре'},{i:'⏸',k:'ПАУЗА',d:'Пауза или продолжить\nигру'},{i:'❤️',k:'ЗДОРОВЬЕ',d:'До 10 сердец\nувеличивай бонусами'},{i:'💎',k:'БОНУСЫ',d:'Собирай предметы\nдля оружия и силы'}],charSel:'ВЫБЕРИ ГЕРОЯ',charSub:'Нажми на героя',startBtn:'НАЧАТЬ ИГРУ',hiTitle:'🏆 РЕКОРДЫ',hiBack:'← НАЗАД',hiEmpty:'Рекордов пока нет!',saveTit:'🏆 СОХРАНИТЬ СЧЕТ',saveBtn:'СОХРАНИТЬ ✓',nameHint:'ВВЕДИ ИМЯ',namePre:(sc)=>'Твой счет: '+sc+' — введи имя!',endTitle:'🌟 ИГРА ПРОЙДЕНА 🌟',endHi:'🏆 СОХРАНИТЬ СЧЕТ',endAgain:'↩ ИГРАТЬ СНОВА',endScore:(sc)=>'🏆 Всего очков: '+sc,endTime:(m,s)=>'⏱ Время: '+m+'м '+s+'с',nxtBtn:'СЛЕДУЮЩИЙ УРОВЕНЬ ▶',goH2:'ТЫ ПОГИБ!',goCode:'Введи код для следующего уровня:',goCodeBtn:'ПОДТВЕРДИТЬ →',goRestart:'↩ ПОВТОРИТЬ УРОВЕНЬ',goScore:(sc,lv)=>'Счет: '+sc+' | Уровень: '+lv,wrongCode:'❌ Неверный код! Попробуй еще.',noBeam:'⚡ Нет зарядов луча!',noSlap:'👋 Нет ударов!',speedPop:'⚡ УСКОРЕНИЕ 5с!',paused:'ПАУЗА',pauseHint:'Нажми ▶ чтобы продолжить',victory:'ПОБЕДА!',defeated:'уничтожен!',cmdHit:'Командный блок уничтожен ✓',points:(sc)=>'★ +'+sc+' очков',inventory:'ИНВЕНТАРЬ:',speedHud:(s)=>'⚡ УСКОРЕНИЕ '+s+'с',levelHud:(lv,name)=>'УРОВЕНЬ '+(lv+1)+'  '+name,lvlBanner:(lv,name)=>'УРОВЕНЬ '+(lv+1)+'\n'+name,settingsBtn:'⚙ НАСТРОЙКИ',settingsTitle:'⚙ НАСТРОЙКИ',settingsInfo:'Выбери язык меню и текстов.',languageTitle:'🌍 ЯЗЫК',languageInfo:'Выбери язык меню и текстов.',ctrlSelH:'🎮 ВЫБЕРИ УПРАВЛЕНИЕ',ctrlSelGo:'▶ ДАЛЬШЕ'});
-LANG_PACKS.fr=makeLang({ctrlH:'🎮 COMMENT JOUER',ctrlGo:'▶ JOUER',tip:'💡 Cache-toi derrière les blocs et prends les bonus!',charSel:'CHOISIR LE PERSONNAGE',charSub:'Touche ton personnage',startBtn:'COMMENCER',hiTitle:'🏆 MEILLEURS SCORES',hiBack:'← RETOUR',hiEmpty:'Aucun score!',saveTit:'🏆 SAUVER LE SCORE',saveBtn:'SAUVER ✓',nameHint:'ENTRE TON NOM',namePre:(sc)=>'Ton score: '+sc+' — entre ton nom!',endTitle:'🌟 JEU TERMINÉ 🌟',endHi:'🏆 SAUVER LE SCORE',endAgain:'↩ REJOUER',endScore:(sc)=>'🏆 Score total: '+sc,endTime:(m,s)=>'⏱ Temps total: '+m+'m '+s+'s',nxtBtn:'NIVEAU SUIVANT ▶',goH2:'TU ES MORT!',goCode:'Entre le code pour passer au niveau suivant:',goCodeBtn:'CONFIRMER →',goRestart:'↩ RECOMMENCER CE NIVEAU',goScore:(sc,lv)=>'Score: '+sc+' | Niveau: '+lv,wrongCode:'❌ Mauvais code! Réessaie.',noBeam:'⚡ Pas de munition laser!',noSlap:'👋 Plus de gifles!',speedPop:'⚡ BOOST VITESSE 5s!',paused:'PAUSE',pauseHint:'Appuie sur ▶',victory:'VICTOIRE!',defeated:'vaincu!',cmdHit:'Bloc de commande détruit ✓',points:(sc)=>'★ +'+sc+' points',inventory:'INVENTAIRE:',speedHud:(s)=>'⚡ BOOST '+s+'s',levelHud:(lv,name)=>'NIVEAU '+(lv+1)+'  '+name,lvlBanner:(lv,name)=>'NIVEAU '+(lv+1)+'\n'+name,settingsBtn:'⚙ PARAMÈTRES',settingsTitle:'⚙ PARAMÈTRES',settingsInfo:'Choisis la langue du jeu.',languageTitle:'🌍 LANGUE',languageInfo:'Choisis la langue du jeu.',ctrlSelH:'🎮 CHOISIR CONTRÔLE',ctrlSelGo:'▶ CONTINUER'});
-LANG_PACKS.es=makeLang({ctrlH:'🎮 CÓMO JUGAR',ctrlGo:'▶ JUGAR',tip:'💡 Escóndete tras bloques y recoge bonus!',charSel:'ELEGIR PERSONAJE',charSub:'Toca tu personaje',startBtn:'EMPEZAR',hiTitle:'🏆 MEJORES PUNTOS',hiBack:'← ATRÁS',hiEmpty:'¡Sin puntuaciones!',saveTit:'🏆 GUARDAR PUNTOS',saveBtn:'GUARDAR ✓',nameHint:'ESCRIBE TU NOMBRE',namePre:(sc)=>'Tu puntuación: '+sc+' — escribe tu nombre!',endTitle:'🌟 JUEGO COMPLETADO 🌟',endHi:'🏆 GUARDAR PUNTOS',endAgain:'↩ JUGAR OTRA VEZ',endScore:(sc)=>'🏆 Puntos totales: '+sc,endTime:(m,s)=>'⏱ Tiempo total: '+m+'m '+s+'s',nxtBtn:'SIGUIENTE NIVEL ▶',goH2:'¡HAS MUERTO!',goCode:'Introduce el código para el siguiente nivel:',goCodeBtn:'CONFIRMAR →',goRestart:'↩ REINTENTAR NIVEL',goScore:(sc,lv)=>'Puntos: '+sc+' | Nivel: '+lv,wrongCode:'❌ Código incorrecto!',noBeam:'⚡ Sin munición de rayo!',noSlap:'👋 Sin bofetadas!',speedPop:'⚡ VELOCIDAD 5s!',paused:'PAUSA',pauseHint:'Pulsa ▶',victory:'¡VICTORIA!',defeated:'derrotado!',cmdHit:'Bloque de comando destruido ✓',points:(sc)=>'★ +'+sc+' puntos',inventory:'INVENTARIO:',speedHud:(s)=>'⚡ VELOCIDAD '+s+'s',levelHud:(lv,name)=>'NIVEL '+(lv+1)+'  '+name,lvlBanner:(lv,name)=>'NIVEL '+(lv+1)+'\n'+name,settingsBtn:'⚙ AJUSTES',settingsTitle:'⚙ AJUSTES',settingsInfo:'Elige el idioma del juego.',languageTitle:'🌍 IDIOMA',languageInfo:'Elige el idioma del juego.',ctrlSelH:'🎮 ELEGIR CONTROL',ctrlSelGo:'▶ CONTINUAR'});
-LANG_PACKS.de=makeLang({charSel:'CHARAKTER WÄHLEN',startBtn:'SPIEL STARTEN',hiTitle:'🏆 BESTENLISTE',hiBack:'← ZURÜCK',saveTit:'🏆 PUNKTZAHL SPEICHERN',saveBtn:'SPEICHERN ✓',nameHint:'NAME EINGEBEN',namePre:(sc)=>'Dein Score: '+sc+' — Name eingeben!',endTitle:'🌟 SPIEL BEENDET 🌟',endHi:'🏆 SPEICHERN',endAgain:'↩ NOCHMAL SPIELEN',nxtBtn:'NÄCHSTES LEVEL ▶',goH2:'DU BIST TOT!',settingsBtn:'⚙ EINSTELLUNGEN',settingsTitle:'⚙ EINSTELLUNGEN',settingsInfo:'Sprache für Menüs und Texte wählen.',languageTitle:'🌍 SPRACHE',languageInfo:'Sprache für Menüs und Texte wählen.',ctrlSelH:'🎮 STEUERUNG WÄHLEN',ctrlSelGo:'▶ WEITER'});
-LANG_PACKS.it=makeLang({charSel:'SCEGLI PERSONAGGIO',startBtn:'INIZIA GIOCO',hiTitle:'🏆 MIGLIORI PUNTEGGI',hiBack:'← INDIETRO',saveTit:'🏆 SALVA PUNTEGGIO',saveBtn:'SALVA ✓',nameHint:'INSERISCI NOME',namePre:(sc)=>'Punteggio: '+sc+' — inserisci nome!',endTitle:'🌟 GIOCO COMPLETATO 🌟',endHi:'🏆 SALVA',endAgain:'↩ GIOCA ANCORA',nxtBtn:'LIVELLO SUCCESSIVO ▶',goH2:'SEI MORTO!',settingsBtn:'⚙ IMPOSTAZIONI',settingsTitle:'⚙ IMPOSTAZIONI',settingsInfo:'Scegli la lingua del gioco.',languageTitle:'🌍 LINGUA',languageInfo:'Scegli la lingua del gioco.',ctrlSelH:'🎮 SCEGLI CONTROLLO',ctrlSelGo:'▶ CONTINUA'});
-LANG_PACKS.pt=makeLang({charSel:'ESCOLHER PERSONAGEM',startBtn:'COMEÇAR JOGO',hiTitle:'🏆 MELHORES PONTUAÇÕES',hiBack:'← VOLTAR',saveTit:'🏆 SALVAR PONTOS',saveBtn:'SALVAR ✓',nameHint:'DIGITE O NOME',namePre:(sc)=>'Sua pontuação: '+sc+' — digite o nome!',endTitle:'🌟 JOGO COMPLETO 🌟',endHi:'🏆 SALVAR',endAgain:'↩ JOGAR DE NOVO',nxtBtn:'PRÓXIMO NÍVEL ▶',goH2:'VOCÊ MORREU!',settingsBtn:'⚙ CONFIGURAÇÕES',settingsTitle:'⚙ CONFIGURAÇÕES',settingsInfo:'Escolha o idioma do jogo.',languageTitle:'🌍 IDIOMA',languageInfo:'Escolha o idioma do jogo.',ctrlSelH:'🎮 ESCOLHER CONTROLE',ctrlSelGo:'▶ CONTINUAR'});
-LANG_PACKS.ja=makeLang({ctrlH:'🎮 あそびかた',ctrlGo:'▶ プレイ',tip:'💡 ブロックに隠れてボーナスを取ろう！',charSel:'キャラクター選択',charSub:'キャラをタップ',startBtn:'ゲーム開始',hiTitle:'🏆 ハイスコア',hiBack:'← 戻る',hiEmpty:'まだスコアなし！',saveTit:'🏆 スコア保存',saveBtn:'保存 ✓',nameHint:'名前を入力',namePre:(sc)=>'スコア: '+sc+' — 名前を入力!',endTitle:'🌟 ゲームクリア 🌟',endHi:'🏆 スコア保存',endAgain:'↩ もう一度',endScore:(sc)=>'🏆 合計スコア: '+sc,endTime:(m,s)=>'⏱ 時間: '+m+'分 '+s+'秒',nxtBtn:'次のレベル ▶',goH2:'やられた!',goCode:'次のレベルへ進むコード:',goCodeBtn:'確認 →',goRestart:'↩ このレベルを再挑戦',goScore:(sc,lv)=>'スコア: '+sc+' | レベル: '+lv,settingsBtn:'⚙ 設定',settingsTitle:'⚙ 設定',settingsInfo:'ゲームの表示言語を選択。',languageTitle:'🌍 言語',languageInfo:'ゲームの表示言語を選択。',ctrlSelH:'🎮 操作を選択',ctrlSelGo:'▶ 続ける'});
-LANG_PACKS.zh=makeLang({ctrlH:'🎮 玩法',ctrlGo:'▶ 开始',tip:'💡 躲在方块后面，别错过奖励！',charSel:'选择角色',charSub:'点击你的角色',startBtn:'开始游戏',hiTitle:'🏆 高分榜',hiBack:'← 返回',hiEmpty:'暂无分数！',saveTit:'🏆 保存分数',saveBtn:'保存 ✓',nameHint:'输入名字',namePre:(sc)=>'你的分数: '+sc+' — 输入名字!',endTitle:'🌟 游戏完成 🌟',endHi:'🏆 保存分数',endAgain:'↩ 再玩一次',endScore:(sc)=>'🏆 总分: '+sc,endTime:(m,s)=>'⏱ 总时间: '+m+'分 '+s+'秒',nxtBtn:'下一关 ▶',goH2:'你死了!',goCode:'输入代码进入下一关:',goCodeBtn:'确认 →',goRestart:'↩ 重试本关',goScore:(sc,lv)=>'分数: '+sc+' | 关卡: '+lv,settingsBtn:'⚙ 设置',settingsTitle:'⚙ 设置',settingsInfo:'选择游戏菜单和文字语言。',languageTitle:'🌍 语言',languageInfo:'选择游戏菜单和文字语言。',ctrlSelH:'🎮 选择控制',ctrlSelGo:'▶ 继续'});
-LANG_PACKS.ko=makeLang({ctrlH:'🎮 플레이 방법',ctrlGo:'▶ 플레이',tip:'💡 블록 뒤에 숨고 보너스를 모아!',charSel:'캐릭터 선택',charSub:'캐릭터를 터치',startBtn:'게임 시작',hiTitle:'🏆 최고 점수',hiBack:'← 뒤로',hiEmpty:'아직 점수 없음!',saveTit:'🏆 점수 저장',saveBtn:'저장 ✓',nameHint:'이름 입력',namePre:(sc)=>'점수: '+sc+' — 이름 입력!',endTitle:'🌟 게임 완료 🌟',endHi:'🏆 점수 저장',endAgain:'↩ 다시 플레이',endScore:(sc)=>'🏆 총점: '+sc,endTime:(m,s)=>'⏱ 시간: '+m+'분 '+s+'초',nxtBtn:'다음 레벨 ▶',goH2:'죽었습니다!',goCode:'다음 레벨 코드 입력:',goCodeBtn:'확인 →',goRestart:'↩ 이 레벨 다시하기',goScore:(sc,lv)=>'점수: '+sc+' | 레벨: '+lv,settingsBtn:'⚙ 설정',settingsTitle:'⚙ 설정',settingsInfo:'게임 메뉴와 텍스트 언어 선택.',languageTitle:'🌍 언어',languageInfo:'게임 메뉴와 텍스트 언어 선택.',ctrlSelH:'🎮 조작 선택',ctrlSelGo:'▶ 계속'});
+  charSel:'اختر الشخصية',charSub:'المس شخصيتك',startBtn:'ابدأ اللعبة',hiTitle:'🏆 أعلى النتائج',hiBack:'← رجوع',hiEmpty:'لا توجد نتائج بعد!',saveTit:'🏆 احفظ النتيجة',saveBtn:'حفظ ✓',nameHint:'اكتب الاسم',namePre:(sc)=>'نتيجتك: '+sc+' — اكتب اسمك!',endTitle:'🌟 اكتملت اللعبة 🌟',endHi:'🏆 احفظ النتيجة',endAgain:'↩ العب مجدداً',endScore:(sc)=>'🏆 مجموع النقاط: '+sc,endTime:(m,s)=>'⏱ الوقت: '+m+'د '+s+'ث',nxtBtn:'المستوى التالي ▶',goH2:'لقد مت!',goCode:'أدخل الكود للانتقال للمستوى التالي:',goCodeBtn:'تأكيد →',goRestart:'↩ أعد هذا المستوى',goScore:(sc,lv)=>'النقاط: '+sc+' | المستوى: '+lv,wrongCode:'❌ كود خاطئ! حاول مرة أخرى.',noBeam:'⚡ لا توجد ذخيرة شعاع!',noSlap:'👋 لا توجد صفعات!',speedPop:'⚡ تسريع 5 ثوان!',paused:'متوقف مؤقتاً',pauseHint:'اضغط ▶ للمتابعة',victory:'انتصار!',defeated:'تم القضاء عليه!',cmdHit:'تم تدمير كتلة الأوامر ✓',points:(sc)=>'★ +'+sc+' نقطة',inventory:'المخزون:',speedHud:(s)=>'⚡ تسريع '+s+'ث',levelHud:(lv,name)=>'المستوى '+(lv+1)+'  '+name,lvlBanner:(lv,name)=>'المستوى '+(lv+1)+'\n'+name,settingsBtn:'⚙ الإعدادات',settingsTitle:'⚙ الإعدادات',settingsInfo:'أدخل كلمة مرور لوحة الإدارة.',languageTitle:'🌍 اللغة',languageInfo:'اختر لغة القوائم والنصوص.',setPass:'كلمة المرور',setLogin:'دخول',adminInfo:'يمكنك مسح قائمة أعلى النتائج.',clearScores:'🗑 مسح النتائج',wrongPass:'❌ كلمة المرور خاطئة',clearDone:'✓ تم مسح النتائج',ctrlSelH:'🎮 اختر التحكم',ctrlSelGo:'▶ متابعة'});
+LANG_PACKS.ru=makeLang({ctrlH:'🎮 КАК ИГРАТЬ',ctrlGo:'▶ ИГРАТЬ',tip:'💡 Прячься за блоками и собирай бонусы!',controls:[{i:'🕹️',k:'ДЖОЙСТИК',d:'Двигай влево/вправо\nчтобы управлять героем'},{i:'🔥',k:'ОГОНЬ',d:'Большая кнопка — удерживай\nчтобы стрелять'},{i:'⚡',k:'ЛУЧ',d:'Мощный лазер\nпатроны ограничены'},{i:'👋',k:'УДАР',d:'Гигантский удар — 20% урона\nограничено'},{i:'🔄',k:'СМЕНА',d:'Меняй оружие\nв инвентаре'},{i:'⏸',k:'ПАУЗА',d:'Пауза или продолжить\nигру'},{i:'❤️',k:'ЗДОРОВЬЕ',d:'До 10 сердец\nувеличивай бонусами'},{i:'💎',k:'БОНУСЫ',d:'Собирай предметы\nдля оружия и силы'}],charSel:'ВЫБЕРИ ГЕРОЯ',charSub:'Нажми на героя',startBtn:'НАЧАТЬ ИГРУ',hiTitle:'🏆 РЕКОРДЫ',hiBack:'← НАЗАД',hiEmpty:'Рекордов пока нет!',saveTit:'🏆 СОХРАНИТЬ СЧЕТ',saveBtn:'СОХРАНИТЬ ✓',nameHint:'ВВЕДИ ИМЯ',namePre:(sc)=>'Твой счет: '+sc+' — введи имя!',endTitle:'🌟 ИГРА ПРОЙДЕНА 🌟',endHi:'🏆 СОХРАНИТЬ СЧЕТ',endAgain:'↩ ИГРАТЬ СНОВА',endScore:(sc)=>'🏆 Всего очков: '+sc,endTime:(m,s)=>'⏱ Время: '+m+'м '+s+'с',nxtBtn:'СЛЕДУЮЩИЙ УРОВЕНЬ ▶',goH2:'ТЫ ПОГИБ!',goCode:'Введи код для следующего уровня:',goCodeBtn:'ПОДТВЕРДИТЬ →',goRestart:'↩ ПОВТОРИТЬ УРОВЕНЬ',goScore:(sc,lv)=>'Счет: '+sc+' | Уровень: '+lv,wrongCode:'❌ Неверный код! Попробуй еще.',noBeam:'⚡ Нет зарядов луча!',noSlap:'👋 Нет ударов!',speedPop:'⚡ УСКОРЕНИЕ 5с!',paused:'ПАУЗА',pauseHint:'Нажми ▶ чтобы продолжить',victory:'ПОБЕДА!',defeated:'уничтожен!',cmdHit:'Командный блок уничтожен ✓',points:(sc)=>'★ +'+sc+' очков',inventory:'ИНВЕНТАРЬ:',speedHud:(s)=>'⚡ УСКОРЕНИЕ '+s+'с',levelHud:(lv,name)=>'УРОВЕНЬ '+(lv+1)+'  '+name,lvlBanner:(lv,name)=>'УРОВЕНЬ '+(lv+1)+'\n'+name,settingsBtn:'⚙ НАСТРОЙКИ',settingsTitle:'⚙ НАСТРОЙКИ',settingsInfo:'Введи пароль админ-панели.',languageTitle:'🌍 ЯЗЫК',languageInfo:'Выбери язык меню и текстов.',setPass:'ПАРОЛЬ',setLogin:'ВХОД',adminInfo:'Можно очистить таблицу рекордов.',clearScores:'🗑 ОЧИСТИТЬ РЕКОРДЫ',wrongPass:'❌ Неверный пароль',clearDone:'✓ Рекорды очищены',ctrlSelH:'🎮 ВЫБЕРИ УПРАВЛЕНИЕ',ctrlSelGo:'▶ ДАЛЬШЕ'});
+LANG_PACKS.fr=makeLang({ctrlH:'🎮 COMMENT JOUER',ctrlGo:'▶ JOUER',tip:'💡 Cache-toi derrière les blocs et prends les bonus!',charSel:'CHOISIR LE PERSONNAGE',charSub:'Touche ton personnage',startBtn:'COMMENCER',hiTitle:'🏆 MEILLEURS SCORES',hiBack:'← RETOUR',hiEmpty:'Aucun score!',saveTit:'🏆 SAUVER LE SCORE',saveBtn:'SAUVER ✓',nameHint:'ENTRE TON NOM',namePre:(sc)=>'Ton score: '+sc+' — entre ton nom!',endTitle:'🌟 JEU TERMINÉ 🌟',endHi:'🏆 SAUVER LE SCORE',endAgain:'↩ REJOUER',endScore:(sc)=>'🏆 Score total: '+sc,endTime:(m,s)=>'⏱ Temps total: '+m+'m '+s+'s',nxtBtn:'NIVEAU SUIVANT ▶',goH2:'TU ES MORT!',goCode:'Entre le code pour passer au niveau suivant:',goCodeBtn:'CONFIRMER →',goRestart:'↩ RECOMMENCER CE NIVEAU',goScore:(sc,lv)=>'Score: '+sc+' | Niveau: '+lv,wrongCode:'❌ Mauvais code! Réessaie.',noBeam:'⚡ Pas de munition laser!',noSlap:'👋 Plus de gifles!',speedPop:'⚡ BOOST VITESSE 5s!',paused:'PAUSE',pauseHint:'Appuie sur ▶',victory:'VICTOIRE!',defeated:'vaincu!',cmdHit:'Bloc de commande détruit ✓',points:(sc)=>'★ +'+sc+' points',inventory:'INVENTAIRE:',speedHud:(s)=>'⚡ BOOST '+s+'s',levelHud:(lv,name)=>'NIVEAU '+(lv+1)+'  '+name,lvlBanner:(lv,name)=>'NIVEAU '+(lv+1)+'\n'+name,settingsBtn:'⚙ PARAMÈTRES',settingsTitle:'⚙ PARAMÈTRES',settingsInfo:'Entre le mot de passe admin.',languageTitle:'🌍 LANGUE',languageInfo:'Choisis la langue du jeu.',setPass:'MOT DE PASSE',setLogin:'ENTRER',adminInfo:'Tu peux effacer les meilleurs scores.',clearScores:'🗑 EFFACER SCORES',wrongPass:'❌ Mot de passe incorrect',clearDone:'✓ Scores effacés',ctrlSelH:'🎮 CHOISIR CONTRÔLE',ctrlSelGo:'▶ CONTINUER'});
+LANG_PACKS.es=makeLang({ctrlH:'🎮 CÓMO JUGAR',ctrlGo:'▶ JUGAR',tip:'💡 Escóndete tras bloques y recoge bonus!',charSel:'ELEGIR PERSONAJE',charSub:'Toca tu personaje',startBtn:'EMPEZAR',hiTitle:'🏆 MEJORES PUNTOS',hiBack:'← ATRÁS',hiEmpty:'¡Sin puntuaciones!',saveTit:'🏆 GUARDAR PUNTOS',saveBtn:'GUARDAR ✓',nameHint:'ESCRIBE TU NOMBRE',namePre:(sc)=>'Tu puntuación: '+sc+' — escribe tu nombre!',endTitle:'🌟 JUEGO COMPLETADO 🌟',endHi:'🏆 GUARDAR PUNTOS',endAgain:'↩ JUGAR OTRA VEZ',endScore:(sc)=>'🏆 Puntos totales: '+sc,endTime:(m,s)=>'⏱ Tiempo total: '+m+'m '+s+'s',nxtBtn:'SIGUIENTE NIVEL ▶',goH2:'¡HAS MUERTO!',goCode:'Introduce el código para el siguiente nivel:',goCodeBtn:'CONFIRMAR →',goRestart:'↩ REINTENTAR NIVEL',goScore:(sc,lv)=>'Puntos: '+sc+' | Nivel: '+lv,wrongCode:'❌ Código incorrecto!',noBeam:'⚡ Sin munición de rayo!',noSlap:'👋 Sin bofetadas!',speedPop:'⚡ VELOCIDAD 5s!',paused:'PAUSA',pauseHint:'Pulsa ▶',victory:'¡VICTORIA!',defeated:'derrotado!',cmdHit:'Bloque de comando destruido ✓',points:(sc)=>'★ +'+sc+' puntos',inventory:'INVENTARIO:',speedHud:(s)=>'⚡ VELOCIDAD '+s+'s',levelHud:(lv,name)=>'NIVEL '+(lv+1)+'  '+name,lvlBanner:(lv,name)=>'NIVEL '+(lv+1)+'\n'+name,settingsBtn:'⚙ AJUSTES',settingsTitle:'⚙ AJUSTES',settingsInfo:'Introduce la contraseña admin.',languageTitle:'🌍 IDIOMA',languageInfo:'Elige el idioma del juego.',setPass:'CONTRASEÑA',setLogin:'ENTRAR',adminInfo:'Puedes borrar los mejores puntos.',clearScores:'🗑 BORRAR PUNTOS',wrongPass:'❌ Contraseña incorrecta',clearDone:'✓ Puntos borrados',ctrlSelH:'🎮 ELEGIR CONTROL',ctrlSelGo:'▶ CONTINUAR'});
+LANG_PACKS.de=makeLang({charSel:'CHARAKTER WÄHLEN',startBtn:'SPIEL STARTEN',hiTitle:'🏆 BESTENLISTE',hiBack:'← ZURÜCK',saveTit:'🏆 PUNKTZAHL SPEICHERN',saveBtn:'SPEICHERN ✓',nameHint:'NAME EINGEBEN',namePre:(sc)=>'Dein Score: '+sc+' — Name eingeben!',endTitle:'🌟 SPIEL BEENDET 🌟',endHi:'🏆 SPEICHERN',endAgain:'↩ NOCHMAL SPIELEN',nxtBtn:'NÄCHSTES LEVEL ▶',goH2:'DU BIST TOT!',settingsBtn:'⚙ EINSTELLUNGEN',settingsTitle:'⚙ EINSTELLUNGEN',settingsInfo:'Admin-Passwort eingeben.',languageTitle:'🌍 SPRACHE',languageInfo:'Sprache für Menüs und Texte wählen.',setPass:'PASSWORT',setLogin:'LOGIN',adminInfo:'Du kannst Highscores löschen.',clearScores:'🗑 HIGHSCORES LÖSCHEN',wrongPass:'❌ Falsches Passwort',clearDone:'✓ Highscores gelöscht',ctrlSelH:'🎮 STEUERUNG WÄHLEN',ctrlSelGo:'▶ WEITER'});
+LANG_PACKS.it=makeLang({charSel:'SCEGLI PERSONAGGIO',startBtn:'INIZIA GIOCO',hiTitle:'🏆 MIGLIORI PUNTEGGI',hiBack:'← INDIETRO',saveTit:'🏆 SALVA PUNTEGGIO',saveBtn:'SALVA ✓',nameHint:'INSERISCI NOME',namePre:(sc)=>'Punteggio: '+sc+' — inserisci nome!',endTitle:'🌟 GIOCO COMPLETATO 🌟',endHi:'🏆 SALVA',endAgain:'↩ GIOCA ANCORA',nxtBtn:'LIVELLO SUCCESSIVO ▶',goH2:'SEI MORTO!',settingsBtn:'⚙ IMPOSTAZIONI',settingsTitle:'⚙ IMPOSTAZIONI',settingsInfo:'Inserisci password admin.',languageTitle:'🌍 LINGUA',languageInfo:'Scegli la lingua del gioco.',setPass:'PASSWORD',setLogin:'LOGIN',adminInfo:'Puoi cancellare i migliori punteggi.',clearScores:'🗑 CANCELLA PUNTEGGI',wrongPass:'❌ Password errata',clearDone:'✓ Punteggi cancellati',ctrlSelH:'🎮 SCEGLI CONTROLLO',ctrlSelGo:'▶ CONTINUA'});
+LANG_PACKS.pt=makeLang({charSel:'ESCOLHER PERSONAGEM',startBtn:'COMEÇAR JOGO',hiTitle:'🏆 MELHORES PONTUAÇÕES',hiBack:'← VOLTAR',saveTit:'🏆 SALVAR PONTOS',saveBtn:'SALVAR ✓',nameHint:'DIGITE O NOME',namePre:(sc)=>'Sua pontuação: '+sc+' — digite o nome!',endTitle:'🌟 JOGO COMPLETO 🌟',endHi:'🏆 SALVAR',endAgain:'↩ JOGAR DE NOVO',nxtBtn:'PRÓXIMO NÍVEL ▶',goH2:'VOCÊ MORREU!',settingsBtn:'⚙ CONFIGURAÇÕES',settingsTitle:'⚙ CONFIGURAÇÕES',settingsInfo:'Digite a senha admin.',languageTitle:'🌍 IDIOMA',languageInfo:'Escolha o idioma do jogo.',setPass:'SENHA',setLogin:'ENTRAR',adminInfo:'Você pode limpar os recordes.',clearScores:'🗑 LIMPAR RECORDES',wrongPass:'❌ Senha errada',clearDone:'✓ Recordes limpos',ctrlSelH:'🎮 ESCOLHER CONTROLE',ctrlSelGo:'▶ CONTINUAR'});
+LANG_PACKS.ja=makeLang({ctrlH:'🎮 あそびかた',ctrlGo:'▶ プレイ',tip:'💡 ブロックに隠れてボーナスを取ろう！',charSel:'キャラクター選択',charSub:'キャラをタップ',startBtn:'ゲーム開始',hiTitle:'🏆 ハイスコア',hiBack:'← 戻る',hiEmpty:'まだスコアなし！',saveTit:'🏆 スコア保存',saveBtn:'保存 ✓',nameHint:'名前を入力',namePre:(sc)=>'スコア: '+sc+' — 名前を入力!',endTitle:'🌟 ゲームクリア 🌟',endHi:'🏆 スコア保存',endAgain:'↩ もう一度',endScore:(sc)=>'🏆 合計スコア: '+sc,endTime:(m,s)=>'⏱ 時間: '+m+'分 '+s+'秒',nxtBtn:'次のレベル ▶',goH2:'やられた!',goCode:'次のレベルへ進むコード:',goCodeBtn:'確認 →',goRestart:'↩ このレベルを再挑戦',goScore:(sc,lv)=>'スコア: '+sc+' | レベル: '+lv,settingsBtn:'⚙ 設定',settingsTitle:'⚙ 設定',settingsInfo:'管理パネルのパスワードを入力。',languageTitle:'🌍 言語',languageInfo:'ゲームの表示言語を選択。',setPass:'パスワード',setLogin:'ログイン',adminInfo:'ハイスコアを消去できます。',clearScores:'🗑 スコア消去',wrongPass:'❌ パスワード違い',clearDone:'✓ スコアを消去しました',ctrlSelH:'🎮 操作を選択',ctrlSelGo:'▶ 続ける'});
+LANG_PACKS.zh=makeLang({ctrlH:'🎮 玩法',ctrlGo:'▶ 开始',tip:'💡 躲在方块后面，别错过奖励！',charSel:'选择角色',charSub:'点击你的角色',startBtn:'开始游戏',hiTitle:'🏆 高分榜',hiBack:'← 返回',hiEmpty:'暂无分数！',saveTit:'🏆 保存分数',saveBtn:'保存 ✓',nameHint:'输入名字',namePre:(sc)=>'你的分数: '+sc+' — 输入名字!',endTitle:'🌟 游戏完成 🌟',endHi:'🏆 保存分数',endAgain:'↩ 再玩一次',endScore:(sc)=>'🏆 总分: '+sc,endTime:(m,s)=>'⏱ 总时间: '+m+'分 '+s+'秒',nxtBtn:'下一关 ▶',goH2:'你死了!',goCode:'输入代码进入下一关:',goCodeBtn:'确认 →',goRestart:'↩ 重试本关',goScore:(sc,lv)=>'分数: '+sc+' | 关卡: '+lv,settingsBtn:'⚙ 设置',settingsTitle:'⚙ 设置',settingsInfo:'输入管理员密码。',languageTitle:'🌍 语言',languageInfo:'选择游戏菜单和文字语言。',setPass:'密码',setLogin:'登录',adminInfo:'你可以清空高分榜。',clearScores:'🗑 清空高分',wrongPass:'❌ 密码错误',clearDone:'✓ 高分已清空',ctrlSelH:'🎮 选择控制',ctrlSelGo:'▶ 继续'});
+LANG_PACKS.ko=makeLang({ctrlH:'🎮 플레이 방법',ctrlGo:'▶ 플레이',tip:'💡 블록 뒤에 숨고 보너스를 모아!',charSel:'캐릭터 선택',charSub:'캐릭터를 터치',startBtn:'게임 시작',hiTitle:'🏆 최고 점수',hiBack:'← 뒤로',hiEmpty:'아직 점수 없음!',saveTit:'🏆 점수 저장',saveBtn:'저장 ✓',nameHint:'이름 입력',namePre:(sc)=>'점수: '+sc+' — 이름 입력!',endTitle:'🌟 게임 완료 🌟',endHi:'🏆 점수 저장',endAgain:'↩ 다시 플레이',endScore:(sc)=>'🏆 총점: '+sc,endTime:(m,s)=>'⏱ 시간: '+m+'분 '+s+'초',nxtBtn:'다음 레벨 ▶',goH2:'죽었습니다!',goCode:'다음 레벨 코드 입력:',goCodeBtn:'확인 →',goRestart:'↩ 이 레벨 다시하기',goScore:(sc,lv)=>'점수: '+sc+' | 레벨: '+lv,settingsBtn:'⚙ 설정',settingsTitle:'⚙ 설정',settingsInfo:'관리자 패널 비밀번호 입력.',languageTitle:'🌍 언어',languageInfo:'게임 메뉴와 텍스트 언어 선택.',setPass:'비밀번호',setLogin:'로그인',adminInfo:'최고 점수를 지울 수 있습니다.',clearScores:'🗑 점수 삭제',wrongPass:'❌ 비밀번호 오류',clearDone:'✓ 점수 삭제 완료',ctrlSelH:'🎮 조작 선택',ctrlSelGo:'▶ 계속'});
 
 // ── FULL IN-GAME LOCALIZATION PATCH ─────────────────────
 const WF_I18N_EXTRA={
@@ -586,14 +603,15 @@ function applyTexts(){
   const d=L();
   const set=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=v;};
   const ph=(id,v)=>{const el=document.getElementById(id);if(el)el.placeholder=v;};
-  set('logoBtn',d.charSel);set('nxtBtn',d.nxtBtn);set('ultiLabel',txt('ultiShort'));set('ultiLabel2',txt('ultiShort'));document.querySelectorAll('#bSw span,#bSw2 span').forEach(el=>{if(!/^🚀/.test(el.textContent))el.textContent=txt('nextShort');});set('settingsBtn',d.settingsBtn);set('settingsTitle',d.settingsTitle);set('settingsInfo',d.languageInfo||d.settingsInfo);set('langSettingsTitle',d.languageTitle);set('langSettingsInfo',d.languageInfo);set('settingsBack',d.hiBack);set('ctrlSelH',d.ctrlSelH);set('ctrlSelGo',d.ctrlSelGo);
+  set('logoBtn',d.charSel);set('nxtBtn',d.nxtBtn);set('ultiLabel',txt('ultiShort'));set('ultiLabel2',txt('ultiShort'));document.querySelectorAll('#bSw span,#bSw2 span').forEach(el=>{if(!/^🚀/.test(el.textContent))el.textContent=txt('nextShort');});set('settingsBtn',d.settingsBtn);set('settingsTitle',d.settingsTitle);set('settingsInfo',d.settingsInfo);set('adminOpenBtn',d.adminOpen||'🔐 ADMIN PANEL LOGIN');set('adminLoginInfo',d.adminLoginInfo||'Enter password for admin panel.');set('langSettingsTitle',d.languageTitle);set('langSettingsInfo',d.languageInfo);ph('setPass',d.setPass);set('setLogin',d.setLogin);set('adminInfo',d.adminInfo);set('clearScoresBtn',d.clearScores);set('settingsBack',d.hiBack);set('ctrlSelH',d.ctrlSelH);set('ctrlSelGo',d.ctrlSelGo);
+  const adminTitle=document.getElementById('adminTitle'); if(adminTitle)adminTitle.textContent=d.adminTitle||'ADMIN PANEL';
   const ch=document.querySelector('#charSelect h2');if(ch)ch.textContent=d.charSel;
   const cs=document.querySelector('#charSelect .sub');if(cs)cs.textContent=d.charSub;
   set('startBtn',d.startBtn);set('gameMenuTitle',txt('gameMenuTitle'));set('gameMenuResume',txt('gameMenuResume'));set('gameMenuSound',txt('gameMenuSound'));set('gameMenuLangToggle',txt('gameMenuLang'));set('gameMenuExit',txt('gameMenuExit'));set('gameMenuLangTitle',d.languageTitle||txt('gameMenuLang'));
   const hi=document.querySelector('#hiScreen h2');if(hi)hi.textContent=d.hiTitle;set('hiBack',d.hiBack);
   const ns=document.querySelector('#nameScreen h2');if(ns)ns.textContent=d.saveTit;set('nameSbm',d.saveBtn);ph('nameInp',d.nameHint);
   const et=document.querySelector('.etitle');if(et)et.textContent=d.endTitle;set('endHiBtn',d.endHi);set('endAgain',d.endAgain);
-  const gh=document.querySelector('#gameOverScreen h2');if(gh)gh.textContent=d.goH2;set('goRestartBtn',d.goRestart);
+  const gh=document.querySelector('#gameOverScreen h2');if(gh)gh.textContent=d.goH2;const gp=document.querySelector('#goCodeBox p');if(gp)gp.textContent=d.goCode;set('goCodeBtn',d.goCodeBtn);set('goRestartBtn',d.goRestart);
   updateLanguageButtons();
 }
 function setLanguage(code){LANG=code;try{localStorage.setItem('wf_lang',code);}catch(e){};applyTexts();if(document.getElementById('ctrlScreen').style.display!=='none')showCtrl();}
@@ -672,12 +690,18 @@ document.getElementById('ctrlSelGo').addEventListener('touchend',e=>{e.preventDe
 // Buton kontrolü
 const btnL=document.getElementById('btnLeft');
 const btnR=document.getElementById('btnRight');
-function setL(v){btnLPressed=v;jDX=btnRPressed?1:v?-1:0;}
-function setR(v){btnRPressed=v;jDX=btnLPressed?-1:v?1:0;}
+function refreshMoveAxis(){jDX=btnRPressed&&!btnLPressed?1:btnLPressed&&!btnRPressed?-1:0;}
+function setL(v){btnLPressed=v;refreshMoveAxis();}
+function setR(v){btnRPressed=v;refreshMoveAxis();}
+function clearMoveButtons(){btnLPressed=false;btnRPressed=false;jDX=0;}
 btnL.addEventListener('touchstart',e=>{e.preventDefault();setL(true);},{passive:false});
 btnL.addEventListener('touchend',e=>{e.preventDefault();setL(false);},{passive:false});
+btnL.addEventListener('touchcancel',e=>{e.preventDefault();setL(false);},{passive:false});
 btnR.addEventListener('touchstart',e=>{e.preventDefault();setR(true);},{passive:false});
 btnR.addEventListener('touchend',e=>{e.preventDefault();setR(false);},{passive:false});
+btnR.addEventListener('touchcancel',e=>{e.preventDefault();setR(false);},{passive:false});
+window.addEventListener('blur',clearMoveButtons);
+document.addEventListener('visibilitychange',()=>{if(document.hidden)clearMoveButtons();});
 
 // btnCtrl sağ butonları
 function bindBtn(id,fn){const el=document.getElementById(id);if(!el)return;el.addEventListener('touchstart',e=>{e.preventDefault();fn();},{passive:false});el.addEventListener('click',fn);}
@@ -700,13 +724,16 @@ function addTap(id,fn){const el=document.getElementById(id);if(!el)return;el.add
 addTap('logoBtn',showCharSelect);addTap('hiBtn',showHiScores);addTap('settingsBtn',showSettings);
 addTap('hiBack',()=>{gameRunning=false;startMenuMusic();hideAllGameScreens();document.getElementById('logoScreen').style.display='flex';});
 addTap('settingsBack',()=>{gameRunning=false;startMenuMusic();hideAllGameScreens();document.getElementById('logoScreen').style.display='flex';});
-
+addTap('adminOpenBtn',openAdminLogin);
+addTap('setLogin',adminLogin);
+addTap('clearScoresBtn',clearHiScores);
+const setPassEl=document.getElementById('setPass');if(setPassEl)setPassEl.addEventListener('keydown',e=>{if(e.key==='Enter')adminLogin();});
 addTap('startBtn',startGame);addTap('nxtBtn',nextLevel);addTap('sndBtn',toggleMute);addTap('gameSettingsBtn',openGameMenu);addTap('gameMenuResume',resumeGameFromMenu);addTap('gameMenuSound',()=>{toggleMute();applyTexts();});addTap('gameMenuLangToggle',toggleGameLangBox);addTap('gameMenuExit',exitToMainMenuFromGame);
 addTap('bPause',togglePause);addTap('bSw',switchWeapon);addTap('bBeam',activateBeam);addTap('bSlap',activateSlap);addTap('bUlti',activateUlti);
 addTap('endHiBtn',()=>{document.getElementById('endScreen').style.display='none';showNameEntry();});
 addTap('endAgain',()=>{gameRunning=false;startMenuMusic();document.getElementById('endScreen').style.display='none';document.getElementById('logoScreen').style.display='flex';});
 addTap('nameSbm',saveScore);
-
+addTap('goCodeBtn',tryCode);
 addTap('goRestartBtn',restartLevel);
 document.getElementById('chars').addEventListener('touchend',e=>{const c=e.target.closest('.cc');if(c){e.preventDefault();selectChar(parseInt(c.dataset.idx));}},{passive:false});
 document.getElementById('chars').addEventListener('click',e=>{const c=e.target.closest('.cc');if(c)selectChar(parseInt(c.dataset.idx));});
@@ -719,70 +746,26 @@ document.getElementById('bFire').addEventListener('click',tryFire);
 function escHtml(v){return String(v??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));}
 function getScores(){try{return JSON.parse(localStorage.getItem('wf_scores2')||'[]');}catch(e){return[];}}
 function saveScores(arr){try{localStorage.setItem('wf_scores2',JSON.stringify(arr));}catch(e){}}
-function renderScores(scores,online,msg){
+function renderScores(scores,online){
   const tag=online?'<div style="color:#00ffaa;text-align:center;font-size:9px;margin-bottom:8px;">ONLINE GLOBAL LIST</div>':'<div style="color:#ffaa00;text-align:center;font-size:9px;margin-bottom:8px;">LOCAL / OFFLINE LIST</div>';
-  const info=msg?'<div style="color:#888;text-align:center;font-size:9px;margin-bottom:8px;line-height:1.5;">'+escHtml(msg)+'</div>':'';
-  const empty='<div style="color:#555;text-align:center;padding:20px;font-size:11px;line-height:1.6;">'+(online?'Online skor listesi boş. İlk skoru kaydedince burada görünecek.':L().hiEmpty)+'</div>';
-  document.getElementById('hiList').innerHTML=tag+info+(scores.length?scores.map((s,i)=>`<div class="hirow"><span class="rank">#${i+1}</span><span class="name">${escHtml(s.name)}</span><span class="sc">${Number(s.score||0).toLocaleString()}</span></div>`).join(''):empty);
-}
-function withTimeout(promise,ms,label){
-  return Promise.race([
-    promise,
-    new Promise((_,reject)=>setTimeout(()=>reject(new Error((label||'işlem')+' zaman aşımı')),ms))
-  ]);
-}
-function rtdbRowToScore(key,row){
-  row=row||{};
-  return {
-    id:key||'',
-    name:String(row.name||'???'),
-    score:Number(row.score||0),
-    time:Number(row.time||0),
-    level:Number(row.level||1),
-    date:String(row.date||'')
-  };
+  document.getElementById('hiList').innerHTML=scores.length?tag+scores.map((s,i)=>`<div class="hirow"><span class="rank">#${i+1}</span><span class="name">${escHtml(s.name)}</span><span class="sc">${Number(s.score||0).toLocaleString()}</span></div>`).join(''):'<div style="color:#444;text-align:center;padding:20px;">'+L().hiEmpty+'</div>';
 }
 async function getCloudScores(){
-  if(!wfDb) throw new Error('Realtime Database bağlantısı yok');
-  const snap=await withTimeout(
-    wfDb.ref(WF_SCORE_COLLECTION).orderByChild('score').limitToLast(10).once('value'),
-    6000,
-    'Realtime Database skor okuma'
-  );
-  const arr=[];
-  snap.forEach(child=>{ arr.push(rtdbRowToScore(child.key,child.val())); });
-  return arr.sort((a,b)=>b.score-a.score).slice(0,10);
-}
-async function syncLocalScoresToCloud(){
-  const local=getScores().sort((a,b)=>b.score-a.score).slice(0,10);
-  if(!local.length||!wfCloudReady)return 0;
-  let ok=0;
-  for(const row of local){
-    try{await addCloudScore(row);ok++;}catch(e){console.warn('Local score sync failed:',e);break;}
-  }
-  return ok;
+  if(!wfCloudReady||!wfDb) throw new Error('cloud offline');
+  const snap=await wfDb.collection(WF_SCORE_COLLECTION).orderBy('score','desc').limit(10).get();
+  return snap.docs.map(d=>d.data());
 }
 async function addCloudScore(row){
-  if(!wfDb) throw new Error('Realtime Database bağlantısı yok');
-  const cleanName=String(row.name||'???').slice(0,12);
-  const cleanScore=Math.floor(Number(row.score)||0);
-  await withTimeout(
-    wfDb.ref(WF_SCORE_COLLECTION).push({
-      game:'wither-fight',
-      name:cleanName,
-      score:cleanScore,
-      time:Math.floor(Number(row.time)||0),
-      level:Math.floor(Number(row.level)||1),
-      date:String(row.date||new Date().toLocaleDateString('tr-TR')),
-      createdAt:Date.now()
-    }),
-    6000,
-    'Realtime Database skor yazma'
-  );
-}
-async function deleteCloudScores(){
-  if(!wfDb) throw new Error('Realtime Database bağlantısı yok');
-  await withTimeout(wfDb.ref(WF_SCORE_COLLECTION).remove(),6000,'Realtime Database skor silme');
+  if(!wfCloudReady||!wfDb) throw new Error('cloud offline');
+  await wfDb.collection(WF_SCORE_COLLECTION).add({
+    game:'wither-fight',
+    name:row.name,
+    score:row.score,
+    time:row.time,
+    level:row.level,
+    date:row.date,
+    createdAt:firebase.firestore.FieldValue.serverTimestamp()
+  });
 }
 function hideAllGameScreens(){
   ['langScreen','ctrlScreen','ctrlSelScreen','logoScreen','hiScreen','settingsScreen','nameScreen','charSelect','endScreen','gameOverScreen','lvlBanner'].forEach(id=>{
@@ -807,8 +790,39 @@ function showSettings(){
   const s=document.getElementById('settingsScreen');
   s.style.display='flex';
   applyTexts();
+  document.getElementById('setPass').value='';
+  document.getElementById('setErr').textContent='';
+  document.getElementById('adminMsg').textContent='';
+  document.getElementById('adminLoginPanel').style.display='none';
+  document.getElementById('adminBox').style.display='none';
 }
-let hiScoreLoadToken=0;
+function openAdminLogin(){
+  document.getElementById('adminBox').style.display='none';
+  document.getElementById('adminMsg').textContent='';
+  document.getElementById('setErr').textContent='';
+  document.getElementById('setPass').value='';
+  document.getElementById('adminLoginPanel').style.display='block';
+  setTimeout(()=>document.getElementById('setPass').focus(),120);
+}
+function adminLogin(){
+  const pass=document.getElementById('setPass').value;
+  if(pass==='Kalem123!'){
+    document.getElementById('setErr').textContent='';
+    document.getElementById('adminLoginPanel').style.display='none';
+    document.getElementById('adminBox').style.display='block';
+    document.getElementById('adminMsg').textContent='';
+  }else{
+    document.getElementById('adminBox').style.display='none';
+    document.getElementById('setErr').textContent=txt('wrongPass');
+    document.getElementById('setPass').value='';
+  }
+}
+function clearHiScores(){
+  try{localStorage.removeItem('wf_scores2');}catch(e){}
+  try{localStorage.removeItem('wf_scores');}catch(e){}
+  document.getElementById('adminMsg').textContent=txt('clearDone');
+}
+
 function showHiScores(){
   gameRunning=false;startMenuMusic();
   hideAllGameScreens();
@@ -816,36 +830,8 @@ function showHiScores(){
   hi.style.display='flex';
   hi.style.zIndex='650';
   const localScores=getScores().sort((a,b)=>b.score-a.score).slice(0,10);
-  const list=document.getElementById('hiList');
-  const token=++hiScoreLoadToken;
-
-  if(wfCloudReady){
-    list.innerHTML='<div style="color:#00ffaa;text-align:center;padding:18px;font-size:11px;line-height:1.7;">ONLINE GLOBAL LIST<br><span style="color:#777;font-size:9px;">online skorlar yükleniyor...</span></div>';
-    getCloudScores().then(async scores=>{
-      if(token!==hiScoreLoadToken)return;
-      if((!scores||!scores.length) && localScores.length){
-        // Online boşsa bu cihazdaki local skorları cloud'a basıp tekrar oku.
-        list.innerHTML='<div style="color:#00ffaa;text-align:center;padding:18px;font-size:11px;line-height:1.7;">online liste boş, local skorlar aktarılıyor...</div>';
-        const pushed=await syncLocalScoresToCloud();
-        if(token!==hiScoreLoadToken)return;
-        if(pushed>0){
-          const again=await getCloudScores();
-          if(token!==hiScoreLoadToken)return;
-          renderScores(again,true);
-        }else{
-          renderScores([],true,'Online liste boş.');
-        }
-      }else{
-        renderScores(scores||[],true);
-      }
-    }).catch(err=>{
-      if(token!==hiScoreLoadToken)return;
-      console.warn('Cloud scores could not be loaded:',err);
-      renderScores(localScores,false,'Online skor okunamadı: '+(err&&err.message?err.message:'hata'));
-    });
-  }else{
-    renderScores(localScores,false,'Online bağlantı kapalı.');
-  }
+  renderScores(localScores,false);
+  // Firebase/Analytics bu sürümde kapalı: isim kaydedince direkt local listeye düşer.
 }
 function showNameEntry(){
   document.getElementById('nameScreen').style.display='flex';
@@ -861,21 +847,7 @@ function saveScore(){
   scores.sort((a,b)=>b.score-a.score);
   saveScores(scores.slice(0,20));
   document.querySelector('#nameScreen h2').textContent=L().saveTit;
-  document.getElementById('nameScreen').style.display='none';
-  if(wfCloudReady){
-    const hi=document.getElementById('hiScreen');
-    hideAllGameScreens();
-    hi.style.display='flex';
-    hi.style.zIndex='650';
-    document.getElementById('hiList').innerHTML='<div style="color:#00ffaa;text-align:center;padding:20px;font-size:11px;">online skor kaydediliyor...</div>';
-    addCloudScore(row).then(showHiScores).catch(err=>{
-      console.warn('Cloud score could not be saved:',err);
-      document.getElementById('hiList').innerHTML='<div style="color:#ffaa00;text-align:center;padding:20px;font-size:11px;">online kayıt olmadı: '+(err&&err.message?err.message:'hata')+'<br>local skor kaydedildi</div>';
-      setTimeout(showHiScores,700);
-    });
-  }else{
-    showHiScores();
-  }
+  showHiScores();
 }
 
 // ── GAME OVER SCREEN ─────────────────────────────────
@@ -896,6 +868,23 @@ function showGameOverScreen(){
   }
   document.getElementById('gameOverScreen').style.display='flex';
   document.getElementById('goScore').textContent=L().goScore(Math.floor(gameScore).toLocaleString(),currentLevel+1);
+  document.getElementById('goCodeInp').value='';document.getElementById('goCodeErr').textContent='';
+}
+function tryCode(){
+  const code=document.getElementById('goCodeInp').value.trim();
+  if(code==='12345'){
+    document.getElementById('gameOverScreen').style.display='none';
+    // Skoru kaydet, sonraki bölüme geç
+    currentLevel=Math.min(currentLevel+1,9);
+    gc.style.display='block';document.getElementById('touchCtrl').style.display='block';document.getElementById('gameSettingsBtn').style.display='flex';
+    gameOver=false;
+    initLevel(currentLevel);startBGM();
+    showLvlBanner(L().lvlBanner(currentLevel,bossName(currentLevel)));
+    requestAnimationFrame(loop);
+  }else{
+    document.getElementById('goCodeErr').textContent=L().wrongCode;
+    document.getElementById('goCodeInp').value='';
+  }
 }
 function restartLevel(){
   document.getElementById('gameOverScreen').style.display='none';
@@ -1029,7 +1018,7 @@ window.addEventListener('resize',()=>{
   if(stars.length) makeStars();
   if(player&&!player.dead){
     player.y=H*0.82;
-    player.x=Math.max(0,Math.min(W-player.w,player.x));
+    player.x=Math.max(4,Math.min(W-player.w-4,player.x));
   }
   if(boss&&boss.alive){
     boss.w=Math.min(W*0.40,240); boss.h=boss.w*0.64;
@@ -1043,6 +1032,7 @@ const jk=document.getElementById('jk');let jDX=0;
 jz.addEventListener('touchstart',e=>{e.preventDefault();const t=e.touches[0];jz._sx=t.clientX;jz._sy=t.clientY;},{passive:false});
 jz.addEventListener('touchmove',e=>{e.preventDefault();if(!jz._sx)return;const t=e.touches[0];let dx=t.clientX-jz._sx,dy=t.clientY-jz._sy;const dist=Math.min(Math.sqrt(dx*dx+dy*dy),46),ang=Math.atan2(dy,dx);jk.style.transform=`translate(calc(-50% + ${Math.cos(ang)*dist}px), calc(-50% + ${Math.sin(ang)*dist}px))`;jDX=dx/46;},{passive:false});
 jz.addEventListener('touchend',e=>{e.preventDefault();jDX=0;jz._sx=null;jk.style.transform='translate(-50%,-50%)';},{passive:false});
+jz.addEventListener('touchcancel',e=>{e.preventDefault();jDX=0;jz._sx=null;jk.style.transform='translate(-50%,-50%)';},{passive:false});
 
 // ── WEAPONS ──────────────────────────────────────────
 const WEAPONS_BASE={
@@ -1209,7 +1199,9 @@ let ultiCooldown=0,ultiActive=false,ultiTimer=0,ultiType='';
 let levelUpNotif=null; // {msg, timer}
 
 function ultiDmg(amount){
-  const cap=boss.maxHp*0.30;
+  // Tek ulti vuruşu boss enerjisinin en fazla yarısını götürsün.
+  // Frame içinde yanlışlıkla tekrar çalışsa bile hit fonksiyonlarında dmgDone ile kilitleniyor.
+  const cap=boss.maxHp*0.50;
   return Math.min(amount*(playerLevel>=3?1.5:1), cap);
 }
 function getUltiDef(){return CHAR_ULTIS[player?.char?.id]||CHAR_ULTIS[0];}
@@ -1259,7 +1251,7 @@ function activateUlti(){
   if(ultiType===0){
     // Jessie — Elmas Zırh Çarpışı: zırh giy → boss'a fırla → 550 hasar
     showPopup(txt('diamondArmor'));
-    player._jessieUlti={phase:'armor',t:0,origX:player.x,origY:player.y,punchX:0,punchY:0};
+    player._jessieUlti={phase:'armor',t:0,origX:player.x,origY:player.y,punchX:0,punchY:0,dmgDone:false};
     ultiActive=false;
   } else if(ultiType===1){
     // Hurry — Kasırga Koşusu: ekranı soldan sağa geçer, 450 hasar
@@ -1269,7 +1261,7 @@ function activateUlti(){
   } else if(ultiType===2){
     // Mikail — Spider Yumruk
     showPopup(txt('spiderPunch'));
-    player._spiderUlti={phase:'transform',t:0,origX:player.x,origY:player.y,punchX:0,punchY:0};
+    player._spiderUlti={phase:'transform',t:0,origX:player.x,origY:player.y,punchX:0,punchY:0,dmgDone:false};
     ultiActive=false;
   } else if(ultiType===3){
     // Aria — Kara Delik: ortada kara delik açılır, boss'u çeker, 620 hasar
@@ -1461,6 +1453,15 @@ function activateSlap(){
 }
 function switchWeapon(){if(inventory.length<=1)return;player.weaponIdx=(player.weaponIdx+1)%inventory.length;player.weapon=inventory[player.weaponIdx];const wd=WEAPONS_BASE[player.weapon];showPopup((wd?.icon||'🔫')+' '+weaponName(player.weapon));beep(440,0.08,'sine',0.13);}
 function showPopup(msg){wpMsg=msg;wpTimer=1800;}
+function clampPlayerToArena(){
+  if(!player)return;
+  const edge=4;
+  player.x=Math.max(edge,Math.min(W-player.w-edge,player.x));
+  player.y=Math.max(edge,Math.min(H-player.h-edge,player.y));
+  if(player.x<=edge||player.x>=W-player.w-edge){
+    jDX=0;btnLPressed=false;btnRPressed=false;
+  }
+}
 
 // ── UPDATE ────────────────────────────────────────────
 function update(dt){
@@ -1486,6 +1487,7 @@ function update(dt){
   player.y=H*0.82;
   if(keys['ArrowLeft']||keys['KeyA']){player.x=Math.max(0,player.x-spd*(dt/16));mv=true;faceR=false;}
   if(keys['ArrowRight']||keys['KeyD']){player.x=Math.min(W-player.w,player.x+spd*(dt/16));mv=true;faceR=true;}
+  clampPlayerToArena();
   if(mv)walkT+=dt*0.008;else walkT*=0.88;
   } // end spider ulti movement block
   if(player.invincible>0)player.invincible-=dt;
@@ -1512,6 +1514,7 @@ function update(dt){
   if(player._hurryUlti){updateHurryUlti(dt);}
   if(player._ariaUlti){updateAriaUlti(dt);}
   if(player._zephyrUlti){updateZephyrUlti(dt);}
+  if(!player._spiderUlti&&!player._jessieUlti&&!player._hurryUlti)clampPlayerToArena();
 
   // Boss
   updateBossMove(dt);boss.animT+=dt*0.003;
@@ -1611,8 +1614,9 @@ function updateSpiderUlti(dt){
     if(prog>=1){s.phase='punch';s.t=0;}
   } else if(s.phase==='punch'){
     // 300ms yumruk & patlama
-    if(s.t<50){
-      // Hasar ver — 687
+    if(!s.dmgDone&&s.t<50){
+      s.dmgDone=true;
+      // Hasar ver — tek sefer, maksimum yarım enerji
       if(boss.alive){
         const dmg=ultiDmg(344);
         boss.hp=Math.max(0,boss.hp-dmg);
@@ -1701,7 +1705,8 @@ function updateJessieUlti(dt){
     burst(player.x+20,player.y+35,'#00BFFF',3);burst(player.x+20,player.y+35,'#ffffff',2);
     if(prog>=1){s.phase='hit';s.t=0;}
   } else if(s.phase==='hit'){
-    if(s.t<60&&boss.alive){
+    if(!s.dmgDone&&s.t<60&&boss.alive){
+      s.dmgDone=true;
       const dmg=ultiDmg(275);
       boss.hp=Math.max(0,boss.hp-dmg);gameScore+=dmg;boss.slapShake=600;addXP(35);
       for(let i=0;i<6;i++){burst(s.punchX+(Math.random()-0.5)*80,s.punchY+(Math.random()-0.5)*60,'#00BFFF',18);burst(s.punchX+(Math.random()-0.5)*50,s.punchY+(Math.random()-0.5)*40,'#ffffff',12);}
@@ -2341,15 +2346,18 @@ function drawBoss(){
   }
   // ── GÜZEL BOSS HP BARI ──
   const isMobHud=W<700 || Math.min(W,H)<500;
-  const barW=isMobHud?Math.min(W*0.58,235):Math.min(W*0.6,340);
+  const barW=isMobHud?Math.min(W*0.70,285):Math.min(W*0.6,340);
   const barX=W/2-barW/2;
-  const barY=isMobHud?48:28;
+  const barY=isMobHud?60:28;
   const barH=isMobHud?20:20;
   // Arka plan + kenar
   ctx.fillStyle='rgba(0,0,0,0.75)';
-  ctx.beginPath();ctx.roundRect(barX-4,barY-4,barW+8,barH+28,8);ctx.fill();
+  ctx.beginPath();ctx.roundRect(barX-4,barY-4,barW+8,barH+22,8);ctx.fill();
   ctx.strokeStyle='rgba(255,255,255,0.12)';ctx.lineWidth=1;
-  ctx.beginPath();ctx.roundRect(barX-4,barY-4,barW+8,barH+28,8);ctx.stroke();
+  ctx.beginPath();ctx.roundRect(barX-4,barY-4,barW+8,barH+22,8);ctx.stroke();
+  // Boss adı
+  ctx.fillStyle='rgba(255,255,255,0.95)';ctx.font=`bold ${isMobHud?12:clamp(9,W*0.022,12)}px Courier New`;
+  ctx.textAlign='center';ctx.fillText(bossNameByDef(bd),W/2,barY-7);
   // HP bar gölge
   ctx.fillStyle='rgba(0,0,0,0.8)';ctx.beginPath();ctx.roundRect(barX,barY,barW,barH,4);ctx.fill();
   // HP gradient renk
@@ -2379,13 +2387,6 @@ function drawBoss(){
   // HP yazısı
   ctx.fillStyle='#fff';ctx.font=`bold ${isMobHud?12:clamp(8,W*0.02,11)}px Courier New`;ctx.textAlign='center';
   ctx.fillText(Math.ceil(hp)+' / '+maxHp,W/2,barY+barH-4);
-
-  // Boss adı artık barın ALTINDA. Mobilde üst çentik/ikonların altında kaybolmasın diye buraya alındı.
-  const bnm=isMobHud?bossNameByDef(bd).slice(0,24):bossNameByDef(bd);
-  ctx.fillStyle='rgba(255,255,255,0.96)';
-  ctx.font=`bold ${isMobHud?10:clamp(9,W*0.022,12)}px Courier New`;
-  ctx.textAlign='center';
-  ctx.fillText(bnm,W/2,barY+barH+14);
 }
 function drawFragments(){bossFragments.forEach(f=>{ctx.save();ctx.translate(f.x,f.y);ctx.rotate(f.spin);const a=f.life/f.maxLife;ctx.globalAlpha=a;ctx.fillStyle=f.color;ctx.fillRect(-f.size/2,-f.size/2,f.size,f.size);ctx.fillStyle=f.color2;ctx.globalAlpha=a*0.6;ctx.beginPath();ctx.arc(0,0,f.size*0.3,0,Math.PI*2);ctx.fill();ctx.restore();});ctx.globalAlpha=1;}
 
@@ -2429,133 +2430,62 @@ function drawBonuses(){
 
 function clamp(mn,v,mx){return Math.max(mn,Math.min(mx,v));}
 function drawHUD(){
+  // Mobilde üst çentik/status bar altında kalmasın diye ayrı HUD düzeni
   const isMob=W<700 || Math.min(W,H)<500;
-
-  // MOBİLDE TEMİZ HUD: ekranı kapatan büyük panel yok.
-  // Sadece küçük can/skor/silah kutusu gösterilir. Diğer bilgiler sağ butonlarda ve boss barında zaten var.
+  const topPad=isMob?92:8;
+  const sc=isMob?1.55:(Math.min(W,H)<400?0.75:0.85);
+  const bx=isMob?12:6, by=topPad;
+  const pw=220*sc, ph=isMob?118*sc:96*sc;
+  // Mobilde yazılar okunabilsin diye hafif koyu zemin
   if(isMob){
-    const safeTop=44;
-    const bx=8, by=safeTop+28;
-    const boxW=Math.min(160,W*0.48), boxH=46;
-
-    ctx.save();
-    ctx.fillStyle='rgba(0,0,0,0.34)';
-    ctx.strokeStyle='rgba(255,255,255,0.10)';
-    ctx.lineWidth=1;
-    ctx.beginPath();ctx.roundRect(bx,by,boxW,boxH,10);ctx.fill();ctx.stroke();
-
-    // Mini karakter
-    if(player && !player.dead){
-      drawChar(ctx,bx+11,by+29,player.char,0.28,walkT);
-    }
-
-    // İsim kısa + skor
-    ctx.textAlign='left';
-    ctx.fillStyle='rgba(255,255,255,0.95)';
-    ctx.font='bold 8px Courier New';
-    const pname=(player?.char?.name||'').slice(0,10);
-    ctx.fillText(pname,bx+26,by+10);
-    ctx.fillStyle='#ffd24a';
-    ctx.font='bold 8px Courier New';
-    ctx.fillText('★ '+Math.floor(gameScore).toLocaleString(),bx+98,by+10);
-
-    // Canlar
-    ctx.font='bold 12px sans-serif';
-    for(let i=0;i<Math.min(player.maxHp,10);i++){
-      ctx.fillStyle=i<player.hp?'#ff3366':'rgba(90,0,0,0.70)';
-      ctx.fillText('❤',bx+26+i*12,by+24);
-    }
-
-    // Aktif silah + cooldown mini bar
-    const wd=WEAPONS_BASE[player.weapon]||WEAPONS_BASE.fireball;
-    ctx.fillStyle=wd.wc||'#fa0';
-    ctx.font='bold 8px Courier New';
-    ctx.fillText((wd.icon||'')+' '+weaponName(player.weapon).slice(0,16),bx+26,by+38);
-    const cd=getWeaponCooldown(player.weapon);
-    const cdR=Math.min((performance.now()-lastFireTime)/cd,1);
-    ctx.fillStyle='rgba(0,0,0,0.45)';ctx.fillRect(bx+26,by+40,boxW-36,3);
-    ctx.fillStyle=cdR>=1?'#0f8':(wd.wc||'#fa0');ctx.fillRect(bx+26,by+40,(boxW-36)*cdR,3);
-    ctx.restore();
-
-    // Level-up bildirimi
-    if(levelUpNotif){
-      const ln=levelUpNotif;
-      const alpha=ln.timer>2800?1:ln.timer/2800;
-      ctx.save();ctx.globalAlpha=alpha;
-      ctx.fillStyle='rgba(0,0,0,0.88)';ctx.strokeStyle='#FFD700';ctx.lineWidth=2;
-      const lw=Math.min(W-20,320),lx2=W/2-lw/2;
-      ctx.fillRect(lx2,H/2-60,lw,50);ctx.strokeRect(lx2,H/2-60,lw,50);
-      ctx.fillStyle='#FFD700';ctx.font=`bold ${clamp(14,W*0.035,20)}px Courier New`;
-      ctx.textAlign='center';ctx.fillText(ln.msg,W/2,H/2-38);
-      ctx.fillStyle='#aaf';ctx.font=`${clamp(9,W*0.022,13)}px Courier New`;
-      ctx.fillText(levelBonusDesc(playerLevel),W/2,H/2-18);
-      ctx.restore();
-    }
-
-    // Popup
-    if(wpTimer>0){
-      ctx.save();
-      ctx.fillStyle='rgba(0,0,0,0.82)';ctx.strokeStyle='#fa0';ctx.lineWidth=1.5;
-      const ppw=Math.min(180,W-70),pph=24,ppx=W/2-ppw/2,ppy=H/2-12;
-      ctx.fillRect(ppx,ppy,ppw,pph);ctx.strokeRect(ppx,ppy,ppw,pph);
-      ctx.fillStyle='#fa0';ctx.font='bold 9px Courier New';ctx.textAlign='center';
-      ctx.fillText(wpMsg,W/2,ppy+16);
-      ctx.restore();
-    }
-    if(upgradeNotif){
-      const un=upgradeNotif;ctx.save();ctx.fillStyle='rgba(0,30,0,0.85)';ctx.strokeStyle='#0f8';ctx.lineWidth=1.5;
-      const uw=Math.min(W-30,260),ux=W/2-uw/2;
-      ctx.fillRect(ux,H/2+40,uw,32);ctx.strokeRect(ux,H/2+40,uw,32);
-      ctx.fillStyle='#0f8';ctx.font='bold 9px Courier New';ctx.textAlign='center';
-      ctx.fillText('🚀 '+un.msg,W/2,H/2+60);
-      ctx.fillStyle='rgba(0,255,136,0.2)';ctx.fillRect(ux,H/2+40,uw*(1-un.timer/2500),4);
-      ctx.restore();
-    }
-    return;
+    ctx.fillStyle='rgba(0,0,0,0.42)';
+    ctx.beginPath();ctx.roundRect(bx-8,by-10,Math.min(pw,W*0.78),ph,12);ctx.fill();
+    ctx.strokeStyle='rgba(255,255,255,0.10)';ctx.lineWidth=1;
+    ctx.beginPath();ctx.roundRect(bx-8,by-10,Math.min(pw,W*0.78),ph,12);ctx.stroke();
+  }else{
+    ctx.fillStyle='rgba(0,0,0,0.0)';
   }
-
-  // PC / geniş ekran HUD
-  const topPad=8;
-  const sc=(Math.min(W,H)<400?0.75:0.85);
-  const bx=6, by=topPad;
-  const pw=220*sc, ph=96*sc;
 
   // Karakter mini
   if(!player.dead)drawChar(ctx,bx+16*sc,by+62*sc,player.char,0.48*sc,walkT);
 
   // İsim
-  ctx.fillStyle='rgba(255,255,255,0.95)';ctx.font=`bold ${8*sc}px Courier New`;ctx.textAlign='left';
+  ctx.fillStyle='rgba(255,255,255,0.95)';ctx.font=`bold ${isMob?13:8*sc}px Courier New`;ctx.textAlign='left';
   ctx.fillText(player.char.name,bx+34*sc,by+10*sc);
 
-  // Canlar
+  // Canlar (küçük)
   for(let i=0;i<Math.min(player.maxHp,10);i++){
-    ctx.font=`bold ${8*sc}px sans-serif`;
+    ctx.font=`bold ${isMob?16:8*sc}px sans-serif`;
     ctx.fillStyle=i<player.hp?'#ff3366':'rgba(80,0,0,0.65)';
-    ctx.fillText('❤',bx+34*sc+(i%10)*(12*sc),by+(i<10?22*sc:32*sc));
+    ctx.fillText('❤',bx+34*sc+(i%10)*(isMob?17:12*sc),by+(i<10?22*sc:32*sc));
   }
 
   // Silah bilgisi
   const wd=WEAPONS_BASE[player.weapon]||WEAPONS_BASE.fireball;
   const upg=weaponUpgrades[player.weapon];
   const multStr=upg&&upg.multiplier<1?(1/upg.multiplier).toFixed(1)+'x':'';
-  ctx.fillStyle=wd.wc||'#fa0';ctx.font=`bold ${7*sc}px Courier New`;
+  ctx.fillStyle=wd.wc||'#fa0';ctx.font=`bold ${isMob?11:7*sc}px Courier New`;
   ctx.fillText((wd.icon||'')+' '+weaponName(player.weapon)+(multStr?' ⚡'+multStr:''),bx+34*sc,by+35*sc);
 
+  // Silah cooldown bar
   const cd=getWeaponCooldown(player.weapon);
   const cdR=Math.min((performance.now()-lastFireTime)/cd,1);
   ctx.fillStyle='rgba(0,0,0,0.4)';ctx.fillRect(bx+34*sc,by+38*sc,100*sc,3*sc);
   ctx.fillStyle=cdR>=1?'#0f8':(wd.wc||'#fa0');ctx.fillRect(bx+34*sc,by+38*sc,100*sc*cdR,3*sc);
 
+  // Işın bar
   const beamR=beamActive?(beamTimer/BEAM_DUR):beamCooldown>0?Math.max(0,1-beamCooldown/BEAM_CD):1;
-  ctx.fillStyle='rgba(255,255,255,0.85)';ctx.font=`bold ${6*sc}px Courier New`;
+  ctx.fillStyle='rgba(255,255,255,0.85)';ctx.font=`bold ${isMob?10:6*sc}px Courier New`;
   ctx.fillText(`⚡×${beamAmmo}`,bx+34*sc,by+50*sc);
   ctx.fillStyle='rgba(0,0,0,0.3)';ctx.fillRect(bx+60*sc,by+44*sc,60*sc,5*sc);
   ctx.fillStyle=beamActive?'#0ff':beamAmmo>0?'#0f8':'#333';ctx.fillRect(bx+60*sc,by+44*sc,60*sc*beamR,5*sc);
   ctx.fillText(`👋×${slapAmmo}`,bx+125*sc,by+50*sc);
 
+  // Hız boost
   if(speedBoostActive){ctx.fillStyle='#fa0';ctx.font=`bold ${6*sc}px Courier New`;ctx.fillText(L().speedHud(Math.ceil(speedBoostTimer/1000)),bx+34*sc,by+60*sc);}
 
-  ctx.fillStyle='rgba(220,220,220,0.85)';ctx.font=`bold ${6*sc}px Courier New`;ctx.fillText(L().inventory,bx+34*sc,by+70*sc);
+  // Envanter
+  ctx.fillStyle='rgba(220,220,220,0.85)';ctx.font=`bold ${isMob?9:6*sc}px Courier New`;ctx.fillText(L().inventory,bx+34*sc,by+70*sc);
   inventory.forEach((w,i)=>{
     const iw=WEAPONS_BASE[w];if(!iw)return;
     const active=w===player.weapon;
@@ -2568,21 +2498,23 @@ function drawHUD(){
     ctx.fillText(iw.icon||weaponName(w).slice(0,2),bx+41*sc+i*16*sc,by+80*sc);
   });
 
+  // Level + XP bar
   const lvlColors=['','#88ff44','#ffaa00','#ff44ff'];
   ctx.fillStyle=lvlColors[playerLevel]||'#88ff44';
   ctx.font=`bold ${8*sc}px Courier New`;ctx.textAlign='left';
-  ctx.fillText(txt('levelShort')+playerLevel,bx+170*sc,by+10*sc);
+  ctx.fillText(txt('levelShort')+playerLevel,isMob?bx+150*sc:bx+170*sc,by+10*sc);
   if(playerLevel<3){
     const xpR=playerXP/XP_PER_LEVEL[playerLevel];
-    ctx.fillStyle='rgba(0,0,0,0.3)';ctx.fillRect(bx+186*sc,by+3*sc,60*sc,6*sc);
-    ctx.fillStyle=lvlColors[playerLevel];ctx.fillRect(bx+186*sc,by+3*sc,60*sc*xpR,6*sc);
+    ctx.fillStyle='rgba(0,0,0,0.3)';ctx.fillRect(isMob?bx+166*sc:bx+186*sc,by+3*sc,60*sc,6*sc);
+    ctx.fillStyle=lvlColors[playerLevel];ctx.fillRect(isMob?bx+166*sc:bx+186*sc,by+3*sc,60*sc*xpR,6*sc);
     ctx.fillStyle='rgba(255,255,255,0.3)';ctx.font=`${5*sc}px Courier New`;
-    ctx.fillText(txt('xp'),bx+248*sc,by+9*sc);
+    ctx.fillText(txt('xp'),isMob?bx+228*sc:bx+248*sc,by+9*sc);
   }else{
     ctx.fillStyle='#ff44ff';ctx.font=`${6*sc}px Courier New`;
-    ctx.fillText(txt('max'),bx+186*sc,by+9*sc);
+    ctx.fillText(txt('max'),isMob?bx+166*sc:bx+186*sc,by+9*sc);
   }
 
+  // Ulti bilgisi
   const ud=getUltiDef();
   const ultiR=ultiCooldown>0?1-(ultiCooldown/ud.cd):1;
   ctx.fillStyle=ultiCooldown>0?'rgba(255,200,0,0.4)':'rgba(255,200,0,0.9)';
@@ -2592,9 +2524,21 @@ function drawHUD(){
   ctx.fillStyle=ultiCooldown>0?'#888':'#FFD700';
   ctx.fillRect(bx+34*sc,by+88*sc,160*sc*ultiR,4*sc);
 
-  ctx.fillStyle='rgba(255,255,255,0.15)';ctx.font=`bold ${8*sc}px Courier New`;ctx.textAlign='right';
-  ctx.fillText(L().levelHud(currentLevel,bossName(currentLevel)),W-8,24);
+  // Bölüm göstergesi — mobilde boss bar altına okunur şekilde, PC'de sağ üst
+  if(isMob){
+    ctx.fillStyle='rgba(0,0,0,0.48)';
+    const lvlTxt=L().levelHud(currentLevel,bossName(currentLevel));
+    ctx.font=`bold ${Math.max(10,8*sc)}px Courier New`;ctx.textAlign='center';
+    const tw=Math.min(W-120,ctx.measureText(lvlTxt).width+18);
+    ctx.beginPath();ctx.roundRect(W/2-tw/2,126,tw,20,8);ctx.fill();
+    ctx.fillStyle='rgba(255,255,255,0.92)';
+    ctx.fillText(lvlTxt,W/2,140);
+  }else{
+    ctx.fillStyle='rgba(255,255,255,0.15)';ctx.font=`bold ${8*sc}px Courier New`;ctx.textAlign='right';
+    ctx.fillText(L().levelHud(currentLevel,bossName(currentLevel)),W-8,24);
+  }
 
+  // Level-up bildirimi
   if(levelUpNotif){
     const ln=levelUpNotif;
     const alpha=ln.timer>2800?1:ln.timer/2800;
@@ -2610,6 +2554,7 @@ function drawHUD(){
     ctx.globalAlpha=1;
   }
 
+  // Popup
   if(wpTimer>0){
     ctx.fillStyle='rgba(0,0,0,0.82)';ctx.strokeStyle='#fa0';ctx.lineWidth=1.5;
     const ppw=180,pph=24,ppx=W/2-ppw/2,ppy=H/2-12;
