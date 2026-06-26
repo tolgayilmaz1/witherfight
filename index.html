@@ -1067,6 +1067,18 @@ function getWeaponShotCount(wk){
 function isPlayerUltiProtected(){
   return !!(player&& !player.dead && (ultiActive||player._spiderUlti||player._jessieUlti||player._hurryUlti||player._ariaUlti||player._zephyrUlti||player._barisUlti));
 }
+function bossAimPoint(yMul=0.52){
+  if(boss&&boss.alive){
+    return {x:boss.x+boss.w/2,y:boss.y+boss.h*yMul};
+  }
+  return {x:W/2,y:H*0.18};
+}
+function lockPointToBoss(obj,xKey='hitX',yKey='hitY',yMul=0.52){
+  if(!obj||!boss||!boss.alive)return bossAimPoint(yMul);
+  const bp=bossAimPoint(yMul);
+  obj[xKey]=bp.x;obj[yKey]=bp.y;
+  return bp;
+}
 
 // ── BOSS DEFS ────────────────────────────────────────
 const BOSS_DEFS=[
@@ -1322,7 +1334,7 @@ function activateUlti(){
   } else if(ultiType===3){
     // Aria — Kara Delik: ortada kara delik açılır, boss'u çeker, 620 hasar
     showPopup(txt('blackHole'));
-    player._ariaUlti={phase:'open',t:0,cx:W/2,cy:H/3,radius:0,maxR:120,dmgDone:false};
+    {const bp=bossAimPoint(0.52);player._ariaUlti={phase:'open',t:0,cx:bp.x,cy:bp.y,radius:0,maxR:120,dmgDone:false};}
     ultiActive=false;
   } else if(ultiType===4){
     // Zephyr — Şimşek Fırtınası: yukarıdan şimşek yağar, 480 hasar
@@ -1507,8 +1519,9 @@ function activateSlap(){
   if(slapAmmo<=0){showPopup(L().noSlap);return;}
   if(slapAnim)return;
   slapAmmo--;updateSpecialBtns();playSlapSound();
-  // Şaplak animasyonu başlat
-  slapAnim={phase:'approach',t:0,duration:600,lx:player.x+player.w/2-60,rx:player.x+player.w/2+60,ly:player.y,ry:player.y,scale:1,done:false};
+  // Şaplak animasyonu başlat — eller boss'un güncel merkezine kilitlenir, boşluğa vurmaz.
+  const bp=bossAimPoint(0.52);
+  slapAnim={phase:'approach',t:0,duration:600,startLX:player.x+player.w/2-58,startRX:player.x+player.w/2+58,startY:player.y+player.h*0.35,lx:player.x+player.w/2-58,rx:player.x+player.w/2+58,ly:player.y+player.h*0.35,ry:player.y+player.h*0.35,tx:bp.x,ty:bp.y,scale:1,done:false};
 }
 function switchWeapon(){if(inventory.length<=1)return;player.weaponIdx=(player.weaponIdx+1)%inventory.length;player.weapon=inventory[player.weaponIdx];const wd=WEAPONS_BASE[player.weapon];showPopup((wd?.icon||'🔫')+' '+weaponName(player.weapon));updateSpecialBtns();beep(440,0.08,'sine',0.13);}
 function showPopup(msg){wpMsg=msg;wpTimer=1800;}
@@ -1560,7 +1573,7 @@ function update(dt){
   // Beam
   if(beamActive){
     beamTimer-=dt;if(beamTimer<=0){beamActive=false;beamCooldown=BEAM_CD;}
-    if(boss.alive){const beamDmg=16*(dt/16);boss.hp=Math.max(0,boss.hp-beamDmg);gameScore+=beamDmg*0.5;addXP(1);if(Math.random()<0.15)burst(boss.x+Math.random()*boss.w,boss.y+boss.h/2,'#0ff',3);if(boss.hp<=0){boss.alive=false;startVictory();}}
+    if(boss.alive){const beamDmg=32*(dt/16);boss.hp=Math.max(0,boss.hp-beamDmg);gameScore+=beamDmg*0.5;addXP(1);if(Math.random()<0.15)burst(boss.x+Math.random()*boss.w,boss.y+boss.h/2,'#0ff',3);if(boss.hp<=0){boss.alive=false;startVictory();}}
   }
   if(beamCooldown>0)beamCooldown-=dt;
 
@@ -1666,10 +1679,11 @@ function updateSpiderUlti(dt){
     if(Math.random()<0.3)burst(player.x+player.w/2,player.y+player.h/2,'#cc0000',4);
     burst(player.x+player.w/2,player.y+player.h/2,'#0044ff',2);
   } else if(s.phase==='fly'){
-    // 500ms uçuş — boss'a doğru git
+    // 500ms uçuş — boss'un güncel merkezine doğru git
+    const bp=lockPointToBoss(s,'punchX','punchY',0.52);
     const prog=Math.min(s.t/500,1);
-    player.x=s.origX+(s.punchX-20-s.origX)*prog;
-    player.y=s.origY+(s.punchY-s.origY)*prog;
+    player.x=s.origX+(bp.x-player.w/2-s.origX)*prog;
+    player.y=s.origY+(bp.y-player.h*0.55-s.origY)*prog;
     // Web izi
     if(Math.random()<0.4)burst(player.x+20,player.y+35,'#aaaaaa',3);
     if(prog>=1){s.phase='punch';s.t=0;}
@@ -1679,6 +1693,8 @@ function updateSpiderUlti(dt){
       s.dmgDone=true;
       // Hasar ver — tek sefer, maksimum yarım enerji
       if(boss.alive){
+        const bp=lockPointToBoss(s,'punchX','punchY',0.52);
+        player.x=bp.x-player.w/2;player.y=bp.y-player.h*0.55;
         const dmg=ultiDmg(344);
         boss.hp=Math.max(0,boss.hp-dmg);
         gameScore+=dmg;
@@ -1696,9 +1712,10 @@ function updateSpiderUlti(dt){
     if(s.t>300){s.phase='return';s.t=0;}
   } else if(s.phase==='return'){
     // 500ms geri dönüş
+    const startX=s.punchX-player.w/2,startY=s.punchY-player.h*0.55;
     const prog=Math.min(s.t/500,1);
-    player.x=s.punchX-20+(s.origX-s.punchX+20)*prog;
-    player.y=s.punchY+(s.origY-s.punchY)*prog;
+    player.x=startX+(s.origX-startX)*prog;
+    player.y=startY+(s.origY-startY)*prog;
     if(Math.random()<0.3)burst(player.x+20,player.y+35,'#cc0000',2);
     if(prog>=1){
       player.x=s.origX;player.y=s.origY;
@@ -1760,14 +1777,17 @@ function updateJessieUlti(dt){
     burst(player.x+player.w/2,player.y+player.h/2,'#00BFFF',4);
     if(s.t>700){s.phase='fly';s.t=0;s.punchX=boss.x+boss.w/2;s.punchY=boss.y+boss.h/2;}
   } else if(s.phase==='fly'){
+    const bp=lockPointToBoss(s,'punchX','punchY',0.52);
     const prog=Math.min(s.t/500,1);
-    player.x=s.origX+(s.punchX-20-s.origX)*prog;
-    player.y=s.origY+(s.punchY-s.origY)*prog;
+    player.x=s.origX+(bp.x-player.w/2-s.origX)*prog;
+    player.y=s.origY+(bp.y-player.h*0.55-s.origY)*prog;
     burst(player.x+20,player.y+35,'#00BFFF',3);burst(player.x+20,player.y+35,'#ffffff',2);
     if(prog>=1){s.phase='hit';s.t=0;}
   } else if(s.phase==='hit'){
     if(!s.dmgDone&&s.t<60&&boss.alive){
       s.dmgDone=true;
+      const bp=lockPointToBoss(s,'punchX','punchY',0.52);
+      player.x=bp.x-player.w/2;player.y=bp.y-player.h*0.55;
       const dmg=ultiDmg(275);
       boss.hp=Math.max(0,boss.hp-dmg);gameScore+=dmg;boss.slapShake=600;addXP(35);
       for(let i=0;i<6;i++){burst(s.punchX+(Math.random()-0.5)*80,s.punchY+(Math.random()-0.5)*60,'#00BFFF',18);burst(s.punchX+(Math.random()-0.5)*50,s.punchY+(Math.random()-0.5)*40,'#ffffff',12);}
@@ -1776,9 +1796,10 @@ function updateJessieUlti(dt){
     }
     if(s.t>400){s.phase='return';s.t=0;}
   } else if(s.phase==='return'){
+    const startX=s.punchX-player.w/2,startY=s.punchY-player.h*0.55;
     const prog=Math.min(s.t/500,1);
-    player.x=s.punchX-20+(s.origX-s.punchX+20)*prog;
-    player.y=s.punchY+(s.origY-s.punchY)*prog;
+    player.x=startX+(s.origX-startX)*prog;
+    player.y=startY+(s.origY-startY)*prog;
     if(prog>=1){player.x=s.origX;player.y=s.origY;player.invincible=3000;
       speedBoostActive=true;speedBoostTimer=3000;// bonus: 3sn invincible+hız
       burst(player.x+player.w/2,player.y+player.h/2,'#00BFFF',25);
@@ -1817,25 +1838,34 @@ function updateHurryUlti(dt){
     // 500ms döner kasırga hazırlığı
     burst(player.x+player.w/2,player.y+player.h/2,'#FFD700',5);
     burst(player.x+player.w/2,player.y+player.h/2,'#ffffff',3);
-    if(s.t>500){s.phase='dash';s.t=0;player.y=boss.y+boss.h/2-35;}
+    if(s.t>500){s.phase='dash';s.t=0;const bp=lockPointToBoss(s,'hitX','hitY',0.52);s.startX=player.x;s.startY=player.y;s.targetX=bp.x-player.w/2;s.targetY=bp.y-player.h*0.55;}
   } else if(s.phase==='dash'){
-    // Boss'tan geçen hızlı koşu
-    const prog=Math.min(s.t/400,1);
-    player.x=s.origX+(W+100-s.origX)*prog;
-    burst(player.x,player.y+35,'#FFD700',4);burst(player.x,player.y+35,'#ff8800',2);
-    // Boss'un yanından geçince hasar
-    if(!s.dmgDone&&boss.alive&&Math.abs(player.x-boss.x-boss.w/2)<boss.w){
+    // Boşluğa değil, boss'un güncel merkezine kasırga koşusu
+    const bp=lockPointToBoss(s,'hitX','hitY',0.52);
+    s.targetX=bp.x-player.w/2;s.targetY=bp.y-player.h*0.55;
+    const prog=Math.min(s.t/420,1);
+    const ease=1-Math.pow(1-prog,3);
+    player.x=s.startX+(s.targetX-s.startX)*ease;
+    player.y=s.startY+(s.targetY-s.startY)*ease;
+    burst(player.x+player.w/2,player.y+player.h*0.55,'#FFD700',4);burst(player.x+player.w/2,player.y+player.h*0.55,'#ff8800',2);
+    if(prog>=1){s.phase='impact';s.t=0;}
+  } else if(s.phase==='impact'){
+    const bp=lockPointToBoss(s,'hitX','hitY',0.52);
+    player.x=bp.x-player.w/2;player.y=bp.y-player.h*0.55;
+    if(!s.dmgDone&&boss.alive){
       s.dmgDone=true;
       const dmg=ultiDmg(225);
       boss.hp=Math.max(0,boss.hp-dmg);gameScore+=dmg;boss.slapShake=500;addXP(30);
-      for(let i=0;i<4;i++){burst(boss.x+boss.w/2+(Math.random()-0.5)*60,boss.y+boss.h/2,'#FFD700',20);burst(boss.x+boss.w/2,boss.y+boss.h/2,'#ff8800',15);}
+      for(let i=0;i<5;i++){burst(bp.x+(Math.random()-0.5)*70,bp.y+(Math.random()-0.5)*55,'#FFD700',20);burst(bp.x,bp.y,'#ff8800',15);}
       beep(100,0.15,'sawtooth',0.4);
       if(boss.hp<=0){boss.alive=false;startVictory();}
     }
-    if(prog>=1){s.phase='return';s.t=0;player.x=W+60;}
+    if(s.t>240){s.phase='return';s.t=0;s.retX=player.x;s.retY=player.y;}
   } else if(s.phase==='return'){
-    const prog=Math.min(s.t/300,1);
-    player.x=W+60+(s.origX-W-60)*prog;
+    const prog=Math.min(s.t/360,1);
+    const ease=1-Math.pow(1-prog,2);
+    player.x=s.retX+(s.origX-s.retX)*ease;
+    player.y=s.retY+(s.origY-s.retY)*ease;
     if(prog>=1){player.x=s.origX;player.y=s.origY;
       speedBoostActive=true;speedBoostTimer=4000;
       burst(player.x+player.w/2,player.y+player.h/2,'#FFD700',30);
@@ -1871,8 +1901,9 @@ function updateBarisUlti(dt){
     burst(player.x+player.w/2,player.y+player.h/2,'#ff6600',3);
     if(s.t>450){s.phase='dash';s.t=0;s.hitX=boss.x+boss.w/2;s.hitY=boss.y+boss.h/2;}
   } else if(s.phase==='dash'){
+    const bp=lockPointToBoss(s,'hitX','hitY',0.52);
     const prog=Math.min(s.t/420,1);
-    const targetX=s.hitX-20, targetY=s.hitY-18;
+    const targetX=bp.x-player.w/2, targetY=bp.y-player.h*0.55;
     player.x=s.origX+(targetX-s.origX)*prog;
     player.y=s.origY+(targetY-s.origY)*prog;
     if(Math.random()<0.6){burst(player.x+player.w/2,player.y+player.h/2,'#5b176d',3);burst(player.x+player.w/2,player.y+player.h/2,'#ff3300',2);}
@@ -1880,6 +1911,8 @@ function updateBarisUlti(dt){
   } else if(s.phase==='slam'){
     if(!s.dmgDone&&s.t<80&&boss.alive){
       s.dmgDone=true;
+      const bp=lockPointToBoss(s,'hitX','hitY',0.52);
+      player.x=bp.x-player.w/2;player.y=bp.y-player.h*0.55;
       const dmg=ultiDmg(340);
       boss.hp=Math.max(0,boss.hp-dmg);gameScore+=dmg;boss.slapShake=900;addXP(42);
       for(let i=0;i<9;i++){
@@ -1892,9 +1925,10 @@ function updateBarisUlti(dt){
     }
     if(s.t>520){s.phase='return';s.t=0;}
   } else if(s.phase==='return'){
+    const startX=s.hitX-player.w/2,startY=s.hitY-player.h*0.55;
     const prog=Math.min(s.t/420,1);
-    player.x=s.hitX-20+(s.origX-s.hitX+20)*prog;
-    player.y=s.hitY-18+(s.origY-s.hitY+18)*prog;
+    player.x=startX+(s.origX-startX)*prog;
+    player.y=startY+(s.origY-startY)*prog;
     if(Math.random()<0.35)burst(player.x+player.w/2,player.y+player.h/2,'#ff6600',2);
     if(prog>=1){player.x=s.origX;player.y=s.origY;player.invincible=900;burst(player.x+player.w/2,player.y+player.h/2,'#ff6600',24);s.phase='done';}
   } else {player._barisUlti=null;}
@@ -1902,8 +1936,9 @@ function updateBarisUlti(dt){
 function drawBarisUltiFx(ctx,s){
   if(!s||!boss.alive)return;
   if(s.phase!=='slam'&&s.phase!=='dash')return;
+  const bp=lockPointToBoss(s,'hitX','hitY',0.52);
   const cx=player.x+player.w/2,cy=player.y+player.h*0.55;
-  const tx=s.hitX||boss.x+boss.w/2,ty=s.hitY||boss.y+boss.h/2;
+  const tx=bp.x,ty=bp.y;
   ctx.save();ctx.lineCap='round';ctx.shadowBlur=18;ctx.shadowColor='#ff6600';
   for(let i=0;i<6;i++){
     const ang=(i/6)*Math.PI*2+Date.now()*0.006;
@@ -1926,6 +1961,8 @@ function updateAriaUlti(dt){
   const s=player._ariaUlti; s.t+=dt;
   if(s.phase==='open'){
     s.radius=Math.min(s.radius+dt*0.15,s.maxR);
+    // Kara delik boss'un üstünde açılır, boşluğa değil.
+    if(boss.alive){const bp=lockPointToBoss(s,'cx','cy',0.52);}
     // Kara delik çeker efekti
     if(boss.alive){
       const dx=s.cx-boss.x-boss.w/2,dy=s.cy-boss.y-boss.h/2;
@@ -1998,27 +2035,41 @@ function updateZephyrUlti(dt){
 }
 function updateSlapAnim(dt){
   const s=slapAnim;s.t+=dt;
+  const bp=lockPointToBoss(s,'tx','ty',0.52);
+  const leftHitX=bp.x-Math.max(24,boss.w*0.22);
+  const rightHitX=bp.x+Math.max(24,boss.w*0.22);
+  const hitY=bp.y;
   if(s.phase==='approach'){
-    const prog=Math.min(s.t/400,1);
-    s.scale=1+prog*4;
-    s.ly=player.y-prog*(player.y-boss.y-boss.h/2);s.ry=s.ly;
-    s.lx=player.x-prog*100;s.rx=player.x+player.w+prog*100;
-    if(s.t>=400){s.phase='impact';s.t=0;// Boss'a hasar ver
+    const prog=Math.min(s.t/420,1);
+    const ease=1-Math.pow(1-prog,3);
+    s.scale=1+ease*3.4;
+    s.lx=s.startLX+(leftHitX-s.startLX)*ease;
+    s.rx=s.startRX+(rightHitX-s.startRX)*ease;
+    s.ly=s.startY+(hitY-s.startY)*ease;
+    s.ry=s.startY+(hitY-s.startY)*ease;
+    if(s.t>=420){s.phase='impact';s.t=0;// Boss'a hasar ver
       if(boss.alive){
         const dmg=boss.maxHp*0.20;boss.hp=Math.max(0,boss.hp-dmg);gameScore+=dmg;boss.slapShake=400;
-        // Partiküller saç
-        for(let i=0;i<30;i++){const a=Math.random()*Math.PI*2,sp=4+Math.random()*8;bossFragments.push({x:boss.x+boss.w/2,y:boss.y+boss.h/2,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp-3,spin:Math.random()*0.5,spinSpeed:(Math.random()-0.5)*0.3,life:40+Math.random()*30,maxLife:70,color:boss.def.color2,color2:'#888',size:3+Math.random()*8});}
-        burst(boss.x+boss.w/2,boss.y+boss.h/2,'#fff',20);
+        // Partiküller direkt boss merkezinden saçılsın
+        const c=bossAimPoint(0.52);
+        for(let i=0;i<30;i++){const a=Math.random()*Math.PI*2,sp=4+Math.random()*8;bossFragments.push({x:c.x,y:c.y,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp-3,spin:Math.random()*0.5,spinSpeed:(Math.random()-0.5)*0.3,life:40+Math.random()*30,maxLife:70,color:boss.def.color2,color2:'#888',size:3+Math.random()*8});}
+        burst(c.x,c.y,'#fff',20);
         if(boss.hp<=0){boss.alive=false;startVictory();}
       }
     }
   }else if(s.phase==='impact'){
-    if(s.t>200){s.phase='retreat';s.t=0;}
+    const c=bossAimPoint(0.52);
+    s.tx=c.x;s.ty=c.y;s.lx=c.x-Math.max(18,boss.w*0.18);s.rx=c.x+Math.max(18,boss.w*0.18);s.ly=c.y;s.ry=c.y;
+    if(s.t>220){s.phase='retreat';s.t=0;s.retLX=s.lx;s.retRX=s.rx;s.retY=s.ly;}
   }else{
     const prog=Math.min(s.t/300,1);
-    s.scale=5-prog*4;
-    s.ly=boss.y+boss.h/2+prog*(player.y-boss.y-boss.h/2);s.ry=s.ly;
-    s.lx=boss.x-20+prog*(player.x-boss.x+20-100);s.rx=boss.x+boss.w+20+prog*(player.x+player.w-boss.x-boss.w-20+100);
+    const ease=1-Math.pow(1-prog,2);
+    const endLX=player.x+player.w/2-58,endRX=player.x+player.w/2+58,endY=player.y+player.h*0.35;
+    s.scale=4.4-ease*3.4;
+    s.lx=(s.retLX??leftHitX)+(endLX-(s.retLX??leftHitX))*ease;
+    s.rx=(s.retRX??rightHitX)+(endRX-(s.retRX??rightHitX))*ease;
+    s.ly=(s.retY??hitY)+(endY-(s.retY??hitY))*ease;
+    s.ry=s.ly;
     if(s.t>=300){slapAnim=null;}
   }
 }
@@ -2213,7 +2264,7 @@ function render(){
   // Zephyr şimşek fırtınası çizgisi
   if(player&&player._zephyrUlti&&boss.alive&&lightningFlash>50){
     ctx.save();ctx.strokeStyle='rgba(255,255,100,0.9)';ctx.lineWidth=3;ctx.shadowColor='#ffff00';ctx.shadowBlur=15;
-    ctx.beginPath();ctx.moveTo(boss.x+boss.w/2,0);ctx.lineTo(boss.x+boss.w/2,boss.y);ctx.stroke();
+    const bp=bossAimPoint(0.52);ctx.beginPath();ctx.moveTo(bp.x,0);ctx.lineTo(bp.x,bp.y);ctx.stroke();
     ctx.shadowBlur=0;ctx.restore();
   }
   if(speedBoostActive&&!player.dead){ctx.save();ctx.strokeStyle='rgba(255,220,50,0.7)';ctx.lineWidth=3;ctx.setLineDash([4,4]);ctx.beginPath();ctx.arc(player.x+player.w/2,player.y+player.h/2,44,0,Math.PI*2);ctx.stroke();ctx.setLineDash([]);ctx.restore();}
@@ -2372,7 +2423,24 @@ function drawSchool(){
   if(schoolKids){schoolKids.forEach((k,i)=>{const ky=H-93+Math.sin(k.t)*3;if(k.action===0){dsc(ctx,k.x,ky,k.color,'#fff',i%2===1,0.68);}else if(k.action===1){dsc(ctx,k.x,ky-Math.abs(Math.sin(k.t*2))*10,k.color,'#88f',false,0.65);}else{dsc(ctx,k.x,ky,k.color,'#f88',i%2===1,0.67);if(Math.floor(Date.now()/500)%2===0){ctx.fillStyle='rgba(255,255,255,0.8)';ctx.font='8px sans-serif';ctx.textAlign='center';ctx.fillText('💬',k.x,ky-26);}}});}
 }
 
-function drawBeam(){if(!beamActive)return;const sx=player.x+player.w/2,sy=player.y+10,ex=boss.alive?(boss.x+boss.w/2):sx,ey=boss.alive?(boss.y+boss.h/2):0,prog=beamTimer/BEAM_DUR,t=Date.now()*0.005;ctx.save();for(let layer=3;layer>=0;layer--){ctx.strokeStyle=`rgba(0,255,255,${(0.07+layer*0.07)*prog})`;ctx.lineWidth=2+layer*8;ctx.shadowColor='#0ff';ctx.shadowBlur=20;ctx.beginPath();ctx.moveTo(sx,sy);const mid={x:(sx+ex)/2+Math.sin(t+layer)*12,y:(sy+ey)/2+Math.cos(t+layer)*8};ctx.quadraticCurveTo(mid.x,mid.y,ex,ey);ctx.stroke();}ctx.strokeStyle=`rgba(255,255,255,${0.9*prog})`;ctx.lineWidth=2;ctx.shadowBlur=30;ctx.beginPath();ctx.moveTo(sx,sy);ctx.lineTo(ex,ey);ctx.stroke();const rg=ctx.createRadialGradient(ex,ey,0,ex,ey,20);rg.addColorStop(0,`rgba(255,255,255,${0.8*prog})`);rg.addColorStop(1,'rgba(0,255,255,0)');ctx.fillStyle=rg;ctx.beginPath();ctx.arc(ex,ey,20,0,Math.PI*2);ctx.fill();ctx.restore();}
+function drawBeam(){
+  if(!beamActive)return;
+  const sx=player.x+player.w/2,sy=player.y+10;
+  const bp=bossAimPoint(0.52);
+  const ex=bp.x,ey=bp.y;
+  const prog=beamTimer/BEAM_DUR,t=Date.now()*0.005;
+  ctx.save();
+  for(let layer=3;layer>=0;layer--){
+    ctx.strokeStyle=`rgba(0,255,255,${(0.07+layer*0.07)*prog})`;ctx.lineWidth=2+layer*8;ctx.shadowColor='#0ff';ctx.shadowBlur=20;
+    ctx.beginPath();ctx.moveTo(sx,sy);
+    const mid={x:(sx+ex)/2+Math.sin(t+layer)*12,y:(sy+ey)/2+Math.cos(t+layer)*8};
+    ctx.quadraticCurveTo(mid.x,mid.y,ex,ey);ctx.stroke();
+  }
+  ctx.strokeStyle=`rgba(255,255,255,${0.9*prog})`;ctx.lineWidth=2;ctx.shadowBlur=30;ctx.beginPath();ctx.moveTo(sx,sy);ctx.lineTo(ex,ey);ctx.stroke();
+  const rg=ctx.createRadialGradient(ex,ey,0,ex,ey,24);rg.addColorStop(0,`rgba(255,255,255,${0.85*prog})`);rg.addColorStop(0.45,`rgba(0,255,255,${0.55*prog})`);rg.addColorStop(1,'rgba(0,255,255,0)');ctx.fillStyle=rg;ctx.beginPath();ctx.arc(ex,ey,24,0,Math.PI*2);ctx.fill();
+  ctx.restore();
+}
+
 
 function drawBlocks(){blocks.forEach(b=>{if(b.hp<=0)return;const s=b.shade;ctx.fillStyle=`rgb(${Math.floor(110*s)},${Math.floor(110*s)},${Math.floor(110*s)})`;ctx.fillRect(b.x,b.y,b.w,b.h);ctx.fillStyle=`rgb(${Math.floor(90*s)},${Math.floor(90*s)},${Math.floor(90*s)})`;ctx.fillRect(b.x+2,b.y+2,b.w-4,b.h-4);ctx.strokeStyle='#444';ctx.lineWidth=0.8;ctx.strokeRect(b.x,b.y,b.w,b.h);const g=b.w/3;for(let r=0;r<3;r++)for(let c=0;c<3;c++)ctx.strokeRect(b.x+c*g,b.y+r*g,g,g);});}
 
