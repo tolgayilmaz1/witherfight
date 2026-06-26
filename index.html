@@ -448,11 +448,11 @@ const EN={
 
 Object.assign(TR,{
   settingsBtn:'⚙ AYARLAR',settingsTitle:'⚙ AYARLAR',settingsInfo:'Dil seçimini buradan yapabilirsin.',adminOpen:'🔐 ADMIN PANEL GİRİŞ',adminLoginInfo:'Admin panel için şifre gir.',languageTitle:'🌍 DİL',languageInfo:'Oyunun menü ve yazı dilini seç.',adminTitle:'ADMIN PANEL',adminInfo:'High score listesini temizleyebilirsin.',setPass:'ŞİFRE',setLogin:'GİRİŞ',clearScores:'🗑 HI-SCORE TEMİZLE',wrongPass:'❌ Şifre yanlış',clearDone:'✓ High score listesi temizlendi',ctrlSelH:'🎮 KONTROL SEÇ',ctrlSelGo:'▶ DEVAM',
-  ultiNotReady:'⏳ Ulti hazır değil!',diamondArmor:'💎 ELMAS ZIRH!',tornadoDash:'⚡ KASIRGA KOŞUSU!',spiderPunch:'🕷️ SPİDER YUMRUK!',blackHole:'🌀 KARA DELİK!',lightningStorm:'⚡ ŞİMŞEK FIRTINASI!',rocketEmpty:'🚀 Roket mermisi bitti!',mikailReturn:'💚 Mikail geri döndü!',shield3:'💎 3sn Koruma!',speed4:'⚡ 4sn Hız Boost!',bulletsCleared:'⚡ Mermiler temizlendi!',beamPlus:'⚡ Işın mermisi +1!',slapPlus:'👋 Şaplak hakkı +1!',gameMenuTitle:'⏸ OYUN DURDU',gameMenuResume:'▶ DEVAM ET',gameMenuSound:'🔊 SES AÇ/KAPAT',gameMenuLang:'🌍 DİL SEÇ',gameMenuExit:'↩ ANA MENÜYE DÖN'
+  ultiNotReady:'⏳ Ulti hazır değil!',diamondArmor:'💎 ELMAS ZIRH!',tornadoDash:'⚡ KASIRGA KOŞUSU!',spiderPunch:'🕷️ SPİDER YUMRUK!',blackHole:'🌀 KARA DELİK!',lightningStorm:'⚡ ŞİMŞEK FIRTINASI!',barisTentacle:'🔥 DOKUNAÇ ALEV VURUŞU!',rocketEmpty:'🚀 Roket mermisi bitti!',mikailReturn:'💚 Mikail geri döndü!',shield3:'💎 3sn Koruma!',speed4:'⚡ 4sn Hız Boost!',bulletsCleared:'⚡ Mermiler temizlendi!',beamPlus:'⚡ Işın mermisi +1!',slapPlus:'👋 Şaplak hakkı +1!',gameMenuTitle:'⏸ OYUN DURDU',gameMenuResume:'▶ DEVAM ET',gameMenuSound:'🔊 SES AÇ/KAPAT',gameMenuLang:'🌍 DİL SEÇ',gameMenuExit:'↩ ANA MENÜYE DÖN'
 });
 Object.assign(EN,{
   settingsBtn:'⚙ SETTINGS',settingsTitle:'⚙ SETTINGS',settingsInfo:'Choose language here. Admin panel is separate below.',adminOpen:'🔐 ADMIN PANEL LOGIN',adminLoginInfo:'Enter password for admin panel.',languageTitle:'🌍 LANGUAGE',languageInfo:'Choose the game menu and text language.',adminTitle:'ADMIN PANEL',adminInfo:'You can clear the high score list.',setPass:'PASSWORD',setLogin:'LOGIN',clearScores:'🗑 CLEAR HI-SCORES',wrongPass:'❌ Wrong password',clearDone:'✓ High score list cleared',ctrlSelH:'🎮 SELECT CONTROL',ctrlSelGo:'▶ CONTINUE',
-  ultiNotReady:'⏳ Ulti not ready!',diamondArmor:'💎 DIAMOND ARMOR!',tornadoDash:'⚡ TORNADO DASH!',spiderPunch:'🕷️ SPIDER PUNCH!',blackHole:'🌀 BLACK HOLE!',lightningStorm:'⚡ LIGHTNING STORM!',rocketEmpty:'🚀 No rockets left!',mikailReturn:'💚 Mikail returned!',shield3:'💎 3s Shield!',speed4:'⚡ 4s Speed Boost!',bulletsCleared:'⚡ Bullets cleared!',beamPlus:'⚡ Beam ammo +1!',slapPlus:'👋 Slap charge +1!',gameMenuTitle:'⏸ PAUSED',gameMenuResume:'▶ RESUME',gameMenuSound:'🔊 SOUND ON/OFF',gameMenuLang:'🌍 LANGUAGE',gameMenuExit:'↩ BACK TO MAIN MENU'
+  ultiNotReady:'⏳ Ulti not ready!',diamondArmor:'💎 DIAMOND ARMOR!',tornadoDash:'⚡ TORNADO DASH!',spiderPunch:'🕷️ SPIDER PUNCH!',blackHole:'🌀 BLACK HOLE!',lightningStorm:'⚡ LIGHTNING STORM!',barisTentacle:'🔥 TENTACLE FLAME SLAM!',rocketEmpty:'🚀 No rockets left!',mikailReturn:'💚 Mikail returned!',shield3:'💎 3s Shield!',speed4:'⚡ 4s Speed Boost!',bulletsCleared:'⚡ Bullets cleared!',beamPlus:'⚡ Beam ammo +1!',slapPlus:'👋 Slap charge +1!',gameMenuTitle:'⏸ PAUSED',gameMenuResume:'▶ RESUME',gameMenuSound:'🔊 SOUND ON/OFF',gameMenuLang:'🌍 LANGUAGE',gameMenuExit:'↩ BACK TO MAIN MENU'
 });
 const LANG_LABELS={tr:'🇹🇷 Türkçe',en:'🇬🇧 English',ar:'🇸🇦 العربية',ru:'🇷🇺 Русский',fr:'🇫🇷 Français',es:'🇪🇸 Español',de:'🇩🇪 Deutsch',it:'🇮🇹 Italiano',pt:'🇵🇹 Português',ja:'🇯🇵 日本語',zh:'🇨🇳 中文',ko:'🇰🇷 한국어'};
 function makeLang(o){return Object.assign({},EN,o,{controls:o.controls||EN.controls});}
@@ -477,7 +477,7 @@ const WF_I18N_EXTRA={
     weaponNames:{fireball:'Ateş Topu',ice:'Buz Topu',lava:'Lav Topu',rocket:'Roket',saw:'Testere',water:'Su Damlası',thunder:'Şimşek Topu',void:'Void Küresi',slime:'Slime Bomb',nether:'Cehennem Alevi'},
     bonusNames:{fireball:'Ateş Topu',ice:'Buz Topu',lava:'Lav Topu',rocket:'Roket',saw:'Testere',water:'Su Damlası',thunder:'Şimşek',void:'Void',slime:'Slime',nether:'Cehennem',shield:'Kalkan',heart:'Can +1',beam_ammo:'Işın +1',slap_ammo:'Şaplak +1',speed_boost:'Hız Boost'},
     bossNames:['Mavi Çiçek Canavarı','Kızıl Örümcek','Yeşil Kanat','Ender Hükümdar','Şeytan Kral','Void Tanrısı','Fırtına Ruhu','Demir Kolossus','Ejderha Ruhu','Kıyamet Tanrısı'],
-    ultiNames:{0:'💎 Elmas Zırh',1:'⚡ Kasırga Koşusu',2:'🕷️ Spider Yumruk',3:'🌀 Kara Delik',4:'⚡ Şimşek Fırtınası'},
+    ultiNames:{0:'💎 Elmas Zırh',1:'⚡ Kasırga Koşusu',2:'🕷️ Spider Yumruk',3:'🌀 Kara Delik',4:'⚡ Şimşek Fırtınası',5:'🔥 Dokunaç Alev Vuruşu'},
     levelBonusDesc:{2:'+2 Can, Ateş Hızı %20↑',3:'+2 Can, Ateş Hızı %40↑, Ulti 2x Güçlü'},
     ultiShort:'ULTİ',nextShort:'SONRAKİ',health:'CAN',xp:'XP',max:'MAX',levelShort:'SV',hp:'CAN',finalBoss:'FINAL BOSS',speedShort:'HIZ',boostShort:'BOOST',
     weaponPicked:(icon,name,multi)=>icon+' '+name+(multi||'')+' alındı!',weaponUpgrade:(icon,name,x)=>icon+' '+name+' ateş hızı '+x+'x artırıldı!',shieldActive:'🛡 Kalkan aktif!',heartPlus:'❤ Can +1',levelUp:(lv,desc)=>'⭐ LEVEL '+lv+'! '+desc
@@ -486,7 +486,7 @@ const WF_I18N_EXTRA={
     weaponNames:{fireball:'Fireball',ice:'Ice Ball',lava:'Lava Ball',rocket:'Rocket',saw:'Saw Blade',water:'Water Drop',thunder:'Lightning Ball',void:'Void Orb',slime:'Slime Bomb',nether:'Nether Flame'},
     bonusNames:{fireball:'Fireball',ice:'Ice Ball',lava:'Lava Ball',rocket:'Rocket',saw:'Saw Blade',water:'Water Drop',thunder:'Lightning',void:'Void',slime:'Slime',nether:'Nether',shield:'Shield',heart:'Health +1',beam_ammo:'Beam +1',slap_ammo:'Slap +1',speed_boost:'Speed Boost'},
     bossNames:['Blue Flower Monster','Red Spider','Green Wing','Ender Ruler','Demon King','Void God','Storm Spirit','Iron Colossus','Dragon Spirit','Doom God'],
-    ultiNames:{0:'💎 Diamond Armor',1:'⚡ Tornado Dash',2:'🕷️ Spider Punch',3:'🌀 Black Hole',4:'⚡ Lightning Storm'},
+    ultiNames:{0:'💎 Diamond Armor',1:'⚡ Tornado Dash',2:'🕷️ Spider Punch',3:'🌀 Black Hole',4:'⚡ Lightning Storm',5:'🔥 Tentacle Flame Slam'},
     levelBonusDesc:{2:'+2 HP, Fire Rate +20%',3:'+2 HP, Fire Rate +40%, Ulti 2x Power'},
     ultiShort:'ULTI',nextShort:'NEXT',health:'HEALTH',xp:'XP',max:'MAX',levelShort:'LV',hp:'HP',finalBoss:'FINAL BOSS',speedShort:'SPEED',boostShort:'BOOST',
     weaponPicked:(icon,name,multi)=>icon+' '+name+(multi||'')+' collected!',weaponUpgrade:(icon,name,x)=>icon+' '+name+' fire rate increased '+x+'x!',shieldActive:'🛡 Shield active!',heartPlus:'❤ Health +1',levelUp:(lv,desc)=>'⭐ LEVEL '+lv+'! '+desc
@@ -1089,6 +1089,7 @@ const ENDINGS=[
   {charId:2,title:"Mikail'in Dönüşü",story:`Mikail okul çantasını sırtına astı ve koştu.\nKöpeği Fındık havlayarak geldi.\nBabası güldü ve saçlarını karıştırdı.\n"Şimdi ödev zamanı, kahraman."`,fam:'Ailesiyle ve köpeği Fındık ile buluştu'},
   {charId:3,title:"Aria'nın Huzuru",story:`Aria büyü kitabını kapattı.\nKapı çalındı — büyükannesi elinde çayla geldi.\n"Hep bilirdim döneceğini."\nAria ilk kez yıllardır ağladı.`,fam:'Büyükannesiyle buluştu'},
   {charId:4,title:"Zephyr'in Hızı",story:`Zephyr son kez arkasına baktı.\nGenç kardeşleri onu bekliyordu — üçü birden sarıldı.\n"Hiç bu kadar hızlı olmamıştım," dedi Zephyr.\nO gece dört kardeş yıldızlara baktı.`,fam:'Üç kardeşiyle buluştu'},
+  {charId:5,title:"Baris'in Ateşli Dokunaçları",story:`Baris mor dokunaçlarını gökyüzüne kaldırdı.\nAteş artık düşmanları değil, eve dönüş yolunu aydınlatıyordu.\nKafatası işareti sönünce herkes onun gerçek bir kahraman olduğunu anladı.`,fam:'Ailesiyle güvenli bölgeye döndü'},
 ];
 
 const CHARS=[
@@ -1097,6 +1098,7 @@ const CHARS=[
   {id:2,name:'Mikail',desc:'Genç Maceracı', gender:'M',hair:'#FFD700',skin:'#FDBCB4',shirt:'#3a7d44',shorts:'#5c8a3c',minecraft:true},
   {id:3,name:'Aria',  desc:'Gizem Ustası',  gender:'F',hair:'#9400D3',skin:'#c8a882',shirt:'#2d2d6b',skirt:'#4b0082'},
   {id:4,name:'Zephyr',desc:'Hızlı Savaşçı',gender:'M',hair:'#FF4500',skin:'#FDBCB4',shirt:'#cc3300',shorts:'#8B0000'},
+  {id:5,name:'Baris', desc:'Ateş Dokunaçlı',gender:'M',hair:'#7a2b2b',skin:'#d8c8a0',shirt:'#2fa05a',shorts:'#3b2470',baris:true},
 ];
 let selectedChar=null;
 
@@ -1116,7 +1118,32 @@ const BONUS_POOL=[
 function pickBonus(){const r=Math.random();for(const b of BONUS_POOL)if(r<b.cum)return b;return BONUS_POOL[0];}
 
 // ── CHAR DRAW ────────────────────────────────────────
+function drawBarisMonster(c,x,y,sc=1,wt=0,inv=false){
+  c.save();c.translate(x,y);c.scale(sc,sc);
+  if(inv&&Math.floor(Date.now()/80)%2===0)c.globalAlpha=0.35;
+  const wig=Math.sin(wt*2+Date.now()*0.006);
+  const wig2=Math.sin(wt*1.4+Date.now()*0.004);
+  c.strokeStyle='#5b176d';c.lineWidth=4;c.lineCap='round';
+  const arms=[[-9,-5,-36,-28,-50,-48],[9,-6,35,-27,48,-44],[-10,4,-44,7,-64,7],[10,4,44,7,66,9],[-8,11,-30,28,-40,42],[8,11,30,28,43,40]];
+  arms.forEach((a,i)=>{c.beginPath();c.moveTo(a[0],a[1]);c.bezierCurveTo(a[2],a[3]+wig*6,a[2]+wig2*6,a[3]-8,a[4],a[5]+Math.sin(wt+i)*5);c.stroke();});
+  c.fillStyle='#6b2c2c';
+  [[-54,-51,11,14],[42,-47,12,14],[-70,2,14,12],[59,4,14,12],[-11,31,11,13],[7,31,13,12]].forEach(r=>{c.fillRect(r[0],r[1],r[2],r[3]);});
+  c.fillStyle='#2d7d54';c.fillRect(-9,14,8,20);c.fillRect(2,14,8,20);
+  c.fillStyle='#3b2470';c.fillRect(-10,21,10,9);c.fillRect(1,20,10,10);
+  c.fillStyle='#6b2c2c';c.fillRect(-12,35,13,7);c.fillRect(2,35,15,7);
+  c.fillStyle='#2fa05a';c.beginPath();c.roundRect(-16,-6,32,26,6);c.fill();
+  c.fillStyle='rgba(70,150,255,0.55)';c.beginPath();c.moveTo(-14,-4);c.lineTo(0,8);c.lineTo(14,-4);c.lineTo(12,16);c.lineTo(0,7);c.lineTo(-12,16);c.closePath();c.fill();
+  c.fillStyle='#cc3a24';c.beginPath();c.roundRect(-10,1,20,19,6);c.fill();
+  c.fillStyle='#552020';c.beginPath();c.arc(-4,7,3,0,Math.PI*2);c.fill();c.beginPath();c.arc(5,7,3,0,Math.PI*2);c.fill();c.fillRect(-2,14,5,3);
+  c.fillStyle='#d8c8a0';c.beginPath();c.roundRect(-9,-25,18,18,4);c.fill();
+  c.fillStyle='#222';c.fillRect(-6,-18,5,4);c.fillRect(2,-18,5,4);c.strokeStyle='#333';c.lineWidth=1.2;c.beginPath();c.moveTo(-5,-11);c.quadraticCurveTo(0,-14,5,-11);c.stroke();
+  c.fillStyle='#7a2b2b';c.fillRect(-10,-30,20,8);
+  for(let i=-3;i<=3;i++){c.beginPath();c.arc(i*4,-33-Math.abs(i%2)*3,2.5,0,Math.PI*2);c.fill();}
+  c.fillStyle='#5b176d';for(let i=0;i<4;i++){c.beginPath();c.arc(-11,-21+i*5,2.5,0,Math.PI*2);c.fill();c.beginPath();c.arc(11,-21+i*5,2.5,0,Math.PI*2);c.fill();}
+  c.globalAlpha=1;c.restore();
+}
 function drawChar(c,x,y,ch,sc=1,wt=0,inv=false){
+  if(ch&&ch.id===5){drawBarisMonster(c,x,y,sc,wt,inv);return;}
   c.save();c.translate(x,y);c.scale(sc,sc);
   if(inv&&Math.floor(Date.now()/80)%2===0)c.globalAlpha=0.35;
   const sk=ch.skin||'#FDBCB4';
@@ -1184,6 +1211,9 @@ const CHAR_ULTIS={
   4:{name:'⚡ Şimşek Fırtınası',nameEN:'⚡ Lightning Storm',icon:'🌩️', cd:14000,
      desc:'Gökyüzünden şimşek yağar, 480 hasar!',descEN:'Lightning rains from sky, 480 dmg!',
      color:'#FF4500'},
+  5:{name:'🔥 Dokunaç Alev Vuruşu',nameEN:'🔥 Tentacle Flame Slam',icon:'🔥',cd:17000,
+     desc:'Boss yanına sıçrar, dokunaçlarla ateşli süper vuruş yapar!',descEN:'Dash to boss, tentacles slam with fire!',
+     color:'#ff6600'},
 };
 
 // Level sistemi
@@ -1272,6 +1302,11 @@ function activateUlti(){
     // Zephyr — Şimşek Fırtınası: yukarıdan şimşek yağar, 480 hasar
     showPopup(txt('lightningStorm'));
     player._zephyrUlti={phase:'storm',t:0,strikes:0,maxStrikes:8,dmg:0};
+    ultiActive=false;
+  } else if(ultiType===5){
+    // Baris — Dokunaç Alev Vuruşu: boss yanına gider, dokunaçlarla tek ateşli süper vuruş yapar
+    showPopup(txt('barisTentacle'));
+    player._barisUlti={phase:'charge',t:0,origX:player.x,origY:player.y,hitX:0,hitY:0,dmgDone:false};
     ultiActive=false;
   }
 }
@@ -1514,7 +1549,8 @@ function update(dt){
   if(player._hurryUlti){updateHurryUlti(dt);}
   if(player._ariaUlti){updateAriaUlti(dt);}
   if(player._zephyrUlti){updateZephyrUlti(dt);}
-  if(!player._spiderUlti&&!player._jessieUlti&&!player._hurryUlti)clampPlayerToArena();
+  if(player._barisUlti){updateBarisUlti(dt);}
+  if(!player._spiderUlti&&!player._jessieUlti&&!player._hurryUlti&&!player._barisUlti)clampPlayerToArena();
 
   // Boss
   updateBossMove(dt);boss.animT+=dt*0.003;
@@ -1801,6 +1837,65 @@ function drawHurrySpin(ctx,x,y,sc,wt){
   ctx.restore();
 }
 
+// ── BARIS ULTİ — Dokunaç Alev Vuruşu ────────────────
+function updateBarisUlti(dt){
+  const s=player._barisUlti; s.t+=dt;
+  if(s.phase==='charge'){
+    player.invincible=1200;
+    burst(player.x+player.w/2,player.y+player.h/2,'#5b176d',4);
+    burst(player.x+player.w/2,player.y+player.h/2,'#ff6600',3);
+    if(s.t>450){s.phase='dash';s.t=0;s.hitX=boss.x+boss.w/2;s.hitY=boss.y+boss.h/2;}
+  } else if(s.phase==='dash'){
+    const prog=Math.min(s.t/420,1);
+    const targetX=s.hitX-20, targetY=s.hitY-18;
+    player.x=s.origX+(targetX-s.origX)*prog;
+    player.y=s.origY+(targetY-s.origY)*prog;
+    if(Math.random()<0.6){burst(player.x+player.w/2,player.y+player.h/2,'#5b176d',3);burst(player.x+player.w/2,player.y+player.h/2,'#ff3300',2);}
+    if(prog>=1){s.phase='slam';s.t=0;}
+  } else if(s.phase==='slam'){
+    if(!s.dmgDone&&s.t<80&&boss.alive){
+      s.dmgDone=true;
+      const dmg=ultiDmg(340);
+      boss.hp=Math.max(0,boss.hp-dmg);gameScore+=dmg;boss.slapShake=900;addXP(42);
+      for(let i=0;i<9;i++){
+        burst(s.hitX+(Math.random()-0.5)*110,s.hitY+(Math.random()-0.5)*80,'#ff3300',20);
+        burst(s.hitX+(Math.random()-0.5)*90,s.hitY+(Math.random()-0.5)*70,'#ffcc00',14);
+        burst(s.hitX+(Math.random()-0.5)*70,s.hitY+(Math.random()-0.5)*50,'#5b176d',10);
+      }
+      beep(70,0.22,'sawtooth',0.45);beep(180,0.14,'square',0.28);beep(520,0.08,'sine',0.22);
+      if(boss.hp<=0){boss.alive=false;startVictory();}
+    }
+    if(s.t>520){s.phase='return';s.t=0;}
+  } else if(s.phase==='return'){
+    const prog=Math.min(s.t/420,1);
+    player.x=s.hitX-20+(s.origX-s.hitX+20)*prog;
+    player.y=s.hitY-18+(s.origY-s.hitY+18)*prog;
+    if(Math.random()<0.35)burst(player.x+player.w/2,player.y+player.h/2,'#ff6600',2);
+    if(prog>=1){player.x=s.origX;player.y=s.origY;player.invincible=900;burst(player.x+player.w/2,player.y+player.h/2,'#ff6600',24);s.phase='done';}
+  } else {player._barisUlti=null;}
+}
+function drawBarisUltiFx(ctx,s){
+  if(!s||!boss.alive)return;
+  if(s.phase!=='slam'&&s.phase!=='dash')return;
+  const cx=player.x+player.w/2,cy=player.y+player.h*0.55;
+  const tx=s.hitX||boss.x+boss.w/2,ty=s.hitY||boss.y+boss.h/2;
+  ctx.save();ctx.lineCap='round';ctx.shadowBlur=18;ctx.shadowColor='#ff6600';
+  for(let i=0;i<6;i++){
+    const ang=(i/6)*Math.PI*2+Date.now()*0.006;
+    const ox=Math.cos(ang)*18,oy=Math.sin(ang)*14;
+    ctx.strokeStyle=i%2?'rgba(255,80,0,0.85)':'rgba(91,23,109,0.9)';
+    ctx.lineWidth=i%2?5:4;
+    ctx.beginPath();ctx.moveTo(cx+ox,cy+oy);ctx.quadraticCurveTo((cx+tx)/2+Math.cos(ang)*45,(cy+ty)/2+Math.sin(ang)*35,tx+Math.cos(ang)*28,ty+Math.sin(ang)*22);ctx.stroke();
+  }
+  if(s.phase==='slam'){
+    const r=30+Math.sin(Date.now()*0.02)*8;
+    const g=ctx.createRadialGradient(tx,ty,4,tx,ty,r);
+    g.addColorStop(0,'rgba(255,255,180,0.95)');g.addColorStop(0.45,'rgba(255,90,0,0.75)');g.addColorStop(1,'rgba(255,0,0,0)');
+    ctx.fillStyle=g;ctx.beginPath();ctx.arc(tx,ty,r,0,Math.PI*2);ctx.fill();
+  }
+  ctx.restore();
+}
+
 // ── ARİA ULTİ — Kara Delik ─────────────────────────
 function updateAriaUlti(dt){
   const s=player._ariaUlti; s.t+=dt;
@@ -2011,6 +2106,7 @@ function drawFamilyScene(ch,ending){
   else if(ch.id===1){dsc(fx,fw/2-52,fh*0.72,'#8B4513','#4169E1',true,0.88);dsc(fx,fw/2+52,fh*0.72,'#cc9966','#cc5555',true,0.98);}
   else if(ch.id===2){dsc(fx,fw/2-52,fh*0.72,'#996633','#224488',false,1.02);dsc(fx,fw/2+52,fh*0.72,'#cc9966','#cc4488',true,0.92);drawDog(fx,fw/2+108,fh*0.82);}
   else if(ch.id===3){dsc(fx,fw/2-52,fh*0.74,'#888','#552266',true,0.80);}
+  else if(ch.id===5){dsc(fx,fw/2-58,fh*0.74,'#7a2b2b','#2fa05a',false,0.82);dsc(fx,fw/2+58,fh*0.74,'#5b176d','#336699',true,0.78);}
   else{[-88,-52,50,88].forEach((dx,i)=>{if(i===0)return;dsc(fx,fw/2+dx,fh*0.72,'#FF6600','#cc2200',false,0.68+i*0.04);});}
   fx.fillStyle='rgba(0,0,0,0.5)';fx.fillRect(0,0,fw,22);fx.fillStyle='#FFD700';fx.font='bold 12px Courier New';fx.textAlign='center';fx.fillText(ending.title,fw/2,15);
 }
@@ -2039,6 +2135,9 @@ function render(){
       drawJessieArmor(ctx,player.x+player.w/2,player.y+player.h*0.88,1.0,walkT);
     } else if(player._hurryUlti&&player.char.id===1){
       drawHurrySpin(ctx,player.x+player.w/2,player.y+player.h*0.88,1.0,walkT);
+    } else if(player._barisUlti&&player.char.id===5){
+      drawChar(ctx,player.x+player.w/2,player.y+player.h*0.88,player.char,1.0,walkT,player.invincible>0);
+      drawBarisUltiFx(ctx,player._barisUlti);
     } else {
       drawChar(ctx,player.x+player.w/2,player.y+player.h*0.88,player.char,1.0,walkT,player.invincible>0);
       drawWH(ctx,player.x+player.w/2,player.y+player.h*0.88,player.weapon,1.0,faceR);
