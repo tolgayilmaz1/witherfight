@@ -335,8 +335,17 @@ canvas{display:block;}
 <!-- High-score: Firebase Realtime Database REST aktif.
      SDK gerekmez; skorlar hem localStorage'a hem Realtime Database'e yazılır. -->
 <script>
+const firebaseConfig = {
+  apiKey: 'AIzaSyB7-tyQXRhfj7YLLLE0An3a_gvHMZJuCTo',
+  authDomain: 'witherfighting.firebaseapp.com',
+  databaseURL: 'https://witherfighting-default-rtdb.europe-west1.firebasedatabase.app',
+  projectId: 'witherfighting',
+  storageBucket: 'witherfighting.firebasestorage.app',
+  messagingSenderId: '72856332737',
+  appId: '1:72856332737:web:ca8a1b780e0a55b1086740'
+};
 const WF_SCORE_COLLECTION = 'witherfight_scores';
-const WF_RTDB_URL = 'https://witherfighting-default-rtdb.europe-west1.firebasedatabase.app';
+const WF_RTDB_URL = firebaseConfig.databaseURL;
 let wfDb = null;
 let wfCloudReady = true;
 </script>
@@ -754,7 +763,7 @@ async function getCloudScores(){
   if(!wfCloudReady||!WF_RTDB_URL) throw new Error('cloud offline');
   const url=WF_RTDB_URL.replace(/\/$/,'')+'/'+WF_SCORE_COLLECTION+'.json';
   const res=await fetch(url,{method:'GET',cache:'no-store'});
-  if(!res.ok) throw new Error('cloud read failed');
+  if(!res.ok) throw new Error('cloud read failed: HTTP '+res.status);
   const data=await res.json();
   const rows=Object.values(data||{}).filter(Boolean).map(r=>({
     name:String(r.name||'???').slice(0,12),
@@ -779,7 +788,7 @@ async function addCloudScore(row){
     createdAt:Date.now()
   };
   const res=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(clean)});
-  if(!res.ok) throw new Error('cloud write failed');
+  if(!res.ok) throw new Error('cloud write failed: HTTP '+res.status);
   return await res.json();
 }
 function hideAllGameScreens(){
@@ -847,8 +856,9 @@ function showHiScores(){
   const localScores=getScores().sort((a,b)=>b.score-a.score).slice(0,10);
   renderScores(localScores,false);
   getCloudScores().then(scores=>{
-    if(scores&&scores.length)renderScores(scores,true);
-  }).catch(()=>{
+    renderScores(scores||[],true);
+  }).catch(err=>{
+    console.warn('Realtime DB score read failed',err);
     renderScores(localScores,false);
   });
 }
