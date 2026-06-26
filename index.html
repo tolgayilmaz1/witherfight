@@ -448,11 +448,11 @@ const EN={
 
 Object.assign(TR,{
   settingsBtn:'⚙ AYARLAR',settingsTitle:'⚙ AYARLAR',settingsInfo:'Dil seçimini buradan yapabilirsin.',adminOpen:'🔐 ADMIN PANEL GİRİŞ',adminLoginInfo:'Admin panel için şifre gir.',languageTitle:'🌍 DİL',languageInfo:'Oyunun menü ve yazı dilini seç.',adminTitle:'ADMIN PANEL',adminInfo:'High score listesini temizleyebilirsin.',setPass:'ŞİFRE',setLogin:'GİRİŞ',clearScores:'🗑 HI-SCORE TEMİZLE',wrongPass:'❌ Şifre yanlış',clearDone:'✓ High score listesi temizlendi',ctrlSelH:'🎮 KONTROL SEÇ',ctrlSelGo:'▶ DEVAM',
-  ultiNotReady:'⏳ Ulti hazır değil!',diamondArmor:'💎 ELMAS ZIRH!',tornadoDash:'⚡ KASIRGA KOŞUSU!',spiderPunch:'🕷️ SPİDER YUMRUK!',blackHole:'🌀 KARA DELİK!',lightningStorm:'⚡ ŞİMŞEK FIRTINASI!',barisTentacle:'🔥 DOKUNAÇ ALEV VURUŞU!',rocketEmpty:'🚀 Roket mermisi bitti!',mikailReturn:'💚 Mikail geri döndü!',shield3:'💎 3sn Koruma!',speed4:'⚡ 4sn Hız Boost!',bulletsCleared:'⚡ Mermiler temizlendi!',beamPlus:'⚡ Işın mermisi +1!',slapPlus:'👋 Şaplak hakkı +1!',gameMenuTitle:'⏸ OYUN DURDU',gameMenuResume:'▶ DEVAM ET',gameMenuSound:'🔊 SES AÇ/KAPAT',gameMenuLang:'🌍 DİL SEÇ',gameMenuExit:'↩ ANA MENÜYE DÖN'
+  ultiNotReady:'⏳ Ulti hazır değil!',diamondArmor:'💎 ELMAS ZIRH!',tornadoDash:'⚡ KASIRGA KOŞUSU!',spiderPunch:'🕷️ SPİDER YUMRUK!',blackHole:'🌀 KARA DELİK!',lightningStorm:'⚡ ŞİMŞEK FIRTINASI!',barisTentacle:'🔥 DOKUNAÇ ALEV VURUŞU!',rocketEmpty:'🚀 Roket mermisi bitti!',clawEmpty:'🦾 Pençe mermisi bitti!',mikailReturn:'💚 Mikail geri döndü!',shield3:'💎 3sn Koruma!',speed4:'⚡ 4sn Hız Boost!',bulletsCleared:'⚡ Mermiler temizlendi!',beamPlus:'⚡ Işın mermisi +1!',slapPlus:'👋 Şaplak hakkı +1!',gameMenuTitle:'⏸ OYUN DURDU',gameMenuResume:'▶ DEVAM ET',gameMenuSound:'🔊 SES AÇ/KAPAT',gameMenuLang:'🌍 DİL SEÇ',gameMenuExit:'↩ ANA MENÜYE DÖN'
 });
 Object.assign(EN,{
   settingsBtn:'⚙ SETTINGS',settingsTitle:'⚙ SETTINGS',settingsInfo:'Choose language here. Admin panel is separate below.',adminOpen:'🔐 ADMIN PANEL LOGIN',adminLoginInfo:'Enter password for admin panel.',languageTitle:'🌍 LANGUAGE',languageInfo:'Choose the game menu and text language.',adminTitle:'ADMIN PANEL',adminInfo:'You can clear the high score list.',setPass:'PASSWORD',setLogin:'LOGIN',clearScores:'🗑 CLEAR HI-SCORES',wrongPass:'❌ Wrong password',clearDone:'✓ High score list cleared',ctrlSelH:'🎮 SELECT CONTROL',ctrlSelGo:'▶ CONTINUE',
-  ultiNotReady:'⏳ Ulti not ready!',diamondArmor:'💎 DIAMOND ARMOR!',tornadoDash:'⚡ TORNADO DASH!',spiderPunch:'🕷️ SPIDER PUNCH!',blackHole:'🌀 BLACK HOLE!',lightningStorm:'⚡ LIGHTNING STORM!',barisTentacle:'🔥 TENTACLE FLAME SLAM!',rocketEmpty:'🚀 No rockets left!',mikailReturn:'💚 Mikail returned!',shield3:'💎 3s Shield!',speed4:'⚡ 4s Speed Boost!',bulletsCleared:'⚡ Bullets cleared!',beamPlus:'⚡ Beam ammo +1!',slapPlus:'👋 Slap charge +1!',gameMenuTitle:'⏸ PAUSED',gameMenuResume:'▶ RESUME',gameMenuSound:'🔊 SOUND ON/OFF',gameMenuLang:'🌍 LANGUAGE',gameMenuExit:'↩ BACK TO MAIN MENU'
+  ultiNotReady:'⏳ Ulti not ready!',diamondArmor:'💎 DIAMOND ARMOR!',tornadoDash:'⚡ TORNADO DASH!',spiderPunch:'🕷️ SPIDER PUNCH!',blackHole:'🌀 BLACK HOLE!',lightningStorm:'⚡ LIGHTNING STORM!',barisTentacle:'🔥 TENTACLE FLAME SLAM!',rocketEmpty:'🚀 No rockets left!',clawEmpty:'🦾 No claws left!',mikailReturn:'💚 Mikail returned!',shield3:'💎 3s Shield!',speed4:'⚡ 4s Speed Boost!',bulletsCleared:'⚡ Bullets cleared!',beamPlus:'⚡ Beam ammo +1!',slapPlus:'👋 Slap charge +1!',gameMenuTitle:'⏸ PAUSED',gameMenuResume:'▶ RESUME',gameMenuSound:'🔊 SOUND ON/OFF',gameMenuLang:'🌍 LANGUAGE',gameMenuExit:'↩ BACK TO MAIN MENU'
 });
 const LANG_LABELS={tr:'🇹🇷 Türkçe',en:'🇬🇧 English',ar:'🇸🇦 العربية',ru:'🇷🇺 Русский',fr:'🇫🇷 Français',es:'🇪🇸 Español',de:'🇩🇪 Deutsch',it:'🇮🇹 Italiano',pt:'🇵🇹 Português',ja:'🇯🇵 日本語',zh:'🇨🇳 中文',ko:'🇰🇷 한국어'};
 function makeLang(o){return Object.assign({},EN,o,{controls:o.controls||EN.controls});}
@@ -474,8 +474,8 @@ LANG_PACKS.ko=makeLang({ctrlH:'🎮 플레이 방법',ctrlGo:'▶ 플레이',tip
 // ── FULL IN-GAME LOCALIZATION PATCH ─────────────────────
 const WF_I18N_EXTRA={
   tr:{
-    weaponNames:{fireball:'Ateş Topu',ice:'Buz Topu',lava:'Lav Topu',rocket:'Roket',saw:'Testere',water:'Su Damlası',thunder:'Şimşek Topu',void:'Void Küresi',slime:'Slime Bomb',nether:'Cehennem Alevi'},
-    bonusNames:{fireball:'Ateş Topu',ice:'Buz Topu',lava:'Lav Topu',rocket:'Roket',saw:'Testere',water:'Su Damlası',thunder:'Şimşek',void:'Void',slime:'Slime',nether:'Cehennem',shield:'Kalkan',heart:'Can +1',beam_ammo:'Işın +1',slap_ammo:'Şaplak +1',speed_boost:'Hız Boost'},
+    weaponNames:{fireball:'Ateş Topu',ice:'Buz Topu',lava:'Lav Topu',rocket:'Roket',claw:'Pençe',saw:'Testere',water:'Su Damlası',thunder:'Şimşek Topu',void:'Void Küresi',slime:'Slime Bomb',nether:'Cehennem Alevi'},
+    bonusNames:{fireball:'Ateş Topu',ice:'Buz Topu',lava:'Lav Topu',rocket:'Roket',claw:'Pençe',saw:'Testere',water:'Su Damlası',thunder:'Şimşek',void:'Void',slime:'Slime',nether:'Cehennem',shield:'Kalkan',heart:'Can +1',beam_ammo:'Işın +1',slap_ammo:'Şaplak +1',speed_boost:'Hız Boost'},
     bossNames:['Mavi Çiçek Canavarı','Kızıl Örümcek','Yeşil Kanat','Ender Hükümdar','Şeytan Kral','Void Tanrısı','Fırtına Ruhu','Demir Kolossus','Ejderha Ruhu','Kıyamet Tanrısı','CIREX'],
     ultiNames:{0:'💎 Elmas Zırh',1:'⚡ Kasırga Koşusu',2:'🕷️ Spider Yumruk',3:'🌀 Kara Delik',4:'⚡ Şimşek Fırtınası',5:'🔥 Dokunaç Alev Vuruşu'},
     levelBonusDesc:{2:'+2 Can, Ateş Hızı %20↑',3:'+2 Can, Ateş Hızı %40↑, Ulti 2x Güçlü'},
@@ -483,8 +483,8 @@ const WF_I18N_EXTRA={
     weaponPicked:(icon,name,multi)=>icon+' '+name+(multi||'')+' alındı!',weaponUpgrade:(icon,name,x)=>icon+' '+name+' ateş hızı '+x+'x artırıldı!',shieldActive:'🛡 Kalkan aktif!',heartPlus:'❤ Can +1',levelUp:(lv,desc)=>'⭐ LEVEL '+lv+'! '+desc
   },
   en:{
-    weaponNames:{fireball:'Fireball',ice:'Ice Ball',lava:'Lava Ball',rocket:'Rocket',saw:'Saw Blade',water:'Water Drop',thunder:'Lightning Ball',void:'Void Orb',slime:'Slime Bomb',nether:'Nether Flame'},
-    bonusNames:{fireball:'Fireball',ice:'Ice Ball',lava:'Lava Ball',rocket:'Rocket',saw:'Saw Blade',water:'Water Drop',thunder:'Lightning',void:'Void',slime:'Slime',nether:'Nether',shield:'Shield',heart:'Health +1',beam_ammo:'Beam +1',slap_ammo:'Slap +1',speed_boost:'Speed Boost'},
+    weaponNames:{fireball:'Fireball',ice:'Ice Ball',lava:'Lava Ball',rocket:'Rocket',claw:'Claw',saw:'Saw Blade',water:'Water Drop',thunder:'Lightning Ball',void:'Void Orb',slime:'Slime Bomb',nether:'Nether Flame'},
+    bonusNames:{fireball:'Fireball',ice:'Ice Ball',lava:'Lava Ball',rocket:'Rocket',claw:'Claw',saw:'Saw Blade',water:'Water Drop',thunder:'Lightning',void:'Void',slime:'Slime',nether:'Nether',shield:'Shield',heart:'Health +1',beam_ammo:'Beam +1',slap_ammo:'Slap +1',speed_boost:'Speed Boost'},
     bossNames:['Blue Flower Monster','Red Spider','Green Wing','Ender Ruler','Demon King','Void God','Storm Spirit','Iron Colossus','Dragon Spirit','Doom God','CIREX'],
     ultiNames:{0:'💎 Diamond Armor',1:'⚡ Tornado Dash',2:'🕷️ Spider Punch',3:'🌀 Black Hole',4:'⚡ Lightning Storm',5:'🔥 Tentacle Flame Slam'},
     levelBonusDesc:{2:'+2 HP, Fire Rate +20%',3:'+2 HP, Fire Rate +40%, Ulti 2x Power'},
@@ -1044,6 +1044,7 @@ const WEAPONS_BASE={
   ice:     {name:'Buz Topu',      damage:60, cooldown:1100,speed:10,r:10,color:'#8df',wc:'#adf',icon:'❄️'},
   lava:    {name:'Lav Topu',      damage:80, cooldown:1300,speed:9, r:12,color:'#f40',wc:'#f60',icon:'🌋'},
   rocket:  {name:'Roket',         damage:120,cooldown:200, speed:7, r:8, color:'#888',wc:'#aaa',icon:'🚀'},
+  claw:    {name:'Pençe',         damage:95, cooldown:260, speed:8.5,r:9, color:'#b35cff',wc:'#e6b3ff',icon:'🦾'},
   saw:     {name:'Testere',       damage:35, cooldown:280, speed:12,r:10,color:'#ccc',wc:'#eee',icon:'⚙️'},
   water:   {name:'Su Damlası',    damage:25, cooldown:220, speed:14,r:8, color:'#08f',wc:'#4af',icon:'💧'},
   thunder: {name:'Şimşek Topu',   damage:100,cooldown:1500,speed:15,r:11,color:'#ff0',wc:'#ffd',icon:'⚡'},
@@ -1059,6 +1060,13 @@ function getWeaponCooldown(wk){
   const mult=weaponUpgrades[wk]?.multiplier||1.0;
   return Math.max(base*mult, 80); // minimum 80ms
 }
+function getWeaponShotCount(wk){
+  const pc=weaponUpgrades[wk]?.pickCount||0;
+  return Math.min(Math.max(pc+1,1),3); // 2. alış=2, 3. alış=3
+}
+function isPlayerUltiProtected(){
+  return !!(player&& !player.dead && (ultiActive||player._spiderUlti||player._jessieUlti||player._hurryUlti||player._ariaUlti||player._zephyrUlti||player._barisUlti));
+}
 
 // ── BOSS DEFS ────────────────────────────────────────
 const BOSS_DEFS=[
@@ -1072,7 +1080,7 @@ const BOSS_DEFS=[
   {id:7,name:'Demir Kolossus', color1:'#2a2a2a',color2:'#3a3a3a',eyeColor:'#ff4400',heads:3,hpMul:2.5,spdMul:1.0,fireMul:1.6,shape:'iron',   moveMode:'pendulum', bgTheme:7},
   {id:8,name:'Ejderha Ruhu',   color1:'#1a0a00',color2:'#2d1500',eyeColor:'#ff8800',heads:5,hpMul:2.8,spdMul:2.0,fireMul:1.7,shape:'dragon', moveMode:'random',   bgTheme:8},
   {id:9,name:'Kıyamet Tanrısı',color1:'#100010',color2:'#200020',eyeColor:'#ffffff',heads:6,hpMul:3.2,spdMul:2.2,fireMul:2.0,shape:'chaos',  moveMode:'chaos',    bgTheme:9},
-  {id:10,name:'CIREX',color1:'#f2d230',color2:'#0b3f45',eyeColor:'#ff5522',heads:1,hpMul:3.7,spdMul:2.0,fireMul:2.2,shape:'cirex',moveMode:'random',bgTheme:10},
+  {id:10,name:"Kaptan Barış'ın Gemisi",color1:'#f2d230',color2:'#0b3f45',eyeColor:'#ff5522',heads:1,hpMul:3.7,spdMul:2.0,fireMul:2.2,shape:'cirex',moveMode:'random',bgTheme:10},
 ];
 
 const BG_THEMES=[
@@ -1086,7 +1094,7 @@ const BG_THEMES=[
   {sky:['#111','#1a1a1a','#0d0d0d'],   gnd:'#1a1a1a',gnd2:'#222',  fx:'metal'},
   {sky:['#1a0800','#0d0400','#2d1000'],gnd:'#1a0800',gnd2:'#2d1000',fx:'volcano'},
   {sky:['#6688cc','#4466aa','#335588'],gnd:'#228822',gnd2:'#33aa33',fx:'school'},
-  {sky:['#140016','#26052c','#05060e'],gnd:'#201000',gnd2:'#4a2c00',fx:'embers'},
+  {sky:['#06224a','#0b4f7a','#0a1630'],gnd:'#3b2616',gnd2:'#6b4422',fx:'captain_ship'},
 ];
 
 const ENDINGS=[
@@ -1121,7 +1129,7 @@ let selectedChar=null;
 const BONUS_POOL=[
   {type:'weapon',weapon:'fireball',label:'Ateş Topu',cum:0},{type:'weapon',weapon:'ice',label:'Buz Topu',cum:0},
   {type:'weapon',weapon:'lava',label:'Lav Topu',cum:0},{type:'weapon',weapon:'rocket',label:'Roket',cum:0},
-  {type:'weapon',weapon:'saw',label:'Testere',cum:0},{type:'weapon',weapon:'water',label:'Su Dam.',cum:0},
+  {type:'weapon',weapon:'claw',label:'Pençe',cum:0},{type:'weapon',weapon:'saw',label:'Testere',cum:0},{type:'weapon',weapon:'water',label:'Su Dam.',cum:0},
   {type:'weapon',weapon:'thunder',label:'Şimşek',cum:0},{type:'weapon',weapon:'void',label:'Void',cum:0},
   {type:'weapon',weapon:'slime',label:'Slime',cum:0},{type:'weapon',weapon:'nether',label:'Cehennem',cum:0},
   {type:'beam_ammo',label:'⚡Işın Merm.',cum:0},
@@ -1129,7 +1137,7 @@ const BONUS_POOL=[
   {type:'shield',label:'Kalkan',cum:0},{type:'heart',label:'Can +1',cum:0},
   {type:'speed_boost',label:'⚡Hız Boost',cum:0},
 ];
-(function(){const r=[0.08,0.07,0.06,0.05,0.07,0.07,0.05,0.05,0.06,0.04,0.1,0.06,0.09,0.08,0.07];let a=0;BONUS_POOL.forEach((b,i)=>{a+=r[i];b.cum=a;});})();
+(function(){const r=[0.075,0.065,0.055,0.045,0.055,0.065,0.065,0.045,0.045,0.055,0.035,0.095,0.055,0.085,0.075,0.07];let a=0;BONUS_POOL.forEach((b,i)=>{a+=r[i];b.cum=a;});})();
 function pickBonus(){const r=Math.random();for(const b of BONUS_POOL)if(r<b.cum)return b;return BONUS_POOL[0];}
 
 // ── CHAR DRAW ────────────────────────────────────────
@@ -1187,6 +1195,7 @@ function drawWH(c,x,y,wk,sc=1,fR=true){
   else if(wk==='ice'){c.fillStyle='#8df';c.beginPath();c.arc(0,0,6,0,Math.PI*2);c.fill();c.strokeStyle='#fff';c.lineWidth=1;for(let a=0;a<Math.PI;a+=Math.PI/3){c.beginPath();c.moveTo(Math.cos(a)*5,Math.sin(a)*5);c.lineTo(-Math.cos(a)*5,-Math.sin(a)*5);c.stroke();}}
   else if(wk==='lava'){const g=c.createRadialGradient(0,0,1,0,0,8);g.addColorStop(0,'#fff');g.addColorStop(0.5,'#f60');g.addColorStop(1,'#800');c.fillStyle=g;c.beginPath();c.arc(0,0,8,0,Math.PI*2);c.fill();}
   else if(wk==='rocket'){c.fillStyle='#888';c.fillRect(-3,-12,6,16);c.fillStyle='#c30';c.fillRect(-3,-12,6,4);c.fillStyle='#fa0';c.beginPath();c.arc(0,6,4,0,Math.PI*2);c.fill();}
+  else if(wk==='claw'){c.strokeStyle='#e6b3ff';c.lineWidth=3;c.lineCap='round';for(let i=-1;i<=1;i++){c.beginPath();c.moveTo(i*4,5);c.quadraticCurveTo(i*8,-4,i*4,-13);c.stroke();}c.fillStyle='#7b2cff';c.beginPath();c.arc(0,7,5,0,Math.PI*2);c.fill();}
   else if(wk==='saw'){c.rotate(Date.now()*0.012);c.fillStyle='#ccc';for(let i=0;i<8;i++){c.save();c.rotate(i*Math.PI/4);c.beginPath();c.moveTo(0,-4);c.lineTo(3,-9);c.lineTo(4,-4);c.closePath();c.fill();c.restore();}c.fillStyle='#666';c.beginPath();c.arc(0,0,4,0,Math.PI*2);c.fill();}
   else if(wk==='water'){c.fillStyle='#08f';c.beginPath();c.ellipse(0,0,5,7,0,0,Math.PI*2);c.fill();}
   else if(wk==='thunder'){c.fillStyle='#ff0';c.beginPath();c.arc(0,0,7,0,Math.PI*2);c.fill();c.strokeStyle='#fff';c.lineWidth=1.5;c.beginPath();c.moveTo(-3,-7);c.lineTo(2,0);c.lineTo(-2,0);c.lineTo(3,7);c.stroke();}
@@ -1261,11 +1270,13 @@ function updateSpecialBtns(){
   document.getElementById('bBeam').textContent='⚡×'+beamAmmo;
   document.getElementById('bSlap').textContent='👋×'+slapAmmo;
   // Roket ammo HUD'da göster
-  if(player&&player.weapon==='rocket'){
+  if(player&&(player.weapon==='rocket'||player.weapon==='claw')){
     const sw=document.getElementById('bSw');
     const sw2=document.getElementById('bSw2');
-    if(sw)sw.querySelector('span').textContent='🚀×'+rocketAmmo;
-    if(sw2)sw2.querySelector('span').textContent='🚀×'+rocketAmmo;
+    const icon=player.weapon==='rocket'?'🚀':'🦾';
+    const ammo=player.weapon==='rocket'?rocketAmmo:clawAmmo;
+    if(sw)sw.querySelector('span').textContent=icon+'×'+ammo;
+    if(sw2)sw2.querySelector('span').textContent=icon+'×'+ammo;
   }else{document.querySelectorAll('#bSw span,#bSw2 span').forEach(el=>el.textContent=txt('nextShort'));}
   const ud=getUltiDef();
   const ultiBtn=document.getElementById('bUlti');
@@ -1353,7 +1364,7 @@ let wpTimer=0,wpMsg='';
 let inventory=[];
 let walkT=0,faceR=true;
 let beamActive=false,beamTimer=0,beamCooldown=0,beamAmmo=0;
-let slapAmmo=0,slapAnim=null,rocketAmmo=0;
+let slapAmmo=0,slapAnim=null,rocketAmmo=0,clawAmmo=0;
 let speedBoostTimer=0,speedBoostActive=false;
 let gameScore=0,gameTime=0,levelStartTime=0;
 let lightningFlash=0,lightningTimer=0;
@@ -1377,7 +1388,7 @@ function initLevel(lvl){
   const bw=Math.min(W*0.40,240); const bh=bw*0.64;
   boss={x:W/2-bw/2,y:(W<700?H*0.14:H*0.06),w:bw,h:bh,dx:2*bdef.spdMul,dy:0,hp:Math.floor(1500*bdef.hpMul),maxHp:Math.floor(1500*bdef.hpMul),def:bdef,animT:0,specialTimer:0,alive:true,moveMode:bdef.moveMode,_tx:null,_ty:null,slapShake:0};
   player={x:W/2-20,y:H*0.82,w:40,h:70,speed:4,hp:5,maxHp:5,char:selectedChar,invincible:0,shield:false,weapon:'fireball',weaponIdx:0,dead:false,deathTimer:0};
-  inventory=['fireball'];beamAmmo=0;slapAmmo=0;rocketAmmo=0;speedBoostActive=false;speedBoostTimer=0;
+  inventory=['fireball'];beamAmmo=0;slapAmmo=0;rocketAmmo=0;clawAmmo=0;speedBoostActive=false;speedBoostTimer=0;
   if(lvl===0){playerLevel=1;playerXP=0;}// Yeni oyunda sıfırla, bölümler arası korunur
   ultiCooldown=0;ultiActive=false;ultiTimer=0;
   // Silah upgrade sıfırla
@@ -1463,34 +1474,32 @@ function tryFire(){
   if(now-lastFireTime<cd)return;
   lastFireTime=now;playFire(player.weapon);
   const wd=WEAPONS_BASE[player.weapon]||WEAPONS_BASE.fireball;
-  if(player.weapon==='rocket'){
-    if(rocketAmmo<=0){
-      switchWeapon();
-      showPopup(txt('rocketEmpty'));
-      return;
+
+  if(player.weapon==='rocket'||player.weapon==='claw'){
+    const ammoKey=player.weapon==='rocket'?'rocket':'claw';
+    if(player.weapon==='rocket'){
+      if(rocketAmmo<=0){switchWeapon();showPopup(txt('rocketEmpty'));return;}
+      rocketAmmo--;
+    }else{
+      if(clawAmmo<=0){switchWeapon();showPopup(txt('clawEmpty'));return;}
+      clawAmmo--;
     }
-    rocketAmmo--;updateSpecialBtns();
-    projectiles.push({x:player.x+player.w/2,y:player.y+10,vx:0,vy:-wd.speed,type:'rocket',owner:'player',r:wd.r,spin:0,wobble:0,homing:true,trail:[]});
+    updateSpecialBtns();
+    projectiles.push({x:player.x+player.w/2,y:player.y+10,vx:0,vy:-wd.speed,type:player.weapon,owner:'player',r:wd.r,spin:0,wobble:0,homing:true,trail:[],damageMult:1});
     return;
   }
-  // Ateş topu ve lav için çoklu ateş
-  if(player.weapon==='fireball'||player.weapon==='lava'){
-    const pc=weaponUpgrades[player.weapon]?.pickCount||0;
-    const shots=Math.min(pc+1,4); // 1. alış=1, 2.=2, 3.=3, 4.+=4
-    const spread=12; // mermi arasındaki açı (derece)
-    const cx=player.x+player.w/2;
-    for(let i=0;i<shots;i++){
-      // Ortaya göre simetrik yayılım
-      const offset=(i-(shots-1)/2)*spread;
-      const rad=offset*Math.PI/180;
-      const vx=Math.sin(rad)*wd.speed;
-      const vy=-Math.cos(rad)*wd.speed;
-      projectiles.push({x:cx,y:player.y+10,vx,vy,type:player.weapon,owner:'player',r:wd.r,spin:0,wobble:0,trail:[]});
-    }
-    return;
+
+  // Çoklu ateş: 2. alışta 2 mermi ve her mermi x2, 3. alışta 3 mermi ve her mermi x3.
+  const shots=getWeaponShotCount(player.weapon);
+  const spread=shots>1?12:0;
+  const cx=player.x+player.w/2;
+  for(let i=0;i<shots;i++){
+    const offset=(i-(shots-1)/2)*spread;
+    const rad=offset*Math.PI/180;
+    const vx=Math.sin(rad)*wd.speed;
+    const vy=-Math.cos(rad)*wd.speed;
+    projectiles.push({x:cx,y:player.y+10,vx,vy,type:player.weapon,owner:'player',r:wd.r,spin:0,wobble:0,trail:[],damageMult:shots});
   }
-  // Diğer silahlar — tek mermi
-  projectiles.push({x:player.x+player.w/2,y:player.y+10,vx:0,vy:-wd.speed,type:player.weapon,owner:'player',r:wd.r,spin:0,wobble:0,trail:[]});
 }
 function activateBeam(){if(gameOver||victory||paused||player.dead)return;if(beamCooldown>0||beamActive||beamAmmo<=0){if(beamAmmo<=0)showPopup(L().noBeam);return;}beamAmmo--;beamActive=true;beamTimer=BEAM_DUR;playBeamSound();updateSpecialBtns();}
 function activateSlap(){
@@ -1501,7 +1510,7 @@ function activateSlap(){
   // Şaplak animasyonu başlat
   slapAnim={phase:'approach',t:0,duration:600,lx:player.x+player.w/2-60,rx:player.x+player.w/2+60,ly:player.y,ry:player.y,scale:1,done:false};
 }
-function switchWeapon(){if(inventory.length<=1)return;player.weaponIdx=(player.weaponIdx+1)%inventory.length;player.weapon=inventory[player.weaponIdx];const wd=WEAPONS_BASE[player.weapon];showPopup((wd?.icon||'🔫')+' '+weaponName(player.weapon));beep(440,0.08,'sine',0.13);}
+function switchWeapon(){if(inventory.length<=1)return;player.weaponIdx=(player.weaponIdx+1)%inventory.length;player.weapon=inventory[player.weaponIdx];const wd=WEAPONS_BASE[player.weapon];showPopup((wd?.icon||'🔫')+' '+weaponName(player.weapon));updateSpecialBtns();beep(440,0.08,'sine',0.13);}
 function showPopup(msg){wpMsg=msg;wpTimer=1800;}
 function clampPlayerToArena(){
   if(!player)return;
@@ -1529,7 +1538,7 @@ function update(dt){
 
   // Move
   let mv=false;
-  const inAnyUlti=player._spiderUlti||player._jessieUlti||player._hurryUlti;
+  const inAnyUlti=isPlayerUltiProtected();
   if(inAnyUlti){walkT+=dt*0.012;}else{
   const spd=speedBoostActive?player.speed*1.8:player.speed;
   if(Math.abs(jDX)>0.1){player.x=Math.max(0,Math.min(W-player.w,player.x+jDX*spd*(dt/16)*1.0));mv=true;faceR=jDX>0;}
@@ -1551,7 +1560,7 @@ function update(dt){
   // Beam
   if(beamActive){
     beamTimer-=dt;if(beamTimer<=0){beamActive=false;beamCooldown=BEAM_CD;}
-    if(boss.alive){boss.hp=Math.max(0,boss.hp-8*(dt/16));gameScore+=8*(dt/16)*0.5;addXP(1);if(Math.random()<0.15)burst(boss.x+Math.random()*boss.w,boss.y+boss.h/2,'#0ff',3);if(boss.hp<=0){boss.alive=false;startVictory();}}
+    if(boss.alive){const beamDmg=16*(dt/16);boss.hp=Math.max(0,boss.hp-beamDmg);gameScore+=beamDmg*0.5;addXP(1);if(Math.random()<0.15)burst(boss.x+Math.random()*boss.w,boss.y+boss.h/2,'#0ff',3);if(boss.hp<=0){boss.alive=false;startVictory();}}
   }
   if(beamCooldown>0)beamCooldown-=dt;
 
@@ -1565,7 +1574,7 @@ function update(dt){
   if(player._ariaUlti){updateAriaUlti(dt);}
   if(player._zephyrUlti){updateZephyrUlti(dt);}
   if(player._barisUlti){updateBarisUlti(dt);}
-  if(!player._spiderUlti&&!player._jessieUlti&&!player._hurryUlti&&!player._barisUlti)clampPlayerToArena();
+  if(!isPlayerUltiProtected())clampPlayerToArena();
 
   // Boss
   updateBossMove(dt);boss.animT+=dt*0.003;
@@ -1605,7 +1614,7 @@ function update(dt){
     if(p.homing&&boss.alive){
       const tx=boss.x+boss.w/2,ty=boss.y+boss.h/2;
       const ang=Math.atan2(ty-p.y,tx-p.x);
-      const spd2=WEAPONS_BASE.rocket.speed;
+      const spd2=(WEAPONS_BASE[p.type]||WEAPONS_BASE.rocket).speed;
       p.vx+=(Math.cos(ang)*spd2-p.vx)*0.08;p.vy+=(Math.sin(ang)*spd2-p.vy)*0.08;
       // Duman izi
       if(!p.trail)p.trail=[];p.trail.push({x:p.x,y:p.y,life:20,maxLife:20});
@@ -1617,12 +1626,13 @@ function update(dt){
     if(p.owner==='player'){
       for(let b of blocks){if(b.hp>0&&p.x>b.x&&p.x<b.x+b.w&&p.y>b.y&&p.y<b.y+b.h){b.hp--;burst(p.x,p.y,'#aaa',6);return false;}}
       if(boss.alive&&p.x>boss.x&&p.x<boss.x+boss.w&&p.y>boss.y&&p.y<boss.y+boss.h){
-        const wd=WEAPONS_BASE[p.type]||WEAPONS_BASE.fireball;boss.hp=Math.max(0,boss.hp-wd.damage);gameScore+=wd.damage;addXP(Math.ceil(wd.damage/8));burst(p.x,p.y,boss.def.eyeColor,10);playHit();
+        const wd=WEAPONS_BASE[p.type]||WEAPONS_BASE.fireball;const dmg=wd.damage*2*(p.damageMult||1);boss.hp=Math.max(0,boss.hp-dmg);gameScore+=dmg;addXP(Math.ceil(dmg/8));burst(p.x,p.y,boss.def.eyeColor,10);playHit();
         if(boss.hp<=0){boss.alive=false;startVictory();}return false;
       }
     }else{
       let hb=false;for(let b of blocks){if(b.hp>0&&p.x>b.x&&p.x<b.x+b.w&&p.y>b.y&&p.y<b.y+b.h){b.hp--;burst(p.x,p.y,'#aaa',5);hb=true;break;}}
       if(hb)return false;
+      if(isPlayerUltiProtected()&&p.x>player.x-8&&p.x<player.x+player.w+8&&p.y>player.y&&p.y<player.y+player.h){burst(p.x,p.y,'#ffd700',10);return false;}
       if(player.invincible<=0&&p.x>player.x-8&&p.x<player.x+player.w+8&&p.y>player.y&&p.y<player.y+player.h){
         if(player.shield){player.shield=false;burst(p.x,p.y,'#4af',16);}
         else{player.hp--;player.invincible=1400;burst(p.x,p.y,'#f22',10);playDeath();}
@@ -2061,6 +2071,10 @@ function applyBonus(b){
       rocketAmmo+=5;
       updateSpecialBtns();
     }
+    if(b.weapon==='claw'){
+      clawAmmo+=25;
+      updateSpecialBtns();
+    }
     // Silah upgrade sistemi
     if(!weaponUpgrades[b.weapon])weaponUpgrades[b.weapon]={pickCount:0,multiplier:1.0};
     weaponUpgrades[b.weapon].pickCount++;
@@ -2075,8 +2089,8 @@ function applyBonus(b){
     }
     player.weapon=b.weapon;player.weaponIdx=inventory.indexOf(b.weapon);
     const pc2=weaponUpgrades[b.weapon]?.pickCount||0;
-    const shots=Math.min(pc2+1,4);
-    const multiStr=(b.weapon==='fireball'||b.weapon==='lava')&&shots>1?' ×'+shots+'🔥':'';
+    const shots=getWeaponShotCount(b.weapon);
+    const multiStr=(!['rocket','claw'].includes(b.weapon)&&shots>1)?' ×'+shots+' DMG×'+shots:'';
     showPopup(txt('weaponPicked',WEAPONS_BASE[b.weapon]?.icon||'🔫',bonusLabel(b),multiStr));playPickup();
   }else if(b.type==='beam_ammo'){beamAmmo++;updateSpecialBtns();showPopup(txt('beamPlus'));playPickup();}
   else if(b.type==='slap_ammo'){slapAmmo++;updateSpecialBtns();showPopup(txt('slapPlus'));playPickup();}
@@ -2255,6 +2269,7 @@ function drawBgFx(){
   if(fx==='school'){drawSchool();return;}
   if(fx==='volcano'){drawVolcano();return;}
   if(fx==='storm'){drawStorm();return;}
+  if(fx==='captain_ship'){drawCaptainBarisShip();return;}
   bgParts.forEach(p=>{
     const a=(p.life/p.maxLife)*p.alpha;ctx.save();ctx.translate(p.x,p.y);ctx.rotate(p.angle);ctx.globalAlpha=Math.min(a,0.7);
     switch(fx){
@@ -2269,6 +2284,60 @@ function drawBgFx(){
     ctx.restore();
   });ctx.globalAlpha=1;
 }
+
+function drawCaptainBarisShip(){
+  const t=Date.now()*0.001;
+  // Deniz ufku ve hareketli dalgalar
+  const seaTop=H*0.23;
+  const seaGrad=ctx.createLinearGradient(0,seaTop,0,H);
+  seaGrad.addColorStop(0,'rgba(0,170,220,0.60)');
+  seaGrad.addColorStop(0.45,'rgba(0,70,150,0.88)');
+  seaGrad.addColorStop(1,'rgba(0,18,60,1)');
+  ctx.fillStyle=seaGrad;ctx.fillRect(0,seaTop,W,H-seaTop);
+  ctx.strokeStyle='rgba(180,245,255,0.42)';ctx.lineWidth=2;
+  for(let y=seaTop+18;y<H-38;y+=24){
+    ctx.beginPath();
+    for(let x=-30;x<=W+30;x+=18){
+      const yy=y+Math.sin((x*0.025)+t*2.2+y*0.03)*4;
+      if(x===-30)ctx.moveTo(x,yy);else ctx.lineTo(x,yy);
+    }
+    ctx.stroke();
+  }
+  // Uzak ay ve bulutlar
+  ctx.fillStyle='rgba(255,245,190,0.92)';ctx.beginPath();ctx.arc(W*0.82,H*0.095,Math.max(18,W*0.045),0,Math.PI*2);ctx.fill();
+  ctx.fillStyle='rgba(255,255,255,0.22)';
+  [[0.18,0.12,52,18],[0.48,0.09,70,22],[0.70,0.16,54,18]].forEach(([px,py,cw,ch])=>{ctx.beginPath();ctx.ellipse(W*px,H*py,cw,ch,0,0,Math.PI*2);ctx.fill();});
+  // Kaptan Barış'ın gemisi: boss alanının arkasında büyük gövde
+  const shipY=H*0.42+Math.sin(t*1.1)*3;
+  const shipX=W*0.50;
+  const shipW=Math.min(W*0.92,520);
+  const shipH=Math.min(H*0.22,150);
+  ctx.save();ctx.translate(shipX,shipY);
+  ctx.fillStyle='rgba(30,16,8,0.88)';
+  ctx.beginPath();ctx.moveTo(-shipW*0.48,shipH*0.05);ctx.quadraticCurveTo(-shipW*0.40,shipH*0.46,-shipW*0.22,shipH*0.56);ctx.lineTo(shipW*0.32,shipH*0.56);ctx.quadraticCurveTo(shipW*0.47,shipH*0.36,shipW*0.50,shipH*0.02);ctx.closePath();ctx.fill();
+  ctx.strokeStyle='#c18a45';ctx.lineWidth=4;ctx.stroke();
+  ctx.fillStyle='rgba(116,70,28,0.95)';ctx.fillRect(-shipW*0.42,-shipH*0.02,shipW*0.82,shipH*0.10);
+  ctx.strokeStyle='rgba(255,210,120,0.6)';ctx.lineWidth=1;for(let x=-shipW*0.38;x<shipW*0.38;x+=32){ctx.beginPath();ctx.moveTo(x,-shipH*0.02);ctx.lineTo(x+10,shipH*0.08);ctx.stroke();}
+  // Direk, yelken ve bayrak
+  ctx.strokeStyle='#5c3517';ctx.lineWidth=8;ctx.beginPath();ctx.moveTo(0,shipH*0.06);ctx.lineTo(0,-shipH*1.05);ctx.stroke();
+  ctx.fillStyle='rgba(235,235,210,0.92)';ctx.strokeStyle='rgba(255,255,255,0.8)';ctx.lineWidth=2;
+  ctx.beginPath();ctx.moveTo(8,-shipH*0.95);ctx.quadraticCurveTo(shipW*0.27,-shipH*0.66,shipW*0.14,-shipH*0.18);ctx.lineTo(8,-shipH*0.18);ctx.closePath();ctx.fill();ctx.stroke();
+  ctx.beginPath();ctx.moveTo(-8,-shipH*0.85);ctx.quadraticCurveTo(-shipW*0.20,-shipH*0.58,-shipW*0.13,-shipH*0.20);ctx.lineTo(-8,-shipH*0.20);ctx.closePath();ctx.fill();ctx.stroke();
+  ctx.fillStyle='#d71920';ctx.beginPath();ctx.moveTo(4,-shipH*1.03);ctx.lineTo(62,-shipH*0.94);ctx.lineTo(4,-shipH*0.84);ctx.closePath();ctx.fill();
+  ctx.fillStyle='rgba(255,215,80,0.98)';ctx.font='bold '+Math.max(12,W*0.034)+'px Courier New';ctx.textAlign='center';ctx.shadowColor='#000';ctx.shadowBlur=6;ctx.fillText("KAPTAN BARIŞ",0,shipH*0.24);ctx.shadowBlur=0;
+  // Pencereler
+  for(let i=-2;i<=2;i++){ctx.fillStyle='rgba(120,220,255,0.85)';ctx.beginPath();ctx.arc(i*44,shipH*0.42,10,0,Math.PI*2);ctx.fill();ctx.strokeStyle='rgba(255,255,255,0.55)';ctx.lineWidth=2;ctx.stroke();}
+  ctx.restore();
+  // Ön güverte zemini
+  const deckY=H-62;
+  ctx.fillStyle='rgba(74,44,22,0.96)';ctx.fillRect(0,deckY,W,H-deckY);
+  ctx.fillStyle='rgba(180,110,45,0.92)';ctx.fillRect(0,deckY,W,10);
+  ctx.strokeStyle='rgba(230,170,90,0.38)';ctx.lineWidth=1;for(let x=0;x<W;x+=38){ctx.beginPath();ctx.moveTo(x,deckY);ctx.lineTo(x+14,H);ctx.stroke();}
+  // Seviye etiketi
+  ctx.fillStyle='rgba(0,0,0,0.42)';ctx.beginPath();ctx.roundRect(W/2-135,Math.max(54,H*0.17),270,30,10);ctx.fill();
+  ctx.fillStyle='#ffe680';ctx.font='bold '+Math.max(11,W*0.026)+'px Courier New';ctx.textAlign='center';ctx.fillText("⚓ Kaptan Barış'ın Gemisi ⚓",W/2,Math.max(75,H*0.17+21));
+}
+
 function drawStorm(){
   ctx.strokeStyle='rgba(150,200,255,0.35)';ctx.lineWidth=1;const rt=Date.now()*0.05;for(let i=0;i<60;i++){const rx=(i*137+rt*20)%W,ry=(i*97+rt*30)%H;ctx.beginPath();ctx.moveTo(rx,ry);ctx.lineTo(rx+4,ry+14);ctx.stroke();}
   if(lightningFlash>0){const lf=lightningFlash/300;ctx.fillStyle=`rgba(220,240,255,${lf*0.25})`;ctx.fillRect(0,0,W,H);if(lightningFlash>200){ctx.strokeStyle=`rgba(255,255,255,${lf})`;ctx.lineWidth=2;ctx.shadowColor='#adf';ctx.shadowBlur=20;ctx.beginPath();let lx3=W*0.3+Math.random()*W*0.4,ly3=0;ctx.moveTo(lx3,ly3);for(let s=0;s<6;s++){lx3+=(Math.random()-0.5)*60;ly3+=H/6;ctx.lineTo(lx3,ly3);}ctx.stroke();ctx.shadowBlur=0;}}
@@ -2586,6 +2655,8 @@ function drawProj(p){
   else if(t==='rocket'){// Güdümlü roket görünümü
     const ang=Math.atan2(p.vy,p.vx);ctx.rotate(ang+Math.PI/2);ctx.fillStyle='#888';ctx.fillRect(-p.r*0.4,-p.r,p.r*0.8,p.r*2);ctx.fillStyle='#c30';ctx.fillRect(-p.r*0.4,-p.r,p.r*0.8,p.r*0.5);ctx.fillStyle='#fa0';ctx.beginPath();ctx.arc(0,p.r,p.r*0.5,0,Math.PI*2);ctx.fill();// alev
     ctx.fillStyle='rgba(255,150,0,0.7)';ctx.beginPath();ctx.arc(0,p.r*1.5,p.r*0.6,0,Math.PI*2);ctx.fill();}
+  else if(t==='claw'){// Güdümlü pençe
+    const ang=Math.atan2(p.vy,p.vx);ctx.rotate(ang+Math.PI/2);ctx.strokeStyle='#f1ccff';ctx.lineWidth=3;ctx.lineCap='round';ctx.shadowColor='#b35cff';ctx.shadowBlur=10;for(let i=-1;i<=1;i++){ctx.beginPath();ctx.moveTo(i*p.r*0.35,p.r*0.9);ctx.quadraticCurveTo(i*p.r*0.85,-p.r*0.2,i*p.r*0.35,-p.r*1.35);ctx.stroke();}ctx.shadowBlur=0;ctx.fillStyle='#7b2cff';ctx.beginPath();ctx.arc(0,p.r*0.95,p.r*0.55,0,Math.PI*2);ctx.fill();}
   else if(t==='saw'){ctx.rotate(p.spin*5);ctx.fillStyle='#ccc';for(let i=0;i<8;i++){ctx.save();ctx.rotate(i*Math.PI/4);ctx.beginPath();ctx.moveTo(0,-p.r*0.5);ctx.lineTo(p.r*0.4,-p.r);ctx.lineTo(p.r*0.5,-p.r*0.5);ctx.closePath();ctx.fill();ctx.restore();}ctx.fillStyle='#888';ctx.beginPath();ctx.arc(0,0,p.r*0.5,0,Math.PI*2);ctx.fill();}
   else if(t==='water'){ctx.fillStyle='#08f';ctx.beginPath();ctx.ellipse(0,Math.sin(p.wobble||0)*3,p.r*0.8,p.r,0,0,Math.PI*2);ctx.fill();}
   else if(t==='thunder'){ctx.fillStyle='#ff0';ctx.beginPath();ctx.arc(0,0,p.r,0,Math.PI*2);ctx.fill();ctx.strokeStyle='#fff';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(-4,-p.r+2);ctx.lineTo(2,0);ctx.lineTo(-3,0);ctx.lineTo(4,p.r-2);ctx.stroke();}
@@ -2651,7 +2722,8 @@ function drawHUD(){
   // Silah bilgisi
   const wd=WEAPONS_BASE[player.weapon]||WEAPONS_BASE.fireball;
   const upg=weaponUpgrades[player.weapon];
-  const multStr=upg&&upg.multiplier<1?(1/upg.multiplier).toFixed(1)+'x':'';
+  const dmgShots=getWeaponShotCount(player.weapon);
+  const multStr=dmgShots>1?'DMG×'+dmgShots:(upg&&upg.multiplier<1?(1/upg.multiplier).toFixed(1)+'x':'');
   ctx.fillStyle=wd.wc||'#fa0';ctx.font=`bold ${isMob?11:7*sc}px Courier New`;
   ctx.fillText((wd.icon||'')+' '+weaponName(player.weapon)+(multStr?' ⚡'+multStr:''),bx+34*sc,by+35*sc);
 
@@ -2680,7 +2752,7 @@ function drawHUD(){
     const up=weaponUpgrades[w];
     ctx.fillStyle=active?(iw.wc||'#fa0'):'rgba(40,40,40,0.7)';
     ctx.fillRect(bx+34*sc+i*16*sc,by+73*sc,14*sc,8*sc);
-    if(up&&up.multiplier<1){ctx.fillStyle='#0f8';ctx.fillRect(bx+34*sc+i*16*sc,by+71*sc,3*sc,3*sc);}
+    if((up&&up.multiplier<1)||getWeaponShotCount(w)>1){ctx.fillStyle='#0f8';ctx.fillRect(bx+34*sc+i*16*sc,by+71*sc,3*sc,3*sc);}
     ctx.fillStyle=active?'#000':'rgba(150,150,150,0.9)';
     ctx.font=`${5*sc}px Courier New`;ctx.textAlign='center';
     ctx.fillText(iw.icon||weaponName(w).slice(0,2),bx+41*sc+i*16*sc,by+80*sc);
