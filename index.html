@@ -771,27 +771,31 @@ function findCharFromScore(s){
 }
 const SCORE_ICON_CACHE={};
 function getScoreCharIcon(ch){
-  if(!ch)return '';
-  if(SCORE_ICON_CACHE[ch.id])return SCORE_ICON_CACHE[ch.id];
+  const cacheKey=ch?('c'+ch.id):'unknown';
+  if(SCORE_ICON_CACHE[cacheKey])return SCORE_ICON_CACHE[cacheKey];
   const cv=document.createElement('canvas');cv.width=30;cv.height=30;
   const c=cv.getContext('2d');
   c.fillStyle='rgba(20,20,30,0.85)';c.beginPath();c.arc(15,15,14,0,Math.PI*2);c.fill();
   c.strokeStyle='rgba(255,255,255,0.18)';c.lineWidth=1.4;c.beginPath();c.arc(15,15,14,0,Math.PI*2);c.stroke();
   c.save();c.beginPath();c.arc(15,15,13,0,Math.PI*2);c.clip();
-  const sc=ch.id===5?0.46:0.78; const y=ch.id===5?17:22;
-  drawChar(c,15,y,ch,sc,0,false);
+  if(ch){
+    const sc=ch.id===5?0.46:0.78; const y=ch.id===5?17:22;
+    drawChar(c,15,y,ch,sc,0,false);
+  }else{
+    c.fillStyle='#ffaa00';c.font='bold 19px Courier New';c.textAlign='center';c.textBaseline='middle';c.fillText('?',15,16);
+  }
   c.restore();
-  SCORE_ICON_CACHE[ch.id]=cv.toDataURL('image/png');
-  return SCORE_ICON_CACHE[ch.id];
+  SCORE_ICON_CACHE[cacheKey]=cv.toDataURL('image/png');
+  return SCORE_ICON_CACHE[cacheKey];
 }
 function getScores(){try{return JSON.parse(localStorage.getItem('wf_scores2')||'[]');}catch(e){return[];}}
 function saveScores(arr){try{localStorage.setItem('wf_scores2',JSON.stringify(arr));}catch(e){}}
 function renderScores(scores,online){
   const tag=online?'<div style="color:#00ffaa;text-align:center;font-size:9px;margin-bottom:8px;">ONLINE GLOBAL LIST</div>':'<div style="color:#ffaa00;text-align:center;font-size:9px;margin-bottom:8px;">LOCAL / OFFLINE LIST</div>';
   document.getElementById('hiList').innerHTML=scores.length?tag+scores.map((s,i)=>{
-    const ch=scoreCharName(s), chObj=findCharFromScore(s), icon=getScoreCharIcon(chObj);
-    const iconHtml=icon?`<span style="display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:50%;overflow:hidden;background:#111;margin-left:6px;margin-right:4px;vertical-align:middle;box-shadow:0 0 0 1px rgba(255,255,255,0.12) inset;"><img src="${icon}" alt="${escHtml(ch)}" style="width:18px;height:18px;display:block;image-rendering:auto;"/></span>`:'';
-    const chHtml=ch&&ch!=='???'?` <span style="color:#888;font-size:9px;white-space:nowrap;">${iconHtml}${escHtml(ch)}</span>`:'';
+    const rawCh=scoreCharName(s), chObj=findCharFromScore(s), ch=chObj?chObj.name:(rawCh&&rawCh!=='???'?rawCh:'Karakter ?'), icon=getScoreCharIcon(chObj);
+    const iconHtml=`<span style="display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:50%;overflow:hidden;background:#111;margin-left:6px;margin-right:4px;vertical-align:middle;box-shadow:0 0 0 1px rgba(255,255,255,0.12) inset;"><img src="${icon}" alt="${escHtml(ch)}" style="width:18px;height:18px;display:block;image-rendering:auto;"/></span>`;
+    const chHtml=` <span style="color:${chObj?'#aaa':'#665'};font-size:9px;white-space:nowrap;">${iconHtml}${escHtml(ch)}</span>`;
     return `<div class="hirow"><span class="rank">#${i+1}</span><span class="name">${escHtml(s.name)}${chHtml}</span><span class="sc">${Number(s.score||0).toLocaleString()}</span></div>`;
   }).join(''):'<div style="color:#444;text-align:center;padding:20px;">'+L().hiEmpty+'</div>';
 }
