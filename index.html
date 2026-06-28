@@ -140,6 +140,20 @@ canvas{display:block;}
 #goCodeErr{color:#f44;font-size:9px;margin-top:4px;min-height:12px;}
 #goCodeBtn{margin-top:8px;padding:9px 26px;background:linear-gradient(135deg,#006622,#003311);color:#0f8;border:2px solid #0f8;border-radius:8px;font-size:12px;font-family:'Courier New',monospace;letter-spacing:2px;cursor:pointer;-webkit-appearance:none;}
 #goRestartBtn{padding:12px 36px;background:linear-gradient(135deg,#880000,#440000);color:#f88;border:2px solid #f44;border-radius:10px;font-size:14px;font-family:'Courier New',monospace;letter-spacing:2px;cursor:pointer;-webkit-appearance:none;}
+
+/* BONUS CHARACTER LOCK / UNLOCK */
+.cc.locked{border-color:#665500;background:rgba(255,215,0,0.05);opacity:0.92;position:relative;overflow:hidden;}
+.cc.locked .cn{color:#ffd86a;}
+.cc.locked .cd{color:#b6a46a;}
+.cc.locked::after{content:'BONUS';position:absolute;top:4px;right:4px;background:rgba(255,215,0,0.16);border:1px solid rgba(255,215,0,0.35);color:#ffd86a;border-radius:999px;padding:1px 6px;font-size:7px;letter-spacing:1px;}
+#bonusCharInfo{color:#b793ff;font-size:10px;line-height:1.5;text-align:center;max-width:330px;margin:0 auto 10px;opacity:0.95;}
+#unlockScreen{background:radial-gradient(circle at center,#1b0935 0%,#080311 56%,#000 100%);display:none;z-index:950;padding:12px;overflow:hidden;}
+#unlockTitle{color:#ffd84d;font-size:clamp(20px,6vw,34px);letter-spacing:3px;text-shadow:0 0 24px #ffcc00,0 0 40px rgba(255,204,0,0.45);text-align:center;margin-bottom:6px;}
+#unlockSubtitle{color:#fff;font-size:clamp(12px,3.4vw,18px);line-height:1.5;text-align:center;max-width:720px;margin:0 auto 12px;white-space:pre-line;}
+#unlockCanvas{display:block;width:min(88vw,380px);height:auto;max-height:46vh;margin:0 auto 12px;border-radius:18px;border:2px solid rgba(255,215,0,0.6);box-shadow:0 0 26px rgba(255,215,0,0.22), inset 0 0 18px rgba(255,255,255,0.05);background:linear-gradient(180deg,rgba(8,18,36,0.92),rgba(6,7,14,0.96));}
+#unlockHint{color:#8ef5ff;font-size:11px;letter-spacing:1px;text-align:center;max-width:720px;line-height:1.6;margin:0 auto 12px;}
+#unlockContinue{min-width:220px;}
+
 </style>
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#7700cc">
@@ -284,6 +298,15 @@ canvas{display:block;}
   <div id="endStory"></div>
   <button class="bb2" id="endHiBtn" style="margin-bottom:6px;">🏆 SKORU KAYDET</button>
   <button class="bb2" id="endAgain">↩ YENİDEN OYNA</button>
+</div>
+
+
+<div id="unlockScreen" class="screen">
+  <div id="unlockTitle">BONUS KARAKTER AÇILDI!</div>
+  <div id="unlockSubtitle"></div>
+  <canvas id="unlockCanvas" width="360" height="360"></canvas>
+  <div id="unlockHint"></div>
+  <button class="bb2" id="unlockContinue">▶ DEVAM</button>
 </div>
 
 <div id="gameOverScreen" class="screen">
@@ -485,8 +508,8 @@ LANG_PACKS.ko=makeLang({ctrlH:'🎮 플레이 방법',ctrlGo:'▶ 플레이',tip
 // ── FULL IN-GAME LOCALIZATION PATCH ─────────────────────
 const WF_I18N_EXTRA={
   tr:{
-    weaponNames:{fireball:'Ateş Topu',ice:'Buz Topu',lava:'Lav Topu',rocket:'Roket',claw:'Pençe',saw:'Testere',water:'Su Damlası',thunder:'Şimşek Topu',void:'Void Küresi',slime:'Slime Bomb',nether:'Cehennem Alevi'},
-    bonusNames:{fireball:'Ateş Topu',ice:'Buz Topu',lava:'Lav Topu',rocket:'Roket',claw:'Pençe',saw:'Testere',water:'Su Damlası',thunder:'Şimşek',void:'Void',slime:'Slime',nether:'Cehennem',shield:'Kalkan',heart:'Can +1',beam_ammo:'Işın +1',slap_ammo:'Şaplak +1',speed_boost:'Hız Boost'},
+    weaponNames:{fireball:'Ateş Topu',ice:'Buz Topu',lava:'Lav Topu',rocket:'Roket',claw:'Pençe',saw:'Testere',water:'Su Damlası',thunder:'Şimşek Topu',void:'Void Küresi',slime:'Slime Bomb',nether:'Cehennem Alevi',neon:'Takipçi Neon',missile:'Patlatıcı Füze'},
+    bonusNames:{fireball:'Ateş Topu',ice:'Buz Topu',lava:'Lav Topu',rocket:'Roket',claw:'Pençe',saw:'Testere',water:'Su Damlası',thunder:'Şimşek',void:'Void',slime:'Slime',nether:'Cehennem',neon:'Takipçi Neon',missile:'Patlatıcı Füze',shield:'Kalkan',heart:'Can +1',beam_ammo:'Işın +1',slap_ammo:'Şaplak +1',speed_boost:'Hız Boost'},
     bossNames:['Mavi Çiçek Canavarı','Göz Canavarı','Kızıl Örümcek','Yeşil Kanat','Ender Hükümdar','Şeytan Kral','Void Tanrısı','Fırtına Ruhu','Demir Kolossus','Ejderha Ruhu','Kıyamet Tanrısı',"Kaptan Barış'ın Gemisi",'BEX','Shayguy'],
     ultiNames:{0:'💎 Elmas Zırh',1:'⚡ Kasırga Koşusu',2:'🕷️ Spider Yumruk',3:'🌀 Kara Delik',4:'⚡ Şimşek Fırtınası',5:'🔥 Dokunaç Alev Vuruşu'},
     levelBonusDesc:{2:'+2 Can, Ateş Hızı %20↑',3:'+2 Can, Ateş Hızı %40↑, Ulti 2x Güçlü'},
@@ -494,8 +517,8 @@ const WF_I18N_EXTRA={
     weaponPicked:(icon,name,multi)=>icon+' '+name+(multi||'')+' alındı!',weaponUpgrade:(icon,name,x)=>icon+' '+name+' ateş hızı '+x+'x artırıldı!',shieldActive:'🛡 Kalkan aktif!',heartPlus:'❤ Can +1',levelUp:(lv,desc)=>'⭐ LEVEL '+lv+'! '+desc
   },
   en:{
-    weaponNames:{fireball:'Fireball',ice:'Ice Ball',lava:'Lava Ball',rocket:'Rocket',claw:'Claw',saw:'Saw Blade',water:'Water Drop',thunder:'Lightning Ball',void:'Void Orb',slime:'Slime Bomb',nether:'Nether Flame'},
-    bonusNames:{fireball:'Fireball',ice:'Ice Ball',lava:'Lava Ball',rocket:'Rocket',claw:'Claw',saw:'Saw Blade',water:'Water Drop',thunder:'Lightning',void:'Void',slime:'Slime',nether:'Nether',shield:'Shield',heart:'Health +1',beam_ammo:'Beam +1',slap_ammo:'Slap +1',speed_boost:'Speed Boost'},
+    weaponNames:{fireball:'Fireball',ice:'Ice Ball',lava:'Lava Ball',rocket:'Rocket',claw:'Claw',saw:'Saw Blade',water:'Water Drop',thunder:'Lightning Ball',void:'Void Orb',slime:'Slime Bomb',nether:'Nether Flame',neon:'Homing Neon',missile:'Explosive Missile'},
+    bonusNames:{fireball:'Fireball',ice:'Ice Ball',lava:'Lava Ball',rocket:'Rocket',claw:'Claw',saw:'Saw Blade',water:'Water Drop',thunder:'Lightning',void:'Void',slime:'Slime',nether:'Nether',neon:'Homing Neon',missile:'Explosive Missile',shield:'Shield',heart:'Health +1',beam_ammo:'Beam +1',slap_ammo:'Slap +1',speed_boost:'Speed Boost'},
     bossNames:['Blue Flower Monster','Eye Monster','Red Spider','Green Wing','Ender Ruler','Demon King','Void God','Storm Spirit','Iron Colossus','Dragon Spirit','Doom God',"Captain Baris's Ship",'BEX','Shayguy'],
     ultiNames:{0:'💎 Diamond Armor',1:'⚡ Tornado Dash',2:'🕷️ Spider Punch',3:'🌀 Black Hole',4:'⚡ Lightning Storm',5:'🔥 Tentacle Flame Slam'},
     levelBonusDesc:{2:'+2 HP, Fire Rate +20%',3:'+2 HP, Fire Rate +40%, Ulti 2x Power'},
@@ -742,6 +765,7 @@ const setPassEl=document.getElementById('setPass');if(setPassEl)setPassEl.addEve
 addTap('startBtn',startGame);addTap('nxtBtn',nextLevel);addTap('sndBtn',toggleMute);addTap('gameSettingsBtn',openGameMenu);addTap('gameMenuResume',resumeGameFromMenu);addTap('gameMenuSound',()=>{toggleMute();applyTexts();});addTap('gameMenuLangToggle',toggleGameLangBox);addTap('gameMenuExit',exitToMainMenuFromGame);
 addTap('bPause',togglePause);addTap('bSw',switchWeapon);addTap('bBeam',activateBeam);addTap('bSlap',activateSlap);addTap('bUlti',activateUlti);
 addTap('endHiBtn',()=>{document.getElementById('endScreen').style.display='none';showNameEntry();});
+addTap('unlockContinue',closeUnlockScreen);
 addTap('endAgain',()=>{gameRunning=false;startMenuMusic();document.getElementById('endScreen').style.display='none';document.getElementById('logoScreen').style.display='flex';});
 addTap('nameSbm',saveScore);
 addTap('goCodeBtn',tryCode);
@@ -840,7 +864,7 @@ async function addCloudScore(row){
   return await res.json();
 }
 function hideAllGameScreens(){
-  ['langScreen','ctrlScreen','ctrlSelScreen','logoScreen','hiScreen','settingsScreen','nameScreen','charSelect','endScreen','gameOverScreen','lvlBanner'].forEach(id=>{
+  ['langScreen','ctrlScreen','ctrlSelScreen','logoScreen','hiScreen','settingsScreen','nameScreen','charSelect','endScreen','unlockScreen','gameOverScreen','lvlBanner'].forEach(id=>{
     const el=document.getElementById(id);
     if(el)el.style.display='none';
   });
@@ -1134,7 +1158,9 @@ const WEAPONS_BASE={
   ice:     {name:'Buz Topu',      damage:60, cooldown:1100,speed:10,r:10,color:'#8df',wc:'#adf',icon:'❄️'},
   lava:    {name:'Lav Topu',      damage:80, cooldown:1300,speed:9, r:12,color:'#f40',wc:'#f60',icon:'🌋'},
   rocket:  {name:'Roket',         damage:120,cooldown:200, speed:7, r:8, color:'#888',wc:'#aaa',icon:'🚀'},
-  claw:    {name:'Pençe',         damage:95, cooldown:260, speed:8.5,r:9, color:'#b35cff',wc:'#e6b3ff',icon:'🦾'},
+  claw:    {name:'Pençe',         damage:95, cooldown:260, speed:8.5,r:9, color:'#1eaa48',wc:'#c6ff72',icon:'🦂'},
+  neon:    {name:'Takipçi Neon',  damage:85, cooldown:520, speed:10.5,r:9, color:'#ff2bff',wc:'#79ffff',icon:'💗'},
+  missile: {name:'Patlatıcı Füze',damage:165,cooldown:1150,speed:9.5,r:11,color:'#d62b2b',wc:'#ffdd55',icon:'💥'},
   saw:     {name:'Testere',       damage:35, cooldown:280, speed:12,r:10,color:'#ccc',wc:'#eee',icon:'⚙️'},
   water:   {name:'Su Damlası',    damage:25, cooldown:220, speed:14,r:8, color:'#08f',wc:'#4af',icon:'💧'},
   thunder: {name:'Şimşek Topu',   damage:100,cooldown:1500,speed:15,r:11,color:'#ff0',wc:'#ffd',icon:'⚡'},
@@ -1226,6 +1252,12 @@ Sarı yüzünde kocaman bir gülümseme vardı.
 Küçük robot kahraman, okul bahçesine geri döndü.
 Çocuklar onu görünce alkışladı.
 CEKS artık sadece sevimli bir maskot değil, dünyayı koruyan cesur bir savaşçıydı.`,fam:'Okul bahçesine kahraman gibi döndü'},
+  {charId:7,title:"Scorpion'un Kancası",story:`Scorpion, yeşil kancasını son kez havaya savurdu.
+Kanca karanlığı parçaladı ve savaş alanı sessizleşti.
+Artık kimse ondan kaçamazdı; çünkü o kendi yolunu kancasıyla açmıştı.`,fam:'Kancasını kahramanlık sembolü yaptı'},
+  {charId:8,title:"Elektra'nın Işığı",story:`Elektra, avuçlarındaki elektriği gökyüzüne bıraktı.
+Şimşekler korkutmak için değil, yolu aydınlatmak için çaktı.
+O gün herkes onun gerçek gücünün cesaret olduğunu gördü.`,fam:'Elektriğiyle karanlığı aydınlattı'},
 ];
 
 const CHARS=[
@@ -1236,14 +1268,60 @@ const CHARS=[
   {id:4,name:'Zephyr',desc:'Hızlı Savaşçı',gender:'M',hair:'#FF4500',skin:'#FDBCB4',shirt:'#cc3300',shorts:'#8B0000'},
   {id:5,name:'Baris', desc:'Ateş Dokunaçlı',gender:'M',hair:'#7a2b2b',skin:'#d8c8a0',shirt:'#2fa05a',shorts:'#3b2470',baris:true},
   {id:6,name:'CEKS',  desc:'Mavi Kasklı Maskot',gender:'M',hair:'#256dff',skin:'#ffd83b',shirt:'#b56b2b',shorts:'#2b56a5',ceks:true},
+  {id:7,name:'Scorpion',desc:'Kanca Ustası',gender:'M',hair:'#f3d414',skin:'#f7d24a',shirt:'#0f7a34',shorts:'#0a5e28',scorpion:true,startWeapon:'claw'},
+  {id:8,name:'Elektra',desc:'Elektrik Atar',gender:'F',hair:'#ffe84a',skin:'#f5d35a',shirt:'#087644',shorts:'#064d2d',elektra:true,startWeapon:'thunder'},
 ];
 let selectedChar=null;
+
+const BONUS_UNLOCK_STORAGE='wf_bonus_unlocks_v3';
+const FULL_RUN_STORAGE='wf_full_game_completions_v3';
+let bonusUnlocks={7:false,8:false};
+let fullGameCompletions=0;
+let unlockContinueCb=null;
+let unlockAnimRaf=0;
+let unlockAnimCharId=null;
+let pendingEndScreenData=null;
+
+function loadBonusUnlockState(){
+  try{bonusUnlocks=Object.assign({7:false,8:false},JSON.parse(localStorage.getItem(BONUS_UNLOCK_STORAGE)||'{}'));}catch(e){bonusUnlocks={7:false,8:false};}
+  try{fullGameCompletions=Math.max(0,parseInt(localStorage.getItem(FULL_RUN_STORAGE)||'0',10)||0);}catch(e){fullGameCompletions=0;}
+  if(fullGameCompletions>=1)bonusUnlocks[7]=true;
+  if(fullGameCompletions>=2)bonusUnlocks[8]=true;
+}
+function saveBonusUnlockState(){
+  try{localStorage.setItem(BONUS_UNLOCK_STORAGE,JSON.stringify(bonusUnlocks));}catch(e){}
+  try{localStorage.setItem(FULL_RUN_STORAGE,String(fullGameCompletions));}catch(e){}
+}
+function isBonusLockedCharId(id){return id===7||id===8;}
+function isCharUnlocked(ch){
+  if(!ch)return false;
+  if(!isBonusLockedCharId(ch.id))return true;
+  return !!bonusUnlocks[ch.id];
+}
+function getLockedCharHint(ch){
+  if(!ch||!isBonusLockedCharId(ch.id))return '';
+  return ch.id===7?'Tüm bölümleri 1 kez bitirince açılır':'Tüm bölümleri 2 kez bitirince açılır';
+}
+function getBonusCharInfoText(){
+  return '❓ Bonus karakterler kilitli gelir. Tüm bölümleri bitirdikçe sırayla açılır: önce Scorpion, sonra Elektra.';
+}
+function registerFullGameCompletionUnlock(){
+  const before7=!!bonusUnlocks[7], before8=!!bonusUnlocks[8];
+  fullGameCompletions=Math.max(0,fullGameCompletions)+1;
+  if(fullGameCompletions>=1)bonusUnlocks[7]=true;
+  if(fullGameCompletions>=2)bonusUnlocks[8]=true;
+  saveBonusUnlockState();
+  if(!before7 && bonusUnlocks[7])return 7;
+  if(!before8 && bonusUnlocks[8])return 8;
+  return null;
+}
+loadBonusUnlockState();
 
 // BONUS POOL
 const BONUS_POOL=[
   {type:'weapon',weapon:'fireball',label:'Ateş Topu',cum:0},{type:'weapon',weapon:'ice',label:'Buz Topu',cum:0},
   {type:'weapon',weapon:'lava',label:'Lav Topu',cum:0},{type:'weapon',weapon:'rocket',label:'Roket',cum:0},
-  {type:'weapon',weapon:'claw',label:'Pençe',cum:0},{type:'weapon',weapon:'saw',label:'Testere',cum:0},{type:'weapon',weapon:'water',label:'Su Dam.',cum:0},
+  {type:'weapon',weapon:'claw',label:'Pençe',cum:0},{type:'weapon',weapon:'neon',label:'Takipçi Neon',cum:0},{type:'weapon',weapon:'missile',label:'Patlatıcı Füze',cum:0},{type:'weapon',weapon:'saw',label:'Testere',cum:0},{type:'weapon',weapon:'water',label:'Su Dam.',cum:0},
   {type:'weapon',weapon:'thunder',label:'Şimşek',cum:0},{type:'weapon',weapon:'void',label:'Void',cum:0},
   {type:'weapon',weapon:'slime',label:'Slime',cum:0},{type:'weapon',weapon:'nether',label:'Cehennem',cum:0},
   {type:'beam_ammo',label:'⚡Işın Merm.',cum:0},
@@ -1313,9 +1391,53 @@ function drawCeks(c,x,y,sc=1,wt=0,inv=false){
   c.globalAlpha=1;c.restore();
 }
 
+
+function drawScorpion(c,x,y,sc=1,wt=0,inv=false){
+  c.save();c.translate(x,y);c.scale(sc,sc);
+  if(inv&&Math.floor(Date.now()/80)%2===0)c.globalAlpha=0.35;
+  const wig=Math.sin(wt*2+Date.now()*0.004);
+  c.fillStyle='#f1d51b';c.fillRect(-9,20,7,20);c.fillRect(2,20,7,20);
+  c.fillStyle='#0b5a2a';c.fillRect(-12,38,12,5);c.fillRect(0,38,12,5);
+  c.fillStyle='#0f7a34';c.beginPath();c.roundRect(-15,-3,30,28,6);c.fill();
+  c.strokeStyle='#f1d51b';c.lineWidth=2;c.strokeRect(-10,1,20,21);
+  c.strokeStyle='#0f7a34';c.lineWidth=7;c.lineCap='round';
+  c.beginPath();c.moveTo(-14,4);c.quadraticCurveTo(-31,10+wig*3,-33,24);c.stroke();
+  c.beginPath();c.moveTo(14,4);c.quadraticCurveTo(30,8-wig*3,34,22);c.stroke();
+  c.strokeStyle='#f1d51b';c.lineWidth=4;
+  c.beginPath();c.moveTo(0,18);c.quadraticCurveTo(25,0,20,-28);c.stroke();
+  c.fillStyle='#0c6a30';c.beginPath();c.moveTo(20,-32);c.lineTo(31,-24);c.lineTo(20,-20);c.closePath();c.fill();
+  c.fillStyle='#f1d51b';c.beginPath();c.roundRect(-12,-27,24,24,5);c.fill();
+  c.fillStyle='#0f7a34';c.fillRect(-13,-31,26,7);c.fillRect(-6,-37,5,8);c.fillRect(1,-37,5,8);
+  c.fillStyle='#122';c.fillRect(-7,-19,5,4);c.fillRect(2,-19,5,4);
+  c.strokeStyle='#122';c.lineWidth=1.5;c.beginPath();c.arc(0,-12,5,0.15,Math.PI-0.15);c.stroke();
+  c.globalAlpha=1;c.restore();
+}
+
+function drawElektra(c,x,y,sc=1,wt=0,inv=false){
+  c.save();c.translate(x,y);c.scale(sc,sc);
+  if(inv&&Math.floor(Date.now()/80)%2===0)c.globalAlpha=0.35;
+  const zap=Math.sin(Date.now()*0.018+wt)*3;
+  c.fillStyle='#f6dc3e';c.fillRect(-9,20,7,19);c.fillRect(2,20,7,19);
+  c.fillStyle='#064d2d';c.fillRect(-11,37,10,5);c.fillRect(1,37,10,5);
+  c.fillStyle='#087644';c.beginPath();c.roundRect(-15,-2,30,27,6);c.fill();
+  c.fillStyle='#d9fff8';c.beginPath();c.arc(0,8,5,0,Math.PI*2);c.fill();
+  c.strokeStyle='#0ff';c.lineWidth=3;c.shadowColor='#0ff';c.shadowBlur=10;
+  c.beginPath();c.moveTo(-15,2);c.lineTo(-30+zap,12);c.lineTo(-23,19);c.stroke();
+  c.beginPath();c.moveTo(15,2);c.lineTo(30-zap,12);c.lineTo(23,19);c.stroke();
+  c.shadowBlur=0;
+  c.fillStyle='#f6dc3e';c.beginPath();c.roundRect(-11,-25,22,22,5);c.fill();
+  c.fillStyle='#087644';c.fillRect(-12,-29,24,6);
+  c.fillStyle='#ffe84a';for(let i=-2;i<=2;i++){c.beginPath();c.moveTo(i*5,-28);c.lineTo(i*5+zap,-42-Math.abs(i)*3);c.lineTo(i*5+2,-28);c.fill();}
+  c.fillStyle='#123';c.fillRect(-6,-18,4,4);c.fillRect(3,-18,4,4);
+  c.strokeStyle='#123';c.lineWidth=1.4;c.beginPath();c.arc(0,-12,4,0.1,Math.PI-0.1);c.stroke();
+  c.globalAlpha=1;c.restore();
+}
+
 function drawChar(c,x,y,ch,sc=1,wt=0,inv=false){
   if(ch&&ch.id===5){drawBarisMonster(c,x,y,sc,wt,inv);return;}
   if(ch&&ch.id===6){drawCeks(c,x,y,sc,wt,inv);return;}
+  if(ch&&ch.id===7){drawScorpion(c,x,y,sc,wt,inv);return;}
+  if(ch&&ch.id===8){drawElektra(c,x,y,sc,wt,inv);return;}
   c.save();c.translate(x,y);c.scale(sc,sc);
   if(inv&&Math.floor(Date.now()/80)%2===0)c.globalAlpha=0.35;
   const sk=ch.skin||'#FDBCB4';
@@ -1344,7 +1466,9 @@ function drawWH(c,x,y,wk,sc=1,fR=true){
   else if(wk==='ice'){c.fillStyle='#8df';c.beginPath();c.arc(0,0,6,0,Math.PI*2);c.fill();c.strokeStyle='#fff';c.lineWidth=1;for(let a=0;a<Math.PI;a+=Math.PI/3){c.beginPath();c.moveTo(Math.cos(a)*5,Math.sin(a)*5);c.lineTo(-Math.cos(a)*5,-Math.sin(a)*5);c.stroke();}}
   else if(wk==='lava'){const g=c.createRadialGradient(0,0,1,0,0,8);g.addColorStop(0,'#fff');g.addColorStop(0.5,'#f60');g.addColorStop(1,'#800');c.fillStyle=g;c.beginPath();c.arc(0,0,8,0,Math.PI*2);c.fill();}
   else if(wk==='rocket'){c.fillStyle='#888';c.fillRect(-3,-12,6,16);c.fillStyle='#c30';c.fillRect(-3,-12,6,4);c.fillStyle='#fa0';c.beginPath();c.arc(0,6,4,0,Math.PI*2);c.fill();}
-  else if(wk==='claw'){c.strokeStyle='#e6b3ff';c.lineWidth=3;c.lineCap='round';for(let i=-1;i<=1;i++){c.beginPath();c.moveTo(i*4,5);c.quadraticCurveTo(i*8,-4,i*4,-13);c.stroke();}c.fillStyle='#7b2cff';c.beginPath();c.arc(0,7,5,0,Math.PI*2);c.fill();}
+  else if(wk==='claw'){c.strokeStyle='#b9ff63';c.lineWidth=3;c.lineCap='round';for(let i=-1;i<=1;i++){c.beginPath();c.moveTo(i*4,5);c.quadraticCurveTo(i*8,-4,i*4,-13);c.stroke();}c.fillStyle='#14953c';c.beginPath();c.arc(0,7,5,0,Math.PI*2);c.fill();}
+  else if(wk==='neon'){c.strokeStyle='#79ffff';c.lineWidth=3;c.shadowColor='#ff2bff';c.shadowBlur=10;c.beginPath();c.arc(0,0,8,0,Math.PI*2);c.stroke();c.beginPath();c.moveTo(-9,0);c.lineTo(9,0);c.moveTo(0,-9);c.lineTo(0,9);c.stroke();c.shadowBlur=0;}
+  else if(wk==='missile'){c.rotate(-0.2);c.fillStyle='#d62b2b';c.fillRect(-4,-13,8,18);c.fillStyle='#ddd';c.fillRect(-4,-8,8,7);c.fillStyle='#ffdd55';c.beginPath();c.moveTo(0,-18);c.lineTo(6,-13);c.lineTo(-6,-13);c.closePath();c.fill();c.fillStyle='#ff7a00';c.beginPath();c.arc(0,7,5,0,Math.PI*2);c.fill();}
   else if(wk==='saw'){c.rotate(Date.now()*0.012);c.fillStyle='#ccc';for(let i=0;i<8;i++){c.save();c.rotate(i*Math.PI/4);c.beginPath();c.moveTo(0,-4);c.lineTo(3,-9);c.lineTo(4,-4);c.closePath();c.fill();c.restore();}c.fillStyle='#666';c.beginPath();c.arc(0,0,4,0,Math.PI*2);c.fill();}
   else if(wk==='water'){c.fillStyle='#08f';c.beginPath();c.ellipse(0,0,5,7,0,0,Math.PI*2);c.fill();}
   else if(wk==='thunder'){c.fillStyle='#ff0';c.beginPath();c.arc(0,0,7,0,Math.PI*2);c.fill();c.strokeStyle='#fff';c.lineWidth=1.5;c.beginPath();c.moveTo(-3,-7);c.lineTo(2,0);c.lineTo(-2,0);c.lineTo(3,7);c.stroke();}
@@ -1356,15 +1480,64 @@ function drawWH(c,x,y,wk,sc=1,fR=true){
 
 // Karakter kartları
 const charsDiv=document.getElementById('chars');
-CHARS.forEach((ch,idx)=>{
-  const card=document.createElement('div');card.className='cc';card.dataset.idx=idx;
-  const cv=document.createElement('canvas');cv.width=60;cv.height=92;cv.style.pointerEvents='none';card.appendChild(cv);
-  const nm=document.createElement('div');nm.className='cn';nm.textContent=ch.name;card.appendChild(nm);
-  const ds=document.createElement('div');ds.className='cd';ds.textContent=ch.desc;card.appendChild(ds);
-  charsDiv.appendChild(card);
-  setTimeout(()=>{const c=cv.getContext('2d');drawChar(c,30,58,ch,0.9,0);},100);
-});
-function selectChar(idx){selectedChar=CHARS[idx];document.querySelectorAll('.cc').forEach(c=>c.classList.remove('sel'));document.querySelectorAll('.cc')[idx].classList.add('sel');document.getElementById('startBtn').style.display='block';}
+function ensureBonusCharInfo(){
+  let info=document.getElementById('bonusCharInfo');
+  if(!info){
+    info=document.createElement('div');
+    info.id='bonusCharInfo';
+    const startBtn=document.getElementById('startBtn');
+    startBtn.parentNode.insertBefore(info,startBtn);
+  }
+  info.textContent=getBonusCharInfoText();
+}
+function drawLockedCharacterCard(c,label='?'){
+  c.clearRect(0,0,60,92);
+  const g=c.createLinearGradient(0,0,0,92);g.addColorStop(0,'#1b1530');g.addColorStop(1,'#090810');
+  c.fillStyle=g;c.fillRect(6,6,48,76);
+  c.strokeStyle='rgba(255,215,0,0.35)';c.lineWidth=2;c.strokeRect(6,6,48,76);
+  c.fillStyle='rgba(255,255,255,0.07)';
+  c.beginPath();c.arc(30,28,12,0,Math.PI*2);c.fill();
+  c.fillRect(18,42,24,20);
+  c.fillStyle='#ffd84d';c.font='bold 34px Courier New';c.textAlign='center';c.fillText(label,30,58);
+  c.fillStyle='rgba(255,216,77,0.3)';c.beginPath();c.arc(30,76,7,0,Math.PI*2);c.fill();
+}
+function renderCharCards(){
+  ensureBonusCharInfo();
+  charsDiv.innerHTML='';
+  CHARS.forEach((ch,idx)=>{
+    const locked=!isCharUnlocked(ch);
+    const card=document.createElement('div');card.className='cc'+(locked?' locked':'');card.dataset.idx=idx;
+    const cv=document.createElement('canvas');cv.width=60;cv.height=92;cv.style.pointerEvents='none';card.appendChild(cv);
+    const nm=document.createElement('div');nm.className='cn';nm.textContent=locked?'???':ch.name;card.appendChild(nm);
+    const ds=document.createElement('div');ds.className='cd';ds.textContent=locked?getLockedCharHint(ch):ch.desc;card.appendChild(ds);
+    charsDiv.appendChild(card);
+    setTimeout(()=>{const cc=cv.getContext('2d'); if(locked) drawLockedCharacterCard(cc,'?'); else drawChar(cc,30,58,ch,0.9,0);},20);
+  });
+  const startBtn=document.getElementById('startBtn');
+  if(!selectedChar||!isCharUnlocked(selectedChar)){
+    selectedChar=null;
+    startBtn.style.display='none';
+  }else{
+    const idx=CHARS.findIndex(ch=>ch.id===selectedChar.id);
+    const cards=[...document.querySelectorAll('.cc')];
+    if(cards[idx])cards[idx].classList.add('sel');
+    startBtn.style.display='block';
+  }
+}
+function selectChar(idx){
+  const ch=CHARS[idx];
+  if(!isCharUnlocked(ch)){
+    showPopup('❓ '+getLockedCharHint(ch));
+    document.getElementById('startBtn').style.display='none';
+    return;
+  }
+  selectedChar=ch;
+  document.querySelectorAll('.cc').forEach(c=>c.classList.remove('sel'));
+  const cards=document.querySelectorAll('.cc');
+  if(cards[idx])cards[idx].classList.add('sel');
+  document.getElementById('startBtn').style.display='block';
+}
+renderCharCards();
 
 // ── ULTİ & LEVEL SİSTEMİ ────────────────────────────
 // Her karakter için ulti tanımı
@@ -1390,6 +1563,12 @@ const CHAR_ULTIS={
   6:{name:'🔵 CEKS Enerji Patlaması',nameEN:'🔵 CEKS Energy Blast',icon:'🔵',cd:16000,
      desc:'Mavi kasktan enerji patlatır, boss’a 650 hasar verir!',descEN:'Blue helmet energy blast, 650 dmg!',
      color:'#2d8cff'},
+  7:{name:'🦂 Kanca Fırtınası',nameEN:'🦂 Hook Storm',icon:'🦂',cd:15000,
+     desc:'Scorpion kancasını boss’a saplar, 620 hasar!',descEN:'Scorpion throws his hook, 620 dmg!',
+     color:'#0f7a34'},
+  8:{name:'⚡ Elektra Şoku',nameEN:'⚡ Elektra Shock',icon:'⚡',cd:14000,
+     desc:'Elektra elektrik boşaltır, 600 hasar!',descEN:'Elektra releases an electric shock, 600 dmg!',
+     color:'#00ffff'},
 };
 
 // Level sistemi
@@ -1554,8 +1733,9 @@ function initLevel(lvl){
   const bdef=BOSS_DEFS[Math.min(lvl,BOSS_DEFS.length-1)];
   const bw=Math.min(W*0.40,240); const bh=bw*0.64;
   boss={x:W/2-bw/2,y:(W<700?H*0.14:H*0.06),w:bw,h:bh,dx:2*bdef.spdMul,dy:0,hp:Math.floor(1500*bdef.hpMul),maxHp:Math.floor(1500*bdef.hpMul),def:bdef,animT:0,specialTimer:0,alive:true,moveMode:bdef.moveMode,_tx:null,_ty:null,slapShake:0};
-  player={x:W/2-20,y:playerStartY(),w:40,h:70,speed:4,hp:5,maxHp:5,char:selectedChar,invincible:0,shield:false,weapon:'fireball',weaponIdx:0,dead:false,deathTimer:0};
-  inventory=['fireball'];beamAmmo=0;slapAmmo=0;rocketAmmo=0;clawAmmo=0;speedBoostActive=false;speedBoostTimer=0;
+  const startWeapon=(selectedChar&&selectedChar.startWeapon)||'fireball';
+  player={x:W/2-20,y:playerStartY(),w:40,h:70,speed:4,hp:5,maxHp:5,char:selectedChar,invincible:0,shield:false,weapon:startWeapon,weaponIdx:0,dead:false,deathTimer:0};
+  inventory=[startWeapon];beamAmmo=0;slapAmmo=0;rocketAmmo=0;clawAmmo=(selectedChar&&selectedChar.scorpion)?2:0;speedBoostActive=false;speedBoostTimer=0;
   if(lvl===0){playerLevel=1;playerXP=0;}// Yeni oyunda sıfırla, bölümler arası korunur
   ultiCooldown=0;ultiActive=false;ultiTimer=0;
   // Silah upgrade sıfırla
@@ -1629,7 +1809,7 @@ function exitToMainMenuFromGame(){
 }
 
 // ── FLOW ─────────────────────────────────────────────
-function showCharSelect(){gameRunning=false;startMenuMusic();document.getElementById('logoScreen').style.display='none';document.getElementById('charSelect').style.display='flex';}
+function showCharSelect(){gameRunning=false;startMenuMusic();renderCharCards();document.getElementById('logoScreen').style.display='none';document.getElementById('charSelect').style.display='flex';}
 function startGame(){
   if(!selectedChar)return;initAudio();
   gameRunning=true;fadeOutMenuMusic(1900);
@@ -1655,17 +1835,16 @@ function tryFire(){
   lastFireTime=now;playFire(player.weapon);
   const wd=WEAPONS_BASE[player.weapon]||WEAPONS_BASE.fireball;
 
-  if(player.weapon==='rocket'||player.weapon==='claw'){
-    const ammoKey=player.weapon==='rocket'?'rocket':'claw';
+  if(player.weapon==='rocket'||player.weapon==='claw'||player.weapon==='neon'){
     if(player.weapon==='rocket'){
       if(rocketAmmo<=0){switchWeapon();showPopup(txt('rocketEmpty'));return;}
       rocketAmmo--;
-    }else{
+    }else if(player.weapon==='claw'){
       if(clawAmmo<=0){switchWeapon();showPopup(txt('clawEmpty'));return;}
       clawAmmo--;
     }
     updateSpecialBtns();
-    projectiles.push({x:player.x+player.w/2,y:player.y+10,vx:0,vy:-wd.speed,type:player.weapon,owner:'player',r:wd.r,spin:0,wobble:0,homing:true,trail:[],damageMult:1});
+    projectiles.push({x:player.x+player.w/2,y:player.y+10,vx:0,vy:-wd.speed,type:player.weapon,owner:'player',r:wd.r,spin:0,wobble:0,homing:true,trail:[],damageMult:1,rope:player.weapon==='claw'});
     return;
   }
 
@@ -1807,7 +1986,17 @@ function update(dt){
     if(p.owner==='player'){
       for(let b of blocks){if(b.hp>0&&p.x>b.x&&p.x<b.x+b.w&&p.y>b.y&&p.y<b.y+b.h){b.hp--;burst(p.x,p.y,'#aaa',6);return false;}}
       if(boss.alive&&p.x>boss.x&&p.x<boss.x+boss.w&&p.y>boss.y&&p.y<boss.y+boss.h){
-        const wd=WEAPONS_BASE[p.type]||WEAPONS_BASE.fireball;const dmg=wd.damage*2*(p.damageMult||1);boss.hp=Math.max(0,boss.hp-dmg);gameScore+=dmg;addXP(Math.ceil(dmg/8));burst(p.x,p.y,boss.def.eyeColor,10);playHit();
+        const wd=WEAPONS_BASE[p.type]||WEAPONS_BASE.fireball;
+        let dmg=wd.damage*2*(p.damageMult||1);
+        // Denge: roket / patlatıcı füze / Scorpion kancası tek atmasın.
+        // Her vuruş boss maksimum canının sadece %10'unu götürür.
+        if(p.type==='rocket'||p.type==='missile'||p.type==='claw'){
+          dmg=boss.maxHp*0.10;
+        }
+        if(p.type==='missile'){burst(p.x,p.y,'#ffdd55',30);burst(p.x,p.y,'#ff3300',22);}
+        if(p.type==='rocket'){burst(p.x,p.y,'#ffaa00',18);burst(p.x,p.y,'#ff3300',12);}
+        if(p.type==='claw'){burst(p.x,p.y,'#9eff60',16);}
+        boss.hp=Math.max(0,boss.hp-dmg);gameScore+=dmg;addXP(Math.ceil(dmg/8));burst(p.x,p.y,boss.def.eyeColor,p.type==='missile'?18:10);playHit();
         if(boss.hp<=0){boss.alive=false;startVictory();}return false;
       }
     }else{
@@ -2359,8 +2548,7 @@ function updateVictory(dt){
 function burst(x,y,col,n=10){for(let i=0;i<n;i++){const a=Math.random()*Math.PI*2,s=1.5+Math.random()*5;particles.push({x,y,vx:Math.cos(a)*s,vy:Math.sin(a)*s-1,life:35+Math.random()*25,maxLife:60,color:col,r:2+Math.random()*4});}}
 
 // ── END SCREEN ────────────────────────────────────────
-function showEndScreen(){
-  stopBGM();gc.style.display='none';document.getElementById('touchCtrl').style.display='none';document.getElementById('btnCtrl').style.display='none';document.getElementById('gameSettingsBtn').style.display='none';document.getElementById('gameMenuOverlay').style.display='none';
+function buildEndScreenContent(){
   const es=document.getElementById('endScreen');es.style.display='flex';
   const ending=ENDINGS[selectedChar.id]||ENDINGS[0];
   document.getElementById('endSub').textContent=ending.fam;
@@ -2369,6 +2557,67 @@ function showEndScreen(){
   document.getElementById('endScore').textContent=L().endScore(Math.floor(gameScore).toLocaleString());
   document.getElementById('endTime').textContent=L().endTime(mins,secs);
   drawFamilyScene(selectedChar,ending);
+}
+function drawUnlockSceneFrame(charId){
+  const cv=document.getElementById('unlockCanvas');if(!cv)return;
+  const c=cv.getContext('2d'),w=cv.width,h=cv.height;const t=performance.now()*0.0035;
+  c.clearRect(0,0,w,h);
+  const bg=c.createLinearGradient(0,0,0,h);bg.addColorStop(0,'#12213d');bg.addColorStop(0.55,'#0b1020');bg.addColorStop(1,'#06070d');c.fillStyle=bg;c.fillRect(0,0,w,h);
+  for(let i=0;i<24;i++){const xx=(i*37+t*12)%w;const yy=(i*23)%h;c.fillStyle='rgba(255,255,255,0.08)';c.fillRect(xx,yy,2,2);}
+  c.fillStyle='rgba(255,215,0,0.14)';c.fillRect(0,h-62,w,62);
+  c.fillStyle='#2d2148';c.fillRect(0,h-52,w,8);
+  c.save();
+  c.translate(w/2,h*0.72);
+  if(charId===7){
+    const dance=Math.sin(t*2.2)*16;
+    drawScorpion(c,0,0,2.0,dance,false);
+    c.strokeStyle='rgba(158,255,96,0.95)';c.lineWidth=5;c.lineCap='round';
+    c.beginPath();c.moveTo(-24,-10);c.quadraticCurveTo(-105,-85+Math.sin(t*3)*18,-38,-140);c.stroke();
+    c.strokeStyle='rgba(255,255,255,0.22)';c.lineWidth=2;c.beginPath();c.moveTo(-24,-12);c.quadraticCurveTo(-110,-98+Math.sin(t*3)*10,-40,-145);c.stroke();
+    c.fillStyle='#ffd84d';c.font='bold 18px Courier New';c.textAlign='center';c.fillText('AKREP DANSI',0,-145);
+  }else{
+    const sway=Math.sin(t*2)*12;
+    drawElektra(c,0,0,2.0,sway,false);
+    c.strokeStyle='rgba(0,255,255,0.95)';c.lineWidth=4;c.lineCap='round';
+    for(let k=0;k<3;k++){const ox=-54+k*52;c.beginPath();c.moveTo(ox,-110);c.lineTo(ox+10,-92);c.lineTo(ox-4,-78);c.lineTo(ox+14,-58);c.stroke();}
+    c.fillStyle='#8ef5ff';c.font='bold 18px Courier New';c.textAlign='center';c.fillText('ELEKTRİK DANSI',0,-145);
+  }
+  c.restore();
+  c.fillStyle='rgba(255,255,255,0.06)';c.fillRect(24,24,84,84);
+  c.strokeStyle='rgba(255,255,255,0.16)';c.strokeRect(24,24,84,84);
+  c.save();c.translate(66,90); if(charId===7)drawScorpion(c,0,0,0.9,Math.sin(t*3)*10,false); else drawElektra(c,0,0,0.9,Math.sin(t*3)*8,false); c.restore();
+  unlockAnimRaf=requestAnimationFrame(()=>drawUnlockSceneFrame(charId));
+}
+function showUnlockScreen(charId,onContinue){
+  unlockAnimCharId=charId; unlockContinueCb=onContinue||null;
+  const title=document.getElementById('unlockTitle');
+  const sub=document.getElementById('unlockSubtitle');
+  const hint=document.getElementById('unlockHint');
+  if(charId===7){
+    title.textContent='🦂 Scorpion Karakterini Açtınız';
+    sub.textContent='Bu karakter Mikail Ramis tarafından özenle hazırlanmıştır, iyi oyunlar dileriz.';
+    hint.textContent='Scorpion artık karakter ekranında seçilebilir. Başlangıçta 2 kanca hakkı ile gelir ve kancası ip gibi boss’a gider.';
+  }else{
+    title.textContent='⚡ Elektra Karakterini Açtınız';
+    sub.textContent='Bu karakter Mikail Ramis tarafından özenle hazırlanmıştır, iyi oyunlar dileriz.';
+    hint.textContent='Elektra artık karakter ekranında seçilebilir. Elektrik gücü ile bir sonraki maceraya hazır!';
+  }
+  hideAllGameScreens();
+  document.getElementById('unlockScreen').style.display='flex';
+  cancelAnimationFrame(unlockAnimRaf); drawUnlockSceneFrame(charId);
+}
+function closeUnlockScreen(){
+  cancelAnimationFrame(unlockAnimRaf); unlockAnimRaf=0;
+  document.getElementById('unlockScreen').style.display='none';
+  renderCharCards();
+  const cb=unlockContinueCb; unlockContinueCb=null;
+  if(cb)cb();
+}
+function showEndScreen(){
+  stopBGM();gc.style.display='none';document.getElementById('touchCtrl').style.display='none';document.getElementById('btnCtrl').style.display='none';document.getElementById('gameSettingsBtn').style.display='none';document.getElementById('gameMenuOverlay').style.display='none';
+  const newlyUnlocked=(currentLevel>=BOSS_DEFS.length-1)?registerFullGameCompletionUnlock():null;
+  if(newlyUnlocked){showUnlockScreen(newlyUnlocked,buildEndScreenContent);return;}
+  buildEndScreenContent();
 }
 function drawFamilyScene(ch,ending){
   const fc=document.getElementById('endFamilyCanvas'),fx=fc.getContext('2d'),fw=fc.width,fh=fc.height;
@@ -3156,7 +3405,20 @@ function drawEyeBloodProjectile(p,variant=1){
 
 function drawProj(p){
   // Roket duman izi
-  if(p.trail&&p.trail.length>0){p.trail.forEach(t=>{ctx.globalAlpha=(t.life/t.maxLife)*0.5;ctx.fillStyle='#aaa';ctx.beginPath();ctx.arc(t.x,t.y,3,0,Math.PI*2);ctx.fill();});ctx.globalAlpha=1;}
+  if(p.trail&&p.trail.length>0){p.trail.forEach(t=>{ctx.globalAlpha=(t.life/t.maxLife)*0.5;ctx.fillStyle=(p.type==='neon'?'#79ffff':'#aaa');ctx.beginPath();ctx.arc(t.x,t.y,p.type==='neon'?4:3,0,Math.PI*2);ctx.fill();});ctx.globalAlpha=1;}
+  if(p.type==='claw'&&p.owner==='player'&&player){
+    const sx=player.x+player.w/2+(faceR?10:-10), sy=player.y+player.h*0.34;
+    ctx.save();
+    ctx.strokeStyle='rgba(158,255,96,0.9)';ctx.lineWidth=3;ctx.lineCap='round';
+    ctx.beginPath();ctx.moveTo(sx,sy);
+    ctx.quadraticCurveTo((sx+p.x)/2+(faceR?16:-16),(sy+p.y)/2-10,p.x,p.y);
+    ctx.stroke();
+    ctx.strokeStyle='rgba(255,255,255,0.25)';ctx.lineWidth=1;
+    ctx.beginPath();ctx.moveTo(sx,sy-1);
+    ctx.quadraticCurveTo((sx+p.x)/2+(faceR?16:-16),(sy+p.y)/2-14,p.x,p.y);
+    ctx.stroke();
+    ctx.restore();
+  }
   ctx.save();ctx.translate(p.x,p.y);const t=p.type;
   if(t==='fireball'||t==='fireball_wither'){ctx.fillStyle='#f60';ctx.beginPath();ctx.arc(0,0,p.r,0,Math.PI*2);ctx.fill();ctx.fillStyle='#fc0';ctx.beginPath();ctx.arc(0,0,p.r*0.45,0,Math.PI*2);ctx.fill();}
   else if(t==='ice'){ctx.fillStyle='#8df';ctx.beginPath();ctx.arc(0,0,p.r,0,Math.PI*2);ctx.fill();ctx.strokeStyle='rgba(255,255,255,0.7)';ctx.lineWidth=1;for(let a=0;a<Math.PI;a+=Math.PI/3){ctx.beginPath();ctx.moveTo(Math.cos(a)*(p.r-2),Math.sin(a)*(p.r-2));ctx.lineTo(-Math.cos(a)*(p.r-2),-Math.sin(a)*(p.r-2));ctx.stroke();}}
@@ -3164,8 +3426,10 @@ function drawProj(p){
   else if(t==='rocket'){// Güdümlü roket görünümü
     const ang=Math.atan2(p.vy,p.vx);ctx.rotate(ang+Math.PI/2);ctx.fillStyle='#888';ctx.fillRect(-p.r*0.4,-p.r,p.r*0.8,p.r*2);ctx.fillStyle='#c30';ctx.fillRect(-p.r*0.4,-p.r,p.r*0.8,p.r*0.5);ctx.fillStyle='#fa0';ctx.beginPath();ctx.arc(0,p.r,p.r*0.5,0,Math.PI*2);ctx.fill();// alev
     ctx.fillStyle='rgba(255,150,0,0.7)';ctx.beginPath();ctx.arc(0,p.r*1.5,p.r*0.6,0,Math.PI*2);ctx.fill();}
-  else if(t==='claw'){// Güdümlü pençe
-    const ang=Math.atan2(p.vy,p.vx);ctx.rotate(ang+Math.PI/2);ctx.strokeStyle='#f1ccff';ctx.lineWidth=3;ctx.lineCap='round';ctx.shadowColor='#b35cff';ctx.shadowBlur=10;for(let i=-1;i<=1;i++){ctx.beginPath();ctx.moveTo(i*p.r*0.35,p.r*0.9);ctx.quadraticCurveTo(i*p.r*0.85,-p.r*0.2,i*p.r*0.35,-p.r*1.35);ctx.stroke();}ctx.shadowBlur=0;ctx.fillStyle='#7b2cff';ctx.beginPath();ctx.arc(0,p.r*0.95,p.r*0.55,0,Math.PI*2);ctx.fill();}
+  else if(t==='claw'){// İpli güdümlü kanca
+    const ang=Math.atan2(p.vy,p.vx);ctx.rotate(ang+Math.PI/2);ctx.strokeStyle='#c6ff72';ctx.lineWidth=3;ctx.lineCap='round';ctx.shadowColor='#1eaa48';ctx.shadowBlur=10;for(let i=-1;i<=1;i++){ctx.beginPath();ctx.moveTo(i*p.r*0.35,p.r*0.9);ctx.quadraticCurveTo(i*p.r*0.85,-p.r*0.2,i*p.r*0.35,-p.r*1.35);ctx.stroke();}ctx.shadowBlur=0;ctx.fillStyle='#14953c';ctx.beginPath();ctx.arc(0,p.r*0.95,p.r*0.55,0,Math.PI*2);ctx.fill();}
+  else if(t==='neon'){const ang=Math.atan2(p.vy,p.vx);ctx.rotate(ang+Math.PI/2);ctx.strokeStyle='#79ffff';ctx.lineWidth=3;ctx.shadowColor='#ff2bff';ctx.shadowBlur=16;ctx.beginPath();ctx.arc(0,0,p.r,0,Math.PI*2);ctx.stroke();ctx.beginPath();ctx.moveTo(0,-p.r*1.6);ctx.lineTo(0,p.r*1.6);ctx.moveTo(-p.r*0.9,0);ctx.lineTo(p.r*0.9,0);ctx.stroke();ctx.fillStyle='rgba(255,43,255,0.55)';ctx.beginPath();ctx.arc(0,0,p.r*0.45,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;}
+  else if(t==='missile'){const ang=Math.atan2(p.vy,p.vx);ctx.rotate(ang+Math.PI/2);ctx.fillStyle='#d62b2b';ctx.fillRect(-p.r*0.42,-p.r*1.25,p.r*0.84,p.r*2.1);ctx.fillStyle='#ddd';ctx.fillRect(-p.r*0.42,-p.r*0.45,p.r*0.84,p.r*0.7);ctx.fillStyle='#ffdd55';ctx.beginPath();ctx.moveTo(0,-p.r*1.9);ctx.lineTo(p.r*0.65,-p.r*1.25);ctx.lineTo(-p.r*0.65,-p.r*1.25);ctx.closePath();ctx.fill();ctx.fillStyle='rgba(255,120,0,0.9)';ctx.beginPath();ctx.arc(0,p.r*1.15,p.r*0.65,0,Math.PI*2);ctx.fill();}
   else if(t==='saw'){ctx.rotate(p.spin*5);ctx.fillStyle='#ccc';for(let i=0;i<8;i++){ctx.save();ctx.rotate(i*Math.PI/4);ctx.beginPath();ctx.moveTo(0,-p.r*0.5);ctx.lineTo(p.r*0.4,-p.r);ctx.lineTo(p.r*0.5,-p.r*0.5);ctx.closePath();ctx.fill();ctx.restore();}ctx.fillStyle='#888';ctx.beginPath();ctx.arc(0,0,p.r*0.5,0,Math.PI*2);ctx.fill();}
   else if(t==='water'){ctx.fillStyle='#08f';ctx.beginPath();ctx.ellipse(0,Math.sin(p.wobble||0)*3,p.r*0.8,p.r,0,0,Math.PI*2);ctx.fill();}
   else if(t==='thunder'){ctx.fillStyle='#ff0';ctx.beginPath();ctx.arc(0,0,p.r,0,Math.PI*2);ctx.fill();ctx.strokeStyle='#fff';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(-4,-p.r+2);ctx.lineTo(2,0);ctx.lineTo(-3,0);ctx.lineTo(4,p.r-2);ctx.stroke();}
@@ -3192,6 +3456,10 @@ function drawBonuses(){
     else if(wk==='beam_ammo'){ctx.strokeStyle='#0ff';ctx.lineWidth=3;ctx.shadowColor='#0ff';ctx.shadowBlur=8;ctx.beginPath();ctx.moveTo(0,-14);ctx.lineTo(0,14);ctx.stroke();ctx.beginPath();ctx.moveTo(-8,-5);ctx.lineTo(8,5);ctx.stroke();ctx.beginPath();ctx.moveTo(8,-5);ctx.lineTo(-8,5);ctx.stroke();ctx.shadowBlur=0;}
     else if(wk==='slap_ammo'){ctx.font='22px sans-serif';ctx.textAlign='center';ctx.fillText('👋',0,7);}
     else if(wk==='speed_boost'){ctx.fillStyle='#fa0';ctx.font='bold 11px Courier New';ctx.textAlign='center';ctx.fillText(txt('speedShort'),0,-2);ctx.fillStyle='#ff0';ctx.font='bold 8px Courier New';ctx.fillText(txt('boostShort'),0,8);}
+    else if(wk==='rocket'){ctx.fillStyle='#888';ctx.fillRect(-4,-12,8,18);ctx.fillStyle='#c30';ctx.fillRect(-4,-12,8,5);ctx.fillStyle='#ff9c00';ctx.beginPath();ctx.arc(0,8,5,0,Math.PI*2);ctx.fill();}
+    else if(wk==='claw'){ctx.strokeStyle='#c6ff72';ctx.lineWidth=3;ctx.lineCap='round';for(let i=-1;i<=1;i++){ctx.beginPath();ctx.moveTo(i*4,5);ctx.quadraticCurveTo(i*7,-3,i*4,-12);ctx.stroke();}ctx.fillStyle='#14953c';ctx.beginPath();ctx.arc(0,7,5,0,Math.PI*2);ctx.fill();}
+    else if(wk==='neon'){ctx.strokeStyle='#79ffff';ctx.lineWidth=3;ctx.shadowColor='#ff2bff';ctx.shadowBlur=10;ctx.beginPath();ctx.arc(0,0,8,0,Math.PI*2);ctx.stroke();ctx.beginPath();ctx.moveTo(-9,0);ctx.lineTo(9,0);ctx.moveTo(0,-9);ctx.lineTo(0,9);ctx.stroke();ctx.shadowBlur=0;}
+    else if(wk==='missile'){ctx.rotate(-0.18);ctx.fillStyle='#d62b2b';ctx.fillRect(-4,-13,8,18);ctx.fillStyle='#ddd';ctx.fillRect(-4,-8,8,7);ctx.fillStyle='#ffdd55';ctx.beginPath();ctx.moveTo(0,-18);ctx.lineTo(6,-13);ctx.lineTo(-6,-13);ctx.closePath();ctx.fill();ctx.fillStyle='#ff7a00';ctx.beginPath();ctx.arc(0,7,5,0,Math.PI*2);ctx.fill();}
     else{const wd=WEAPONS_BASE[wk];ctx.fillStyle=wd?wd.color:'#aaa';ctx.beginPath();ctx.arc(0,0,12,0,Math.PI*2);ctx.fill();}
     ctx.restore();
     ctx.fillStyle='rgba(255,220,60,0.85)';ctx.font='bold 7px Courier New';ctx.textAlign='center';ctx.fillText(bonusLabel(b),0,28);ctx.restore();
