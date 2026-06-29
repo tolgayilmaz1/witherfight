@@ -1029,7 +1029,8 @@ const MENU_MUSIC_VOL=0.42;
 const GAME_MUSIC_VOL=0.18;
 
 // ── MP3 SFX ───────────────────────────────────────────
-const SFX_VOL=0.65;
+// Ses dosyaları index.html ile AYNI klasörde olacak: ./click1.mp3 gibi.
+const SFX_VOL=0.75;
 const SFX_FILES={
   click:'click1.mp3',
   hit1:'bullet_hit1.mp3',
@@ -1040,95 +1041,134 @@ const SFX_FILES={
   bossknife:'bossknife.mp3',
   pick1:'pick1.mp3',
   pick2:'pick2.mp3',
-  laserpick:'laserpick.mp3'
+  laserpick:'laserpick.mp3',
+  punch:'punch.mp3',
+  slap:'slap.mp3'
 };
-const SFX_DIRS=['','./','music/','./music/','sounds/','./sounds/','audio/','./audio/'];
+for(let i=1;i<=15;i++){SFX_FILES['gun'+i]='gun'+i+'.mp3';}
+// Silah ateş sesleri: gun1.mp3–gun15.mp3 aynı klasörde duracak.
+// Her silaha farklı gun sesi atandı.
+const WEAPON_GUN_SFX={
+  fireball:'gun7',
+  ice:'gun2',
+  lava:'gun11',
+  rocket:'gun14',
+  claw:'gun5',
+  neon:'gun9',
+  missile:'gun15',
+  saw:'gun3',
+  water:'gun1',
+  thunder:'gun12',
+  void:'gun8',
+  slime:'gun4',
+  nether:'gun13'
+};
+let lastHitWeaponKey=null;
+let hitSwitchFlag=false;
+const weaponHitSfxMemory={};
 const sfxPool={};
 let sfxUnlocked=false;
 let lastClickSfxAt=0;
-function sfxCandidates(name){
+function sfxSrc(name){
   const file=SFX_FILES[name]||name;
-  if(/^data:|^https?:|^blob:/i.test(file))return [file];
-  const out=[];
-  SFX_DIRS.forEach(d=>{const src=d+file;if(!out.includes(src))out.push(src);});
-  return out;
+  if(/^data:|^https?:|^blob:/i.test(file))return file;
+  return './'+file.replace(/^\.\//,'');
 }
-function getSfxAudio(src,vol){
-  if(!sfxPool[src]){
-    sfxPool[src]=[];
-    for(let i=0;i<5;i++){
-      const a=new Audio(src);
-      a.preload='auto';
-      a.playsInline=true;
-      a.volume=vol;
-      sfxPool[src].push(a);
-    }
-  }
+function makeSfxAudio(name,vol){
+  const src=sfxSrc(name);
+  if(!sfxPool[src])sfxPool[src]=[];
   const pool=sfxPool[src];
   let a=pool.find(x=>x.paused||x.ended);
-  if(!a){a=pool[0].cloneNode(true);if(pool.length<10)pool.push(a);}
+  if(!a){
+    a=new Audio(src);
+    a.preload='auto';
+    a.playsInline=true;
+    a.setAttribute('playsinline','');
+    a.setAttribute('webkit-playsinline','');
+    if(pool.length<8)pool.push(a);
+  }
   a.volume=vol;
   a.muted=false;
-  a.playsInline=true;
   try{a.currentTime=0;}catch(e){}
   return a;
 }
-function tryPlaySfxCandidate(list,idx,vol){
-  if(idx>=list.length)return;
-  const src=list[idx];
-  try{
-    const a=getSfxAudio(src,vol);
-    let done=false;
-    const fallback=()=>{if(done)return;done=true;tryPlaySfxCandidate(list,idx+1,vol);};
-    a.onerror=fallback;
-    const pr=a.play();
-    if(pr&&pr.then){
-      pr.then(()=>{done=true;}).catch(fallback);
-    }else{
-      done=true;
-    }
-  }catch(e){tryPlaySfxCandidate(list,idx+1,vol);}
-}
 function unlockSfxAudio(){
+  // MP3 dosyaları index.html ile aynı klasörde: ./click1.mp3, ./gamewin.mp3 ...
+  // İlk kullanıcı dokunuşunda hepsini hazırla. Önizleme/klasör arama yok.
   if(sfxUnlocked)return;
   sfxUnlocked=true;
   Object.keys(SFX_FILES).forEach(k=>{
     try{
-      const src=sfxCandidates(k)[0];
-      const a=new Audio(src);
+      const a=makeSfxAudio(k,0.01);
       a.preload='auto';
-      a.playsInline=true;
-      a.muted=true;
-      a.volume=0;
-      const pr=a.play();
-      if(pr&&pr.then)pr.then(()=>{a.pause();try{a.currentTime=0;}catch(e){}}).catch(()=>{});
+      if(typeof a.load==='function')a.load();
     }catch(e){}
   });
 }
 function playSfx(name,vol=SFX_VOL){
   if(typeof muted!=='undefined'&&muted)return;
   unlockSfxAudio();
-  tryPlaySfxCandidate(sfxCandidates(name),0,vol);
+  try{
+    const a=makeSfxAudio(name,vol);
+    const pr=a.play();
+    if(pr&&pr.catch)pr.catch(()=>{});
+  }catch(e){}
 }
 function playClick(){
   const now=performance.now();
-  if(now-lastClickSfxAt<90)return;
+  if(now-lastClickSfxAt<55)return;
   lastClickSfxAt=now;
-  playSfx('click',0.68);
+  // click1.mp3 iOS/Android ilk dokunuşta kaçmasın diye direkt gesture içinde yeni Audio ile çal
+  if(typeof muted!=='undefined'&&muted)return;
+  try{
+    const a=new Audio('./click1.mp3');
+    a.preload='auto';
+    a.playsInline=true;
+    a.setAttribute('playsinline','');
+    a.setAttribute('webkit-playsinline','');
+    a.volume=0.95;
+    const pr=a.play();
+    if(pr&&pr.catch)pr.catch(()=>playSfx('click',0.95));
+  }catch(e){playSfx('click',0.95);}
 }
-function playRandomHit(){playSfx(Math.random()<0.5?'hit1':'hit2',0.72);}
+function playRandomHit(){playSfx(Math.random()<0.5?'hit1':'hit2',0.82);}
+function playWeaponFireSfx(wk){
+  const key=WEAPON_GUN_SFX[wk]||('gun'+(1+Math.floor(Math.random()*15)));
+  playSfx(key,0.72);
+}
+function playWeaponHit(wk){
+  wk=wk||'default';
+  // Aynı silah aynı hit tonunu korur; silah değişince hit1/hit2 arasında switch eder.
+  if(!weaponHitSfxMemory[wk]||lastHitWeaponKey!==wk){
+    if(lastHitWeaponKey!==wk)hitSwitchFlag=!hitSwitchFlag;
+    weaponHitSfxMemory[wk]=hitSwitchFlag?'hit1':'hit2';
+  }
+  lastHitWeaponKey=wk;
+  playSfx(weaponHitSfxMemory[wk],0.90);
+}
+function playPunchImpact(){playSfx('punch',0.92);}
 function playBonusPickupSfx(b){
   const key=(b&&b.type==='weapon')?String(b.weapon||''):String((b&&b.type)||'');
-  if(key==='laser'||key==='beam'||key==='beam_ammo')playSfx('laserpick',0.75);
-  else playSfx(Math.random()<0.5?'pick1':'pick2',0.72);
+  if(key==='laser'||key==='beam'||key==='beam_ammo')playSfx('laserpick',0.82);
+  else playSfx(Math.random()<0.5?'pick1':'pick2',0.82);
 }
 function isMenuSfxTarget(el){
   if(!el||!el.closest)return false;
-  if(el.closest('#gameCanvas,#touchCtrl,#btnCtrl'))return false;
-  return !!el.closest('button,.bb,.bb2,.langBtn,.langPick,.copt,.cc,.gameMenuBtn,#logoBtn,#startBtn,#nxtBtn,#goCodeBtn,#goRestartBtn,#endAgain,#endHiBtn,#settingsBtn,#hiBtn,#hiBack,#settingsBack,#gameSettingsBtn,#sndBtn');
+  if(el.closest('#gameCanvas'))return false;
+  // Oyun içi ateş/joystick sürekli tıklama sayılmasın; menü ve seçim işlemleri click1 çalsın.
+  if(el.closest('#touchCtrl,#btnCtrl,#jz,#jk,#bFire,#bFire2,#bBeam,#bBeam2,#bSlap,#bSlap2,#bSw,#bSw2,#bUlti,#bUlti2,#btnLeft,#btnRight'))return false;
+  if(el.closest('button,.bb,.bb2,.langBtn,.langPick,.copt,.cc,.gameMenuBtn,#logoBtn,#startBtn,#nxtBtn,#goCodeBtn,#goRestartBtn,#endAgain,#endHiBtn,#settingsBtn,#hiBtn,#hiBack,#settingsBack,#gameSettingsBtn,#sndBtn'))return true;
+  // Açık menü/karakter/dil ekranlarında boş alana dokunma da click sayılır.
+  const screens=['langScreen','ctrlSelScreen','ctrlScreen','logoScreen','charSelect','hiScreen','settingsScreen','gameMenuOverlay','gameOverScreen','endScreen','unlockScreen'];
+  for(const id of screens){const n=document.getElementById(id);if(n&&n.style.display!=='none'&&el.closest('#'+id))return true;}
+  return false;
 }
-['pointerdown','touchstart'].forEach(ev=>{
-  document.addEventListener(ev,e=>{unlockSfxAudio();if(isMenuSfxTarget(e.target))playClick();},{capture:true,passive:true});
+function handleGlobalSfxClick(e){
+  unlockSfxAudio();
+  if(isMenuSfxTarget(e.target))playClick();
+}
+['pointerdown','touchstart','click'].forEach(ev=>{
+  document.addEventListener(ev,handleGlobalSfxClick,{capture:true,passive:true});
 });
 
 function initMenuMusic(){
@@ -1222,12 +1262,12 @@ function initAudio(){if(audioCtx)return;try{audioCtx=new(window.AudioContext||wi
 function toggleMute(){muted=!muted;if(masterGain)masterGain.gain.value=muted?0:0.35;syncMenuMusicMute();syncGameMusicMute();document.getElementById('sndBtn').textContent=muted?'🔇':'🔊';}
 function beep(freq,dur,type='square',vol=0.15){if(!audioCtx||muted)return;try{const o=audioCtx.createOscillator(),g=audioCtx.createGain();o.type=type;o.frequency.value=freq;g.gain.setValueAtTime(vol,audioCtx.currentTime);g.gain.exponentialRampToValueAtTime(0.001,audioCtx.currentTime+dur);o.connect(g);g.connect(masterGain);o.start();o.stop(audioCtx.currentTime+dur);}catch(e){}}
 function playFire(w){if(!audioCtx)return;const m={fireball:[220,0.1,'sawtooth'],ice:[880,0.08,'sine'],lava:[110,0.18,'sawtooth'],rocket:[350,0.3,'square'],saw:[440,0.06,'square'],water:[660,0.07,'sine'],thunder:[990,0.06,'square'],void:[55,0.15,'sine'],slime:[330,0.1,'triangle'],nether:[150,0.16,'sawtooth']};const p=m[w]||m.fireball;beep(p[0],p[1],p[2],0.18);}
-function playHit(){playRandomHit();}
+function playHit(wk){playWeaponHit(wk||'default');}
 function playPickup(){playSfx(Math.random()<0.5?'pick1':'pick2',0.62);}
 function playDeath(){beep(200,0.4,'sawtooth',0.26);setTimeout(()=>beep(100,0.5,'sawtooth',0.2),200);}
 function playVictory(){playSfx('gamewin',0.75);}
 function playBeamSound(){if(!audioCtx||muted)return;try{const o=audioCtx.createOscillator(),g=audioCtx.createGain();o.type='sawtooth';o.frequency.setValueAtTime(800,audioCtx.currentTime);o.frequency.linearRampToValueAtTime(1400,audioCtx.currentTime+0.5);g.gain.setValueAtTime(0.15,audioCtx.currentTime);g.gain.linearRampToValueAtTime(0,audioCtx.currentTime+2);o.connect(g);g.connect(masterGain);o.start();o.stop(audioCtx.currentTime+2);}catch(e){}}
-function playSlapSound(){beep(60,0.08,'sawtooth',0.4);setTimeout(()=>beep(40,0.15,'sawtooth',0.5),80);setTimeout(()=>beep(80,0.1,'sawtooth',0.3),200);}
+function playSlapSound(){playSfx('slap',0.90);beep(60,0.08,'sawtooth',0.28);setTimeout(()=>beep(40,0.12,'sawtooth',0.28),80);}
 function playSpeedUp(){beep(660,0.05,'sine',0.15);setTimeout(()=>beep(880,0.05,'sine',0.15),60);setTimeout(()=>beep(1100,0.08,'sine',0.15),120);}
 function playLightning(){beep(200,0.05,'sawtooth',0.3);setTimeout(()=>beep(80,0.2,'sawtooth',0.15),50);}
 function startBGM(){startGameMusic();}
@@ -1781,7 +1821,7 @@ function activateUlti(){
     const bp=bossAimPoint(0.52);
     if(boss.alive){
       const dmg=ultiDmg(650);
-      boss.hp=Math.max(0,boss.hp-dmg);gameScore+=dmg;boss.slapShake=850;addXP(42);
+      boss.hp=Math.max(0,boss.hp-dmg);gameScore+=dmg;boss.slapShake=850;addXP(42);playPunchImpact();
       for(let i=0;i<10;i++){burst(bp.x+(Math.random()-0.5)*100,bp.y+(Math.random()-0.5)*80,'#2d8cff',18);burst(bp.x+(Math.random()-0.5)*60,bp.y+(Math.random()-0.5)*50,'#fff06a',10);}
       burst(player.x+player.w/2,player.y+player.h/2,'#2d8cff',35);
       beep(520,0.12,'sine',0.35);beep(900,0.12,'sine',0.28);beep(1200,0.16,'triangle',0.22);
@@ -1852,7 +1892,7 @@ function initLevel(lvl){
   blocks=[];buildBlocks(lvl);
   projectiles=[];bonuses=[];particles=[];bossFragments=[];slapAnim=null;
   gameOver=false;victory=false;paused=false;
-  lastFireTime=0;bossFireTimer=0;bonusTimer=0;victoryAlpha=0;victoryPhase=0;wpTimer=0;
+  lastFireTime=0;lastHitWeaponKey=null;hitSwitchFlag=false;Object.keys(weaponHitSfxMemory).forEach(k=>delete weaponHitSfxMemory[k]);bossFireTimer=0;bonusTimer=0;victoryAlpha=0;victoryPhase=0;wpTimer=0;
   beamActive=false;beamTimer=0;beamCooldown=0;walkT=0;lightningFlash=0;lightningTimer=0;
   levelStartTime=Date.now();
   document.getElementById('nxtBtn').style.display='none';document.getElementById('bPause').textContent='⏸';
@@ -1941,7 +1981,7 @@ function tryFire(){
   const now=performance.now();
   const cd=getWeaponCooldown(player.weapon);
   if(now-lastFireTime<cd)return;
-  lastFireTime=now;playFire(player.weapon);if(player.weapon==='missile'||player.weapon==='rocket')playSfx('missile',0.72);
+  lastFireTime=now;playFire(player.weapon);playWeaponFireSfx(player.weapon);if(player.weapon==='missile'||player.weapon==='rocket')playSfx('missile',0.72);
   const wd=WEAPONS_BASE[player.weapon]||WEAPONS_BASE.fireball;
 
   if(player.weapon==='rocket'||player.weapon==='claw'||player.weapon==='neon'){
@@ -1974,7 +2014,7 @@ function activateSlap(){
   if(gameOver||victory||paused||player.dead)return;
   if(slapAmmo<=0){showPopup(L().noSlap);return;}
   if(slapAnim)return;
-  slapAmmo--;updateSpecialBtns();playSlapSound();
+  slapAmmo--;updateSpecialBtns();
   // Şaplak animasyonu başlat — eller boss'un güncel merkezine kilitlenir, boşluğa vurmaz.
   const bp=bossAimPoint(0.52);
   slapAnim={phase:'approach',t:0,duration:600,startLX:player.x+player.w/2-58,startRX:player.x+player.w/2+58,startY:player.y+player.h*0.35,lx:player.x+player.w/2-58,rx:player.x+player.w/2+58,ly:player.y+player.h*0.35,ry:player.y+player.h*0.35,tx:bp.x,ty:bp.y,scale:1,done:false};
@@ -2105,7 +2145,7 @@ function update(dt){
         if(p.type==='missile'){burst(p.x,p.y,'#ffdd55',30);burst(p.x,p.y,'#ff3300',22);}
         if(p.type==='rocket'){burst(p.x,p.y,'#ffaa00',18);burst(p.x,p.y,'#ff3300',12);}
         if(p.type==='claw'){burst(p.x,p.y,'#9eff60',16);}
-        boss.hp=Math.max(0,boss.hp-dmg);gameScore+=dmg;addXP(Math.ceil(dmg/8));burst(p.x,p.y,boss.def.eyeColor,p.type==='missile'?18:10);playHit();
+        boss.hp=Math.max(0,boss.hp-dmg);gameScore+=dmg;addXP(Math.ceil(dmg/8));burst(p.x,p.y,boss.def.eyeColor,p.type==='missile'?18:10);playHit(p.type);
         if(boss.hp<=0){boss.alive=false;startVictory();}return false;
       }
     }else{
@@ -2165,6 +2205,7 @@ function updateSpiderUlti(dt){
         boss.hp=Math.max(0,boss.hp-dmg);
         gameScore+=dmg;
         boss.slapShake=500;
+        playPunchImpact();
         addXP(40);
         for(let i=0;i<5;i++){
           burst(s.punchX+(Math.random()-0.5)*60,s.punchY+(Math.random()-0.5)*60,'#ff4400',20);
@@ -2255,7 +2296,7 @@ function updateJessieUlti(dt){
       const bp=lockPointToBoss(s,'punchX','punchY',0.52);
       player.x=bp.x-player.w/2;player.y=bp.y-player.h*0.55;
       const dmg=ultiDmg(275);
-      boss.hp=Math.max(0,boss.hp-dmg);gameScore+=dmg;boss.slapShake=600;addXP(35);
+      boss.hp=Math.max(0,boss.hp-dmg);gameScore+=dmg;boss.slapShake=600;addXP(35);playPunchImpact();
       for(let i=0;i<6;i++){burst(s.punchX+(Math.random()-0.5)*80,s.punchY+(Math.random()-0.5)*60,'#00BFFF',18);burst(s.punchX+(Math.random()-0.5)*50,s.punchY+(Math.random()-0.5)*40,'#ffffff',12);}
       beep(80,0.2,'sawtooth',0.4);beep(200,0.15,'sine',0.3);
       if(boss.hp<=0){boss.alive=false;startVictory();}
@@ -2321,7 +2362,7 @@ function updateHurryUlti(dt){
     if(!s.dmgDone&&boss.alive){
       s.dmgDone=true;
       const dmg=ultiDmg(225);
-      boss.hp=Math.max(0,boss.hp-dmg);gameScore+=dmg;boss.slapShake=500;addXP(30);
+      boss.hp=Math.max(0,boss.hp-dmg);gameScore+=dmg;boss.slapShake=500;addXP(30);playPunchImpact();
       for(let i=0;i<5;i++){burst(bp.x+(Math.random()-0.5)*70,bp.y+(Math.random()-0.5)*55,'#FFD700',20);burst(bp.x,bp.y,'#ff8800',15);}
       beep(100,0.15,'sawtooth',0.4);
       if(boss.hp<=0){boss.alive=false;startVictory();}
@@ -2380,7 +2421,7 @@ function updateBarisUlti(dt){
       const bp=lockPointToBoss(s,'hitX','hitY',0.52);
       player.x=bp.x-player.w/2;player.y=bp.y-player.h*0.55;
       const dmg=ultiDmg(340);
-      boss.hp=Math.max(0,boss.hp-dmg);gameScore+=dmg;boss.slapShake=900;addXP(42);
+      boss.hp=Math.max(0,boss.hp-dmg);gameScore+=dmg;boss.slapShake=900;addXP(42);playPunchImpact();
       for(let i=0;i<9;i++){
         burst(s.hitX+(Math.random()-0.5)*110,s.hitY+(Math.random()-0.5)*80,'#ff3300',20);
         burst(s.hitX+(Math.random()-0.5)*90,s.hitY+(Math.random()-0.5)*70,'#ffcc00',14);
@@ -2441,7 +2482,7 @@ function updateAriaUlti(dt){
       s.dmgDone=true;
       if(boss.alive){
         const dmg=ultiDmg(310);
-        boss.hp=Math.max(0,boss.hp-dmg);gameScore+=dmg;boss.slapShake=800;addXP(38);
+        boss.hp=Math.max(0,boss.hp-dmg);gameScore+=dmg;boss.slapShake=800;addXP(38);playPunchImpact();
         for(let i=0;i<8;i++){burst(s.cx+(Math.random()-0.5)*100,s.cy+(Math.random()-0.5)*100,'#9400D3',18);burst(s.cx+(Math.random()-0.5)*60,s.cy+(Math.random()-0.5)*60,'#ffffff',12);}
         beep(40,0.3,'sine',0.5);
         if(boss.hp<=0){boss.alive=false;startVictory();}
@@ -2515,6 +2556,7 @@ function updateSlapAnim(dt){
     s.ry=s.startY+(hitY-s.startY)*ease;
     if(s.t>=420){s.phase='impact';s.t=0;// Boss'a hasar ver
       if(boss.alive){
+        playSlapSound();
         const dmg=boss.maxHp*0.20;boss.hp=Math.max(0,boss.hp-dmg);gameScore+=dmg;boss.slapShake=400;
         // Partiküller direkt boss merkezinden saçılsın
         const c=bossAimPoint(0.52);
