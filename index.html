@@ -1042,30 +1042,94 @@ const SFX_FILES={
   pick2:'pick2.mp3',
   laserpick:'laserpick.mp3'
 };
+const SFX_DIRS=['','./','music/','./music/','sounds/','./sounds/','audio/','./audio/'];
 const sfxPool={};
-function playSfx(name,vol=SFX_VOL){
-  if(muted)return;
-  const src=SFX_FILES[name]||name;
-  try{
-    if(!sfxPool[src]){
-      sfxPool[src]=[];
-      for(let i=0;i<4;i++){const a=new Audio(src);a.preload='auto';a.volume=vol;sfxPool[src].push(a);}
+let sfxUnlocked=false;
+let lastClickSfxAt=0;
+function sfxCandidates(name){
+  const file=SFX_FILES[name]||name;
+  if(/^data:|^https?:|^blob:/i.test(file))return [file];
+  const out=[];
+  SFX_DIRS.forEach(d=>{const src=d+file;if(!out.includes(src))out.push(src);});
+  return out;
+}
+function getSfxAudio(src,vol){
+  if(!sfxPool[src]){
+    sfxPool[src]=[];
+    for(let i=0;i<5;i++){
+      const a=new Audio(src);
+      a.preload='auto';
+      a.playsInline=true;
+      a.volume=vol;
+      sfxPool[src].push(a);
     }
-    const pool=sfxPool[src];
-    let a=pool.find(x=>x.paused||x.ended)||pool[0].cloneNode(true);
-    a.volume=vol;
-    try{a.currentTime=0;}catch(e){}
+  }
+  const pool=sfxPool[src];
+  let a=pool.find(x=>x.paused||x.ended);
+  if(!a){a=pool[0].cloneNode(true);if(pool.length<10)pool.push(a);}
+  a.volume=vol;
+  a.muted=false;
+  a.playsInline=true;
+  try{a.currentTime=0;}catch(e){}
+  return a;
+}
+function tryPlaySfxCandidate(list,idx,vol){
+  if(idx>=list.length)return;
+  const src=list[idx];
+  try{
+    const a=getSfxAudio(src,vol);
+    let done=false;
+    const fallback=()=>{if(done)return;done=true;tryPlaySfxCandidate(list,idx+1,vol);};
+    a.onerror=fallback;
     const pr=a.play();
-    if(pr&&pr.catch)pr.catch(()=>{});
-    if(!pool.includes(a)&&pool.length<8)pool.push(a);
-  }catch(e){}
+    if(pr&&pr.then){
+      pr.then(()=>{done=true;}).catch(fallback);
+    }else{
+      done=true;
+    }
+  }catch(e){tryPlaySfxCandidate(list,idx+1,vol);}
 }
-function playClick(){playSfx('click',0.55);}
-function playRandomHit(){playSfx(Math.random()<0.5?'hit1':'hit2',0.60);}
+function unlockSfxAudio(){
+  if(sfxUnlocked)return;
+  sfxUnlocked=true;
+  Object.keys(SFX_FILES).forEach(k=>{
+    try{
+      const src=sfxCandidates(k)[0];
+      const a=new Audio(src);
+      a.preload='auto';
+      a.playsInline=true;
+      a.muted=true;
+      a.volume=0;
+      const pr=a.play();
+      if(pr&&pr.then)pr.then(()=>{a.pause();try{a.currentTime=0;}catch(e){}}).catch(()=>{});
+    }catch(e){}
+  });
+}
+function playSfx(name,vol=SFX_VOL){
+  if(typeof muted!=='undefined'&&muted)return;
+  unlockSfxAudio();
+  tryPlaySfxCandidate(sfxCandidates(name),0,vol);
+}
+function playClick(){
+  const now=performance.now();
+  if(now-lastClickSfxAt<90)return;
+  lastClickSfxAt=now;
+  playSfx('click',0.68);
+}
+function playRandomHit(){playSfx(Math.random()<0.5?'hit1':'hit2',0.72);}
 function playBonusPickupSfx(b){
-  if(b&&b.type==='weapon'&&(b.weapon==='laser'||b.weapon==='beam'))playSfx('laserpick',0.65);
-  else playSfx(Math.random()<0.5?'pick1':'pick2',0.62);
+  const key=(b&&b.type==='weapon')?String(b.weapon||''):String((b&&b.type)||'');
+  if(key==='laser'||key==='beam'||key==='beam_ammo')playSfx('laserpick',0.75);
+  else playSfx(Math.random()<0.5?'pick1':'pick2',0.72);
 }
+function isMenuSfxTarget(el){
+  if(!el||!el.closest)return false;
+  if(el.closest('#gameCanvas,#touchCtrl,#btnCtrl'))return false;
+  return !!el.closest('button,.bb,.bb2,.langBtn,.langPick,.copt,.cc,.gameMenuBtn,#logoBtn,#startBtn,#nxtBtn,#goCodeBtn,#goRestartBtn,#endAgain,#endHiBtn,#settingsBtn,#hiBtn,#hiBack,#settingsBack,#gameSettingsBtn,#sndBtn');
+}
+['pointerdown','touchstart'].forEach(ev=>{
+  document.addEventListener(ev,e=>{unlockSfxAudio();if(isMenuSfxTarget(e.target))playClick();},{capture:true,passive:true});
+});
 
 function initMenuMusic(){
   if(menuMusic)return;
