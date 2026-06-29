@@ -84,9 +84,9 @@ canvas{display:block;}
 #charSelect h2{color:#a020f0;font-size:clamp(14px,4vw,22px);margin-bottom:4px;letter-spacing:3px;text-shadow:0 0 20px #a020f0;text-align:center;}
 #charSelect .sub{color:#555;font-size:9px;margin-bottom:10px;letter-spacing:2px;text-align:center;}
 #chars{display:flex;gap:7px;flex-wrap:wrap;justify-content:center;margin-bottom:10px;}
-.cc{width:clamp(78px,15vw,106px);background:rgba(255,255,255,0.04);border:2px solid #333;border-radius:10px;padding:8px 4px 6px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px;-webkit-tap-highlight-color:rgba(160,32,240,0.3);}
+.cc{width:clamp(96px,22vw,128px);min-height:150px;background:rgba(255,255,255,0.04);border:2px solid #333;border-radius:10px;padding:8px 6px 7px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:5px;-webkit-tap-highlight-color:rgba(160,32,240,0.3);}
 .cc.sel{border-color:#00ffaa;background:rgba(0,255,170,0.08);box-shadow:0 0 14px rgba(0,255,170,0.3);}
-.cc .cn{color:#fff;font-size:9px;font-weight:bold;} .cc .cd{color:#777;font-size:6px;text-align:center;}
+.cc .cn{color:#fff;font-size:10px;font-weight:bold;text-align:center;line-height:1.15;} .cc .cd{color:#aaa;font-size:9px;text-align:center;line-height:1.25;min-height:34px;padding:0 2px;} .cc.locked .cd{color:#ffd86a;font-size:9.5px;font-weight:bold;line-height:1.25;}
 #gameCanvas{position:fixed;top:0;left:0;display:none;}
 #touchCtrl{position:fixed;bottom:0;left:0;width:100%;display:none;padding:5px 10px;padding-bottom:max(8px,env(safe-area-inset-bottom,8px));z-index:200;pointer-events:none;}
 .tcr{display:flex;justify-content:space-between;align-items:flex-end;}
@@ -146,7 +146,7 @@ canvas{display:block;}
 .cc.locked .cn{color:#ffd86a;}
 .cc.locked .cd{color:#b6a46a;}
 .cc.locked::after{content:'BONUS';position:absolute;top:4px;right:4px;background:rgba(255,215,0,0.16);border:1px solid rgba(255,215,0,0.35);color:#ffd86a;border-radius:999px;padding:1px 6px;font-size:7px;letter-spacing:1px;}
-#bonusCharInfo{color:#b793ff;font-size:10px;line-height:1.5;text-align:center;max-width:330px;margin:0 auto 10px;opacity:0.95;}
+#bonusCharInfo{color:#b793ff;font-size:11px;line-height:1.55;text-align:center;max-width:390px;margin:0 auto 10px;opacity:0.95;padding:0 6px;}
 #unlockScreen{background:radial-gradient(circle at center,#1b0935 0%,#080311 56%,#000 100%);display:none;z-index:950;padding:12px;overflow:hidden;}
 #unlockTitle{color:#ffd84d;font-size:clamp(20px,6vw,34px);letter-spacing:3px;text-shadow:0 0 24px #ffcc00,0 0 40px rgba(255,204,0,0.45);text-align:center;margin-bottom:6px;}
 #unlockSubtitle{color:#fff;font-size:clamp(12px,3.4vw,18px);line-height:1.5;text-align:center;max-width:720px;margin:0 auto 12px;white-space:pre-line;}
@@ -1508,6 +1508,21 @@ Artık kimse ondan kaçamazdı; çünkü o kendi yolunu kancasıyla açmıştı.
   {charId:8,title:"Elektra'nın Işığı",story:`Elektra, avuçlarındaki elektriği gökyüzüne bıraktı.
 Şimşekler korkutmak için değil, yolu aydınlatmak için çaktı.
 O gün herkes onun gerçek gücünün cesaret olduğunu gördü.`,fam:'Elektriğiyle karanlığı aydınlattı'},
+  {charId:9,title:"Shadow Knight'ın Sessiz Zaferi",story:`Gölge Şövalye kılıcını yere sapladı.
+Karanlık artık düşman değil, koruyucu bir pelerindi.
+Sessizce ufka yürüdü ve arkasında mor bir iz bıraktı.`,fam:'Gölge krallığının kapısını açtı'},
+  {charId:10,title:"Frost Mage'in Buz Tacı",story:`Buz Büyücüsü asasını kaldırdı.
+Savaş alanındaki kar taneleri dans etmeye başladı.
+Soğuk artık korku değil, huzur getiren bir büyüydü.`,fam:'Buz tacını kazandı'},
+  {charId:11,title:"Slime King'in Tahtı",story:`Slime Kralı zıplayarak tahtına çıktı.
+Yeşil balçık damlaları yıldız gibi parladı.
+Herkes onun komik ama güçlü bir kahraman olduğunu anladı.`,fam:'Slime krallığını kurtardı'},
+  {charId:12,title:"Dragon Child'ın Alevi",story:`Ejder Çocuk küçük kanatlarını açtı.
+İçindeki alev gökyüzüne yükseldi.
+Artık o sadece çocuk değil, efsane bir ejder savaşçısıydı.`,fam:'Ejder ateşini uyandırdı'},
+  {charId:13,title:"Celestial Archer'ın Oku",story:`Göksel Okçu yayını yıldızlara çevirdi.
+Işık okları karanlığı delip geçti.
+O gece gökyüzünde yeni bir takımyıldız doğdu.`,fam:'Yıldız okçusu oldu'},
 ];
 
 const CHARS=[
@@ -1520,29 +1535,46 @@ const CHARS=[
   {id:6,name:'CEKS',  desc:'Mavi Kasklı Maskot',gender:'M',hair:'#256dff',skin:'#ffd83b',shirt:'#b56b2b',shorts:'#2b56a5',ceks:true},
   {id:7,name:'Scorpion',desc:'Kanca Ustası',gender:'M',hair:'#f3d414',skin:'#f7d24a',shirt:'#0f7a34',shorts:'#0a5e28',scorpion:true,startWeapon:'claw'},
   {id:8,name:'Elektra',desc:'Elektrik Atar',gender:'F',hair:'#ffe84a',skin:'#f5d35a',shirt:'#087644',shorts:'#064d2d',elektra:true,startWeapon:'thunder'},
+  {id:9,name:'Shadow Knight',desc:'Gölge Şövalye',gender:'M',hair:'#181020',skin:'#b69cff',armor:'#24133d',boot:'#0b0714',shirt:'#2a1846',secret:true,startWeapon:'void'},
+  {id:10,name:'Frost Mage',desc:'Buz Büyücüsü',gender:'F',hair:'#dff7ff',skin:'#e8f9ff',shirt:'#2b8cff',skirt:'#82dfff',secret:true,startWeapon:'ice'},
+  {id:11,name:'Slime King',desc:'Balçık Kralı',gender:'M',hair:'#7dff4c',skin:'#7cff66',shirt:'#236b2f',shorts:'#16491f',secret:true,startWeapon:'slime'},
+  {id:12,name:'Dragon Child',desc:'Ejder Çocuk',gender:'M',hair:'#ff6a00',skin:'#ffbf8a',shirt:'#8a1b10',shorts:'#4b120d',secret:true,startWeapon:'nether'},
+  {id:13,name:'Celestial Archer',desc:'Göksel Okçu',gender:'F',hair:'#fff0a8',skin:'#ffe0b8',shirt:'#4026a8',skirt:'#735cff',secret:true,startWeapon:'neon'},
 ];
 let selectedChar=null;
 
-const BONUS_UNLOCK_STORAGE='wf_bonus_unlocks_v3';
+const BONUS_UNLOCK_STORAGE='wf_bonus_unlocks_v4_secret_fantasy';
 const FULL_RUN_STORAGE='wf_full_game_completions_v3';
-let bonusUnlocks={7:false,8:false};
+const SECRET_STATS_STORAGE='wf_secret_fantasy_stats_v1';
+const BONUS_DEFAULT_UNLOCKS={7:false,8:false,9:false,10:false,11:false,12:false,13:false};
+let bonusUnlocks=Object.assign({},BONUS_DEFAULT_UNLOCKS);
 let fullGameCompletions=0;
+let secretStats={noDeathStreak:0,slimeHits:0,rocketBossKills:0,totalLevelsCleared:0};
+let levelIcePicked=false;
+let levelRocketOrMissileHit=false;
+let levelVictoryProgressDone=false;
 let unlockContinueCb=null;
 let unlockAnimRaf=0;
 let unlockAnimCharId=null;
 let pendingEndScreenData=null;
 
 function loadBonusUnlockState(){
-  try{bonusUnlocks=Object.assign({7:false,8:false},JSON.parse(localStorage.getItem(BONUS_UNLOCK_STORAGE)||'{}'));}catch(e){bonusUnlocks={7:false,8:false};}
+  try{bonusUnlocks=Object.assign({},BONUS_DEFAULT_UNLOCKS,JSON.parse(localStorage.getItem(BONUS_UNLOCK_STORAGE)||'{}'));}catch(e){bonusUnlocks=Object.assign({},BONUS_DEFAULT_UNLOCKS);}
   try{fullGameCompletions=Math.max(0,parseInt(localStorage.getItem(FULL_RUN_STORAGE)||'0',10)||0);}catch(e){fullGameCompletions=0;}
+  try{secretStats=Object.assign({noDeathStreak:0,slimeHits:0,rocketBossKills:0,totalLevelsCleared:0},JSON.parse(localStorage.getItem(SECRET_STATS_STORAGE)||'{}'));}catch(e){secretStats={noDeathStreak:0,slimeHits:0,rocketBossKills:0,totalLevelsCleared:0};}
   if(fullGameCompletions>=1)bonusUnlocks[7]=true;
   if(fullGameCompletions>=2)bonusUnlocks[8]=true;
+  if(secretStats.noDeathStreak>=3)bonusUnlocks[9]=true;
+  if(secretStats.slimeHits>=50)bonusUnlocks[11]=true;
+  if(secretStats.rocketBossKills>=5)bonusUnlocks[12]=true;
+  if(secretStats.totalLevelsCleared>=10)bonusUnlocks[13]=true;
 }
 function saveBonusUnlockState(){
   try{localStorage.setItem(BONUS_UNLOCK_STORAGE,JSON.stringify(bonusUnlocks));}catch(e){}
   try{localStorage.setItem(FULL_RUN_STORAGE,String(fullGameCompletions));}catch(e){}
+  try{localStorage.setItem(SECRET_STATS_STORAGE,JSON.stringify(secretStats));}catch(e){}
 }
-function isBonusLockedCharId(id){return id===7||id===8;}
+function isBonusLockedCharId(id){return id===7||id===8||id===9||id===10||id===11||id===12||id===13;}
 function isCharUnlocked(ch){
   if(!ch)return false;
   if(!isBonusLockedCharId(ch.id))return true;
@@ -1550,10 +1582,22 @@ function isCharUnlocked(ch){
 }
 function getLockedCharHint(ch){
   if(!ch||!isBonusLockedCharId(ch.id))return '';
-  return ch.id===7?'Tüm bölümleri 1 kez bitirince açılır':'Tüm bölümleri 2 kez bitirince açılır';
+  const left=(n)=>Math.max(0,n|0);
+  if(ch.id===7)return 'Tüm oyunu 1 kez bitir';
+  if(ch.id===8)return 'Tüm oyunu 2 kez bitir';
+  if(ch.id===9)return '3 bölüm üst üste ölmeden geç ('+left(3-secretStats.noDeathStreak)+' kaldı)';
+  if(ch.id===10)return 'Buz silahını alıp aynı bölümde boss yen';
+  if(ch.id===11)return 'Slime ile boss’a 50 kez vur ('+left(50-secretStats.slimeHits)+' kaldı)';
+  if(ch.id===12)return 'Roket/Missile ile 5 boss yen ('+left(5-secretStats.rocketBossKills)+' kaldı)';
+  if(ch.id===13)return 'Toplam 10 bölüm bitir ('+left(10-secretStats.totalLevelsCleared)+' kaldı)';
+  return 'Gizli şartı tamamla';
 }
 function getBonusCharInfoText(){
-  return '❓ Bonus karakterler kilitli gelir. Tüm bölümleri bitirdikçe sırayla açılır: önce Scorpion, sonra Elektra.';
+  return '🔒 Gizli karakterlerin şartları kartlarda yazıyor. Şart tamamlanınca kalıcı olarak açılır.';
+}
+function unlockSecretChar(id){
+  if(!bonusUnlocks[id]){bonusUnlocks[id]=true;saveBonusUnlockState();return id;}
+  return null;
 }
 function registerFullGameCompletionUnlock(){
   const before7=!!bonusUnlocks[7], before8=!!bonusUnlocks[8];
@@ -1564,6 +1608,25 @@ function registerFullGameCompletionUnlock(){
   if(!before7 && bonusUnlocks[7])return 7;
   if(!before8 && bonusUnlocks[8])return 8;
   return null;
+}
+function registerLevelVictorySecretProgress(){
+  if(levelVictoryProgressDone)return null;
+  levelVictoryProgressDone=true;
+  secretStats.noDeathStreak=Math.max(0,(secretStats.noDeathStreak||0)+1);
+  secretStats.totalLevelsCleared=Math.max(0,(secretStats.totalLevelsCleared||0)+1);
+  if(levelRocketOrMissileHit)secretStats.rocketBossKills=Math.max(0,(secretStats.rocketBossKills||0)+1);
+  const newly=[];
+  if(secretStats.noDeathStreak>=3 && !bonusUnlocks[9])newly.push(unlockSecretChar(9));
+  if(levelIcePicked && !bonusUnlocks[10])newly.push(unlockSecretChar(10));
+  if(secretStats.slimeHits>=50 && !bonusUnlocks[11])newly.push(unlockSecretChar(11));
+  if(secretStats.rocketBossKills>=5 && !bonusUnlocks[12])newly.push(unlockSecretChar(12));
+  if(secretStats.totalLevelsCleared>=10 && !bonusUnlocks[13])newly.push(unlockSecretChar(13));
+  saveBonusUnlockState();
+  return newly.find(Boolean)||null;
+}
+function registerPlayerDeathSecretReset(){
+  secretStats.noDeathStreak=0;
+  saveBonusUnlockState();
 }
 loadBonusUnlockState();
 
@@ -1748,7 +1811,8 @@ function drawLockedCharacterCard(c,label='?'){
   c.fillStyle='rgba(255,255,255,0.07)';
   c.beginPath();c.arc(30,28,12,0,Math.PI*2);c.fill();
   c.fillRect(18,42,24,20);
-  c.fillStyle='#ffd84d';c.font='bold 34px Courier New';c.textAlign='center';c.fillText(label,30,58);
+  c.fillStyle='#ffd84d';c.font='bold 32px Courier New';c.textAlign='center';c.fillText(label,30,55);
+  c.font='bold 8px Courier New';c.fillText('GİZLİ',30,72);
   c.fillStyle='rgba(255,216,77,0.3)';c.beginPath();c.arc(30,76,7,0,Math.PI*2);c.fill();
 }
 function renderCharCards(){
@@ -1819,6 +1883,21 @@ const CHAR_ULTIS={
   8:{name:'⚡ Elektra Şoku',nameEN:'⚡ Elektra Shock',icon:'⚡',cd:14000,
      desc:'Elektra elektrik boşaltır, 600 hasar!',descEN:'Elektra releases an electric shock, 600 dmg!',
      color:'#00ffff'},
+  9:{name:'🌑 Gölge Yarığı',nameEN:'🌑 Shadow Rift',icon:'🌑',cd:15500,
+     desc:'Karanlık yarık açar, boss’a uzaktan hasar verir!',descEN:'Opens a dark rift and hits the boss!',
+     color:'#8b5cff'},
+  10:{name:'❄️ Buz Fırtınası',nameEN:'❄️ Frost Storm',icon:'❄️',cd:15000,
+     desc:'Boss’u yavaşlatan buz fırtınası!',descEN:'A frost storm slows and damages the boss!',
+     color:'#8ef5ff'},
+  11:{name:'🟢 Slime Tahtı',nameEN:'🟢 Slime Throne',icon:'🟢',cd:16500,
+     desc:'Yerde slime alanı açar, sürekli hasar verir!',descEN:'Creates a slime pool that deals damage!',
+     color:'#74ff55'},
+  12:{name:'🐉 Ejder Nefesi',nameEN:'🐉 Dragon Breath',icon:'🐉',cd:17000,
+     desc:'Alev nefesi ile boss’u yakar!',descEN:'Burns the boss with dragon breath!',
+     color:'#ff6a00'},
+  13:{name:'🏹 Yıldız Okları',nameEN:'🏹 Star Arrows',icon:'🏹',cd:14500,
+     desc:'Gökyüzünden ışık okları yağdırır!',descEN:'Rains star arrows from the sky!',
+     color:'#fff08a'},
 };
 
 // Level sistemi
@@ -1929,6 +2008,28 @@ function activateUlti(){
       if(boss.hp<=0){boss.alive=false;startVictory();}
     }
     ultiActive=false;
+  } else {
+    // Gizli fantasy karakter ultisi — uzaktan vurur, oyuncu kontrolü kilitlenmez.
+    const names={7:'🦂 KANCA FIRTINASI!',8:'⚡ ELEKTRA ŞOKU!',9:'🌑 GÖLGE YARIĞI!',10:'❄️ BUZ FIRTINASI!',11:'🟢 SLIME TAHTI!',12:'🐉 EJDER NEFESİ!',13:'🏹 YILDIZ OKLARI!'};
+    const colors={7:'#9eff60',8:'#00ffff',9:'#8b5cff',10:'#8ef5ff',11:'#74ff55',12:'#ff6a00',13:'#fff08a'};
+    const dmgMap={7:620,8:600,9:640,10:610,11:625,12:700,13:630};
+    showPopup(names[ultiType]||ud.name);
+    player.invincible=Math.max(player.invincible||0,900);
+    const bp=bossAimPoint(0.52);
+    const col=colors[ultiType]||ud.color||'#ffd84d';
+    if(boss.alive){
+      const dmg=ultiDmg(dmgMap[ultiType]||600);
+      boss.hp=Math.max(0,boss.hp-dmg);gameScore+=dmg;boss.slapShake=760;addXP(38);playPunchImpact();
+      if(ultiType===10){boss.dx*=0.55;setTimeout(()=>{if(boss&&boss.def)boss.dx=2*boss.def.spdMul;},1800);}
+      for(let i=0;i<12;i++)burst(bp.x+(Math.random()-0.5)*120,bp.y+(Math.random()-0.5)*95,col,16);
+      burst(player.x+player.w/2,player.y+player.h/2,col,24);
+      if(ultiType===12){for(let i=0;i<6;i++)setTimeout(()=>burst(bp.x+(Math.random()-0.5)*80,bp.y+(Math.random()-0.5)*70,'#ff3300',20),i*80);}
+      if(ultiType===13){for(let i=0;i<7;i++)setTimeout(()=>burst(bp.x+(Math.random()-0.5)*130,bp.y-80+Math.random()*90,'#fff8aa',12),i*70);}
+      beep(260+(ultiType*37)%400,0.16,'triangle',0.26);beep(620+(ultiType*51)%500,0.18,'sine',0.18);
+      if(boss.hp<=0){boss.alive=false;startVictory();}
+    }
+    setTimeout(stopUltiSfx,900);
+    ultiActive=false;
   }
 }
 
@@ -1954,7 +2055,7 @@ let player,boss,blocks,projectiles,bonuses,particles,bossFragments,bgParts;
 let gameOver=false,victory=false,paused=false;
 let lastFireTime=0,lastTime=0,stars=[];
 let bossFireTimer=0,bonusTimer=0,currentLevel=0;
-let victoryAlpha=0,victoryPhase=0;
+let victoryAlpha=0,victoryPhase=0,pendingLevelUnlockId=null;
 let wpTimer=0,wpMsg='';
 let inventory=[];
 let walkT=0,faceR=true;
@@ -1979,6 +2080,7 @@ function makeBgParts(lvl){
 }
 
 function initLevel(lvl){
+  levelIcePicked=false;levelRocketOrMissileHit=false;levelVictoryProgressDone=false;
   makeStars();makeBgParts(lvl);
   const bdef=BOSS_DEFS[Math.min(lvl,BOSS_DEFS.length-1)];
   const bw=Math.min(W*0.40,240); const bh=bw*0.64;
@@ -1993,7 +2095,7 @@ function initLevel(lvl){
   blocks=[];buildBlocks(lvl);
   projectiles=[];bonuses=[];particles=[];bossFragments=[];slapAnim=null;
   gameOver=false;victory=false;paused=false;
-  lastFireTime=0;lastHitWeaponKey=null;hitSwitchFlag=false;Object.keys(weaponHitSfxMemory).forEach(k=>delete weaponHitSfxMemory[k]);bossFireTimer=0;bonusTimer=0;victoryAlpha=0;victoryPhase=0;wpTimer=0;
+  lastFireTime=0;lastHitWeaponKey=null;hitSwitchFlag=false;Object.keys(weaponHitSfxMemory).forEach(k=>delete weaponHitSfxMemory[k]);bossFireTimer=0;bonusTimer=0;victoryAlpha=0;victoryPhase=0;pendingLevelUnlockId=null;wpTimer=0;
   beamActive=false;beamTimer=0;beamCooldown=0;walkT=0;lightningFlash=0;lightningTimer=0;
   levelStartTime=Date.now();
   document.getElementById('nxtBtn').style.display='none';document.getElementById('bPause').textContent='⏸';
@@ -2079,22 +2181,29 @@ window.addEventListener('keyup',e=>keys[e.code]=false);
 
 function tryFire(){
   if(gameOver||victory||paused||player.dead)return;
+  if(!weaponUsable(player.weapon)){
+    autoSwitchIfWeaponEmpty(player.weapon);
+    return;
+  }
   const now=performance.now();
   const cd=getWeaponCooldown(player.weapon);
   if(now-lastFireTime<cd)return;
-  lastFireTime=now;stopUltiSfx();playFire(player.weapon);playWeaponFireSfx(player.weapon);if(player.weapon==='missile'||player.weapon==='rocket')playSfx('missile',0.42);
-  const wd=WEAPONS_BASE[player.weapon]||WEAPONS_BASE.fireball;
+  const fireWeapon=player.weapon;
+  lastFireTime=now;stopUltiSfx();playFire(fireWeapon);playWeaponFireSfx(fireWeapon);if(fireWeapon==='missile'||fireWeapon==='rocket')playSfx('missile',0.42);
+  const wd=WEAPONS_BASE[fireWeapon]||WEAPONS_BASE.fireball;
 
-  if(player.weapon==='rocket'||player.weapon==='claw'||player.weapon==='neon'){
-    if(player.weapon==='rocket'){
-      if(rocketAmmo<=0){switchWeapon();showPopup(txt('rocketEmpty'));return;}
-      rocketAmmo--;
-    }else if(player.weapon==='claw'){
-      if(clawAmmo<=0){switchWeapon();showPopup(txt('clawEmpty'));return;}
-      clawAmmo--;
+  if(fireWeapon==='rocket'||fireWeapon==='claw'||fireWeapon==='neon'){
+    let depletedAfterShot=false;
+    if(fireWeapon==='rocket'){
+      if(rocketAmmo<=0){autoSwitchIfWeaponEmpty(fireWeapon);return;}
+      rocketAmmo--;depletedAfterShot=rocketAmmo<=0;
+    }else if(fireWeapon==='claw'){
+      if(clawAmmo<=0){autoSwitchIfWeaponEmpty(fireWeapon);return;}
+      clawAmmo--;depletedAfterShot=clawAmmo<=0;
     }
     updateSpecialBtns();
-    projectiles.push({x:player.x+player.w/2,y:player.y+10,vx:0,vy:-wd.speed,type:player.weapon,owner:'player',r:wd.r,spin:0,wobble:0,homing:true,trail:[],damageMult:1,rope:player.weapon==='claw'});
+    projectiles.push({x:player.x+player.w/2,y:player.y+10,vx:0,vy:-wd.speed,type:fireWeapon,owner:'player',r:wd.r,spin:0,wobble:0,homing:true,trail:[],damageMult:1,rope:fireWeapon==='claw'});
+    if(depletedAfterShot)autoSwitchIfWeaponEmpty(fireWeapon);
     return;
   }
 
@@ -2120,7 +2229,50 @@ function activateSlap(){
   const bp=bossAimPoint(0.52);
   slapAnim={phase:'approach',t:0,duration:600,startLX:player.x+player.w/2-58,startRX:player.x+player.w/2+58,startY:player.y+player.h*0.35,lx:player.x+player.w/2-58,rx:player.x+player.w/2+58,ly:player.y+player.h*0.35,ry:player.y+player.h*0.35,tx:bp.x,ty:bp.y,scale:1,done:false};
 }
-function switchWeapon(){if(inventory.length<=1)return;player.weaponIdx=(player.weaponIdx+1)%inventory.length;player.weapon=inventory[player.weaponIdx];const wd=WEAPONS_BASE[player.weapon];showPopup((wd?.icon||'🔫')+' '+weaponName(player.weapon));updateSpecialBtns();beep(440,0.08,'sine',0.13);}
+function weaponAmmoLeft(w){
+  if(w==='rocket')return rocketAmmo;
+  if(w==='claw')return clawAmmo;
+  return Infinity;
+}
+function weaponUsable(w){return weaponAmmoLeft(w)>0;}
+function emptyWeaponText(w){
+  if(w==='rocket')return txt('rocketEmpty');
+  if(w==='claw')return txt('clawEmpty');
+  return (WEAPONS_BASE[w]?.icon||'🔫')+' '+weaponName(w)+' bitti!';
+}
+function switchWeapon(manual=true){
+  if(inventory.length<=1)return false;
+  const startIdx=player.weaponIdx;
+  for(let step=1;step<=inventory.length;step++){
+    const ni=(startIdx+step)%inventory.length;
+    const nw=inventory[ni];
+    if(weaponUsable(nw)){
+      player.weaponIdx=ni;
+      player.weapon=nw;
+      const wd=WEAPONS_BASE[player.weapon];
+      showPopup((manual?'🔄 ':'')+(wd?.icon||'🔫')+' '+weaponName(player.weapon));
+      updateSpecialBtns();
+      beep(440,0.08,'sine',0.13);
+      return true;
+    }
+  }
+  showPopup(emptyWeaponText(player.weapon));
+  updateSpecialBtns();
+  return false;
+}
+function autoSwitchIfWeaponEmpty(oldWeapon){
+  if(weaponUsable(oldWeapon))return false;
+  const oldIcon=WEAPONS_BASE[oldWeapon]?.icon||'🔫';
+  const oldName=weaponName(oldWeapon);
+  if(switchWeapon(false)){
+    const nw=player.weapon;
+    const ni=WEAPONS_BASE[nw]?.icon||'🔫';
+    showPopup(oldIcon+' '+oldName+' bitti → '+ni+' '+weaponName(nw));
+    return true;
+  }
+  showPopup(emptyWeaponText(oldWeapon));
+  return false;
+}
 function showPopup(msg){wpMsg=msg;wpTimer=1800;}
 function clampPlayerToArena(){
   if(!player)return;
@@ -2244,8 +2396,9 @@ function update(dt){
         if(p.type==='rocket'||p.type==='missile'||p.type==='claw'){
           dmg=boss.maxHp*0.10;
         }
-        if(p.type==='missile'){burst(p.x,p.y,'#ffdd55',30);burst(p.x,p.y,'#ff3300',22);}
-        if(p.type==='rocket'){burst(p.x,p.y,'#ffaa00',18);burst(p.x,p.y,'#ff3300',12);}
+        if(p.type==='missile'){levelRocketOrMissileHit=true;burst(p.x,p.y,'#ffdd55',30);burst(p.x,p.y,'#ff3300',22);}
+        if(p.type==='rocket'){levelRocketOrMissileHit=true;burst(p.x,p.y,'#ffaa00',18);burst(p.x,p.y,'#ff3300',12);}
+        if(p.type==='slime'){secretStats.slimeHits=Math.max(0,(secretStats.slimeHits||0)+1);if(secretStats.slimeHits>=50)unlockSecretChar(11);saveBonusUnlockState();}
         if(p.type==='claw'){burst(p.x,p.y,'#9eff60',16);}
         boss.hp=Math.max(0,boss.hp-dmg);gameScore+=dmg;addXP(Math.ceil(dmg/8));burst(p.x,p.y,boss.def.eyeColor,p.type==='missile'?18:10);playHit(p.type);
         if(boss.hp<=0){boss.alive=false;startVictory();}return false;
@@ -2745,6 +2898,7 @@ function bossSpecial(){const sp=boss.def.special||'';if(['split','chaos','rain']
 
 function applyBonus(b){
   if(b.type==='weapon'){
+    if(b.weapon==='ice')levelIcePicked=true;
     if(!inventory.includes(b.weapon))inventory.push(b.weapon);
     if(b.weapon==='rocket'){
       rocketAmmo+=5;
@@ -2778,6 +2932,7 @@ function applyBonus(b){
   else if(b.type==='speed_boost'){speedBoostActive=true;speedBoostTimer=5000;showPopup(L().speedPop);playSpeedUp();}
 }
 function triggerPlayerDeath(){
+  registerPlayerDeathSecretReset();
   player.dead=true;player.deathTimer=1200;
   const charColor=player.char.shirt||player.char.armor||'#4488ff';
   for(let i=0;i<30;i++){const a=Math.random()*Math.PI*2,s=3+Math.random()*7;bossFragments.push({x:player.x+Math.random()*player.w,y:player.y+Math.random()*player.h,vx:Math.cos(a)*s,vy:Math.sin(a)*s-4,spin:Math.random()*Math.PI,spinSpeed:(Math.random()-0.5)*0.25,life:50+Math.random()*50,maxLife:100,color:charColor,color2:'#aaddff',size:5+Math.random()*12});}
@@ -2786,6 +2941,7 @@ function triggerPlayerDeath(){
   burst(player.x+player.w/2,player.y+player.h/2,'#ffdd00',15);
 }
 function startVictory(){stopUltiSfx();
+  pendingLevelUnlockId=registerLevelVictorySecretProgress();
   victory=true;victoryPhase=0;victoryAlpha=0;stopBGM();
   const lvlTime=(Date.now()-levelStartTime)/1000;const timeBonus=Math.max(0,Math.floor((120-lvlTime)*50));gameScore+=timeBonus;
   for(let i=0;i<44;i++){const a=Math.random()*Math.PI*2,s=3+Math.random()*9;bossFragments.push({x:boss.x+Math.random()*boss.w,y:boss.y+Math.random()*boss.h,vx:Math.cos(a)*s,vy:Math.sin(a)*s-5,spin:Math.random()*Math.PI,spinSpeed:(Math.random()-0.5)*0.3,life:60+Math.random()*60,maxLife:120,color:boss.def.color1,color2:boss.def.eyeColor,size:8+Math.random()*22});}
@@ -2796,7 +2952,7 @@ function updateVictory(dt){
   bossFragments=bossFragments.filter(f=>{f.x+=f.vx*(dt/16);f.y+=f.vy*(dt/16);f.vy+=0.35;f.vx*=0.97;f.spin+=f.spinSpeed;f.life-=(dt/16);return f.life>0&&f.y<H+100;});
   particles=particles.filter(p=>{p.x+=p.vx*(dt/16);p.y+=p.vy*(dt/16);p.vy+=0.18;p.life-=(dt/16);return p.life>0;});
   if(victoryPhase===0){if(bossFragments.length<5)victoryPhase=1;}
-  else if(victoryPhase===1){victoryAlpha+=dt*0.0012;if(victoryAlpha>=1){victoryAlpha=1;victoryPhase=2;if(currentLevel>=BOSS_DEFS.length-1){setTimeout(showEndScreen,1200);}else{setTimeout(()=>{document.getElementById('nxtBtn').style.display='block';},600);}}}
+  else if(victoryPhase===1){victoryAlpha+=dt*0.0012;if(victoryAlpha>=1){victoryAlpha=1;victoryPhase=2;if(currentLevel>=BOSS_DEFS.length-1){setTimeout(showEndScreen,1200);}else{setTimeout(()=>{if(pendingLevelUnlockId){const uid=pendingLevelUnlockId;pendingLevelUnlockId=null;showUnlockScreen(uid,()=>{gc.style.display='block';document.getElementById('touchCtrl').style.display=(ctrlType==='buttons')?'none':'block';document.getElementById('btnCtrl').style.display=(ctrlType==='buttons')?'block':'none';document.getElementById('gameSettingsBtn').style.display='flex';document.getElementById('nxtBtn').style.display='block';});}else{document.getElementById('nxtBtn').style.display='block';}},600);}}}
 }
 function burst(x,y,col,n=10){for(let i=0;i<n;i++){const a=Math.random()*Math.PI*2,s=1.5+Math.random()*5;particles.push({x,y,vx:Math.cos(a)*s,vy:Math.sin(a)*s-1,life:35+Math.random()*25,maxLife:60,color:col,r:2+Math.random()*4});}}
 
@@ -2811,34 +2967,45 @@ function buildEndScreenContent(){
   document.getElementById('endTime').textContent=L().endTime(mins,secs);
   drawFamilyScene(selectedChar,ending);
 }
+function secretCharById(id){return CHARS.find(ch=>ch.id===id)||CHARS[0];}
+function secretUnlockTitle(id){
+  const ch=secretCharById(id);
+  const icons={7:'🦂',8:'⚡',9:'🌑',10:'❄️',11:'🟢',12:'🐉',13:'🏹'};
+  return (icons[id]||'✨')+' '+ch.name+' Karakterini Açtınız';
+}
+function secretUnlockHint(id){
+  const hints={
+    7:'Scorpion artık karakter ekranında seçilebilir. Başlangıçta kanca gücü ile gelir.',
+    8:'Elektra artık karakter ekranında seçilebilir. Elektrik gücü ile savaşır.',
+    9:'Shadow Knight açıldı. Void gücüyle karanlık saldırılar yapar.',
+    10:'Frost Mage açıldı. Buz silahıyla başlar ve boss’u yavaşlatan büyüler kullanır.',
+    11:'Slime King açıldı. Slime silahıyla başlar, balçık hasarı verir.',
+    12:'Dragon Child açıldı. Cehennem/alev gücüyle başlar.',
+    13:'Celestial Archer açıldı. Uzaktan neon/yıldız saldırıları yapar.'
+  };
+  return hints[id]||'Yeni gizli karakter artık seçilebilir.';
+}
 function drawUnlockSceneFrame(charId){
   const cv=document.getElementById('unlockCanvas');if(!cv)return;
   const c=cv.getContext('2d'),w=cv.width,h=cv.height;const t=performance.now()*0.0035;
+  const ch=secretCharById(charId);
   c.clearRect(0,0,w,h);
   const bg=c.createLinearGradient(0,0,0,h);bg.addColorStop(0,'#12213d');bg.addColorStop(0.55,'#0b1020');bg.addColorStop(1,'#06070d');c.fillStyle=bg;c.fillRect(0,0,w,h);
-  for(let i=0;i<24;i++){const xx=(i*37+t*12)%w;const yy=(i*23)%h;c.fillStyle='rgba(255,255,255,0.08)';c.fillRect(xx,yy,2,2);}
+  for(let i=0;i<28;i++){const xx=(i*37+t*12)%w;const yy=(i*23)%h;c.fillStyle='rgba(255,255,255,0.08)';c.fillRect(xx,yy,2,2);}
   c.fillStyle='rgba(255,215,0,0.14)';c.fillRect(0,h-62,w,62);
   c.fillStyle='#2d2148';c.fillRect(0,h-52,w,8);
-  c.save();
-  c.translate(w/2,h*0.72);
-  if(charId===7){
-    const dance=Math.sin(t*2.2)*16;
-    drawScorpion(c,0,0,2.0,dance,false);
-    c.strokeStyle='rgba(158,255,96,0.95)';c.lineWidth=5;c.lineCap='round';
-    c.beginPath();c.moveTo(-24,-10);c.quadraticCurveTo(-105,-85+Math.sin(t*3)*18,-38,-140);c.stroke();
-    c.strokeStyle='rgba(255,255,255,0.22)';c.lineWidth=2;c.beginPath();c.moveTo(-24,-12);c.quadraticCurveTo(-110,-98+Math.sin(t*3)*10,-40,-145);c.stroke();
-    c.fillStyle='#ffd84d';c.font='bold 18px Courier New';c.textAlign='center';c.fillText('AKREP DANSI',0,-145);
-  }else{
-    const sway=Math.sin(t*2)*12;
-    drawElektra(c,0,0,2.0,sway,false);
-    c.strokeStyle='rgba(0,255,255,0.95)';c.lineWidth=4;c.lineCap='round';
-    for(let k=0;k<3;k++){const ox=-54+k*52;c.beginPath();c.moveTo(ox,-110);c.lineTo(ox+10,-92);c.lineTo(ox-4,-78);c.lineTo(ox+14,-58);c.stroke();}
-    c.fillStyle='#8ef5ff';c.font='bold 18px Courier New';c.textAlign='center';c.fillText('ELEKTRİK DANSI',0,-145);
-  }
+  c.save();c.translate(w/2,h*0.72);
+  const sway=Math.sin(t*2.2)*14;
+  if(charId===7){drawScorpion(c,0,0,2.0,sway,false);c.strokeStyle='rgba(158,255,96,0.95)';c.lineWidth=5;c.lineCap='round';c.beginPath();c.moveTo(-24,-10);c.quadraticCurveTo(-105,-85+Math.sin(t*3)*18,-38,-140);c.stroke();}
+  else if(charId===8){drawElektra(c,0,0,2.0,sway,false);c.strokeStyle='rgba(0,255,255,0.95)';c.lineWidth=4;c.lineCap='round';for(let k=0;k<3;k++){const ox=-54+k*52;c.beginPath();c.moveTo(ox,-110);c.lineTo(ox+10,-92);c.lineTo(ox-4,-78);c.lineTo(ox+14,-58);c.stroke();}}
+  else{drawChar(c,0,0,ch,2.05,sway,false);}
+  const aura={9:'#8b5cff',10:'#8ef5ff',11:'#74ff55',12:'#ff6a00',13:'#fff08a'}[charId]||'#ffd84d';
+  c.strokeStyle=aura;c.lineWidth=3;c.globalAlpha=0.85;c.beginPath();c.arc(0,-52,54+Math.sin(t*3)*5,0,Math.PI*2);c.stroke();c.globalAlpha=1;
+  c.fillStyle=aura;c.font='bold 18px Courier New';c.textAlign='center';c.fillText(ch.name.toUpperCase(),0,-145);
   c.restore();
   c.fillStyle='rgba(255,255,255,0.06)';c.fillRect(24,24,84,84);
   c.strokeStyle='rgba(255,255,255,0.16)';c.strokeRect(24,24,84,84);
-  c.save();c.translate(66,90); if(charId===7)drawScorpion(c,0,0,0.9,Math.sin(t*3)*10,false); else drawElektra(c,0,0,0.9,Math.sin(t*3)*8,false); c.restore();
+  c.save();c.translate(66,90); if(charId===7)drawScorpion(c,0,0,0.9,Math.sin(t*3)*10,false); else if(charId===8)drawElektra(c,0,0,0.9,Math.sin(t*3)*8,false); else drawChar(c,0,0,ch,0.9,Math.sin(t*3)*8,false); c.restore();
   unlockAnimRaf=requestAnimationFrame(()=>drawUnlockSceneFrame(charId));
 }
 function showUnlockScreen(charId,onContinue){
@@ -2846,15 +3013,9 @@ function showUnlockScreen(charId,onContinue){
   const title=document.getElementById('unlockTitle');
   const sub=document.getElementById('unlockSubtitle');
   const hint=document.getElementById('unlockHint');
-  if(charId===7){
-    title.textContent='🦂 Scorpion Karakterini Açtınız';
-    sub.textContent='Bu karakter Mikail Ramis tarafından özenle hazırlanmıştır, iyi oyunlar dileriz.';
-    hint.textContent='Scorpion artık karakter ekranında seçilebilir. Başlangıçta 2 kanca hakkı ile gelir ve kancası ip gibi boss’a gider.';
-  }else{
-    title.textContent='⚡ Elektra Karakterini Açtınız';
-    sub.textContent='Bu karakter Mikail Ramis tarafından özenle hazırlanmıştır, iyi oyunlar dileriz.';
-    hint.textContent='Elektra artık karakter ekranında seçilebilir. Elektrik gücü ile bir sonraki maceraya hazır!';
-  }
+  title.textContent=secretUnlockTitle(charId);
+  sub.textContent='Gizli şart tamamlandı. Karakter kalıcı olarak açıldı.';
+  hint.textContent=secretUnlockHint(charId);
   hideAllGameScreens();
   document.getElementById('unlockScreen').style.display='flex';
   cancelAnimationFrame(unlockAnimRaf); drawUnlockSceneFrame(charId);
