@@ -770,8 +770,8 @@ addTap('endAgain',()=>{gameRunning=false;startMenuMusic();document.getElementByI
 addTap('nameSbm',saveScore);
 addTap('goCodeBtn',tryCode);
 addTap('goRestartBtn',restartLevel);
-document.getElementById('chars').addEventListener('touchend',e=>{const c=e.target.closest('.cc');if(c){e.preventDefault();selectChar(parseInt(c.dataset.idx));}},{passive:false});
-document.getElementById('chars').addEventListener('click',e=>{const c=e.target.closest('.cc');if(c){playClick();selectChar(parseInt(c.dataset.idx));}});
+document.getElementById('chars').addEventListener('touchend',e=>{const c=e.target.closest('.cc');if(c){e.preventDefault();e.stopPropagation();playClick();selectChar(parseInt(c.dataset.idx));}},{passive:false});
+document.getElementById('chars').addEventListener('click',e=>{const c=e.target.closest('.cc');if(c){e.preventDefault();e.stopPropagation();playClick();selectChar(parseInt(c.dataset.idx));}});
 let fireIv=null;
 document.getElementById('bFire').addEventListener('touchstart',e=>{e.preventDefault();tryFire();fireIv=setInterval(tryFire,95);},{passive:false});
 document.getElementById('bFire').addEventListener('touchend',e=>{e.preventDefault();clearInterval(fireIv);},{passive:false});
@@ -2892,10 +2892,33 @@ function updateSpiderUlti(dt){
           burst(s.punchX+(Math.random()-0.5)*30,s.punchY+(Math.random()-0.5)*30,'#ffffff',10);
         }
         beep(60,0.2,'sawtooth',0.5);beep(120,0.15,'sawtooth',0.3);
-        if(boss.hp<=0){boss.alive=false;startVictory();}
+        if(boss.hp<=0){
+          boss.alive=false;
+          s.phase='vanish';s.t=0;s.vanishX=player.x;s.vanishY=player.y;s.vanishSpin=0;s.scale=1;
+          startVictory();
+          return;
+        }
       }
     }
     if(s.t>300){s.phase='return';s.t=0;}
+  } else if(s.phase==='vanish'){
+    // Son vuruş Mikail ultisinden geldiyse havada donma: daire çizerek ufukta küçülüp kaybolur.
+    const prog=Math.min(s.t/1900,1);
+    const ease=1-Math.pow(1-prog,2.25);
+    const spin=prog*Math.PI*7.2;
+    const radius=(1-prog)*76;
+    const targetX=W+120,targetY=Math.max(34,H*0.10);
+    player.x=s.vanishX+(targetX-s.vanishX)*ease+Math.cos(spin)*radius-player.w*0.5*prog;
+    player.y=s.vanishY+(targetY-s.vanishY)*ease+Math.sin(spin)*radius*0.65;
+    s.scale=Math.max(0.035,1-prog*0.965);
+    if(Math.random()<0.55){
+      burst(player.x+player.w/2,player.y+player.h*0.52,'#ffffff',2);
+      burst(player.x+player.w/2,player.y+player.h*0.52,prog<0.5?'#cc0000':'#4488ff',2);
+    }
+    if(prog>=1){
+      player._hideAfterSpiderVanish=true;
+      player._spiderUlti=null;
+    }
   } else if(s.phase==='return'){
     // 500ms geri dönüş
     const startX=s.punchX-player.w/2,startY=s.punchY-player.h*0.55;
@@ -3458,7 +3481,7 @@ function updateVictory(dt){
   if(wpTimer>0)wpTimer-=dt;
   if(upgradeNotif){upgradeNotif.timer-=dt;if(upgradeNotif.timer<=0)upgradeNotif=null;}
   if(levelUpNotif){levelUpNotif.timer-=dt;if(levelUpNotif.timer<=0)levelUpNotif=null;}
-  if(player&&!player.dead){
+  if(player&&!player.dead&&!player._hideAfterSpiderVanish){
     if(isPlayerMovementLockedByUlti())walkT+=dt*0.012;else{player.y=playerStartY();walkT*=0.88;}
     if(player.invincible>0)player.invincible-=dt;
     if(player._spiderUlti){updateSpiderUlti(dt);}
@@ -3644,10 +3667,13 @@ function render(){
   drawFragments();
   particles.forEach(p=>{ctx.globalAlpha=p.life/p.maxLife;ctx.fillStyle=p.color;ctx.fillRect(p.x-p.r/2,p.y-p.r/2,p.r,p.r);});ctx.globalAlpha=1;
   drawDamageTexts();
-  if(player&&!player.dead){
+  if(player&&!player.dead&&!player._hideAfterSpiderVanish){
     const inUlti=player._spiderUlti||player._jessieUlti||player._hurryUlti||player._cohhecityUlti;
     if(player._spiderUlti&&player.char.id===2){
-      drawSpiderMikail(ctx,player.x+player.w/2,player.y+player.h*0.88,1.0,walkT);
+      drawSpiderMikail(ctx,player.x+player.w/2,player.y+player.h*0.88,player._spiderUlti&&player._spiderUlti.scale?player._spiderUlti.scale:1.0,walkT);
+      if(player._spiderUlti.phase==='vanish'){
+        const sc=player._spiderUlti.scale||1;ctx.save();ctx.globalAlpha=Math.max(0.15,sc);ctx.strokeStyle='rgba(230,240,255,0.65)';ctx.lineWidth=Math.max(1,3*sc);ctx.setLineDash([7,6]);ctx.beginPath();ctx.arc(player.x+player.w/2,player.y+player.h*0.54,46*sc,0,Math.PI*2);ctx.stroke();ctx.setLineDash([]);ctx.restore();
+      }
       if(player._spiderUlti.phase==='fly'||player._spiderUlti.phase==='punch'){
         ctx.save();ctx.translate(player.x+player.w/2,player.y+player.h*0.88);
         ctx.fillStyle='rgba(255,80,0,0.6)';ctx.beginPath();ctx.arc(faceR?18:-18,0,14,0,Math.PI*2);ctx.fill();
