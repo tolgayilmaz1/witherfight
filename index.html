@@ -20,16 +20,16 @@ canvas{display:block;}
 .bb2{display:block;padding:13px 36px;margin:3px auto;background:linear-gradient(135deg,#a020f0,#6600cc);color:#fff;border:none;border-radius:12px;font-size:13px;font-family:'Courier New',monospace;letter-spacing:2px;-webkit-appearance:none;cursor:pointer;}
 #hiBtn{background:linear-gradient(135deg,#aa6600,#664400);border-color:#ffaa00;font-size:12px;padding:10px 24px;}
 #settingsBtn{background:linear-gradient(135deg,#003366,#001a33);border-color:#00aaff;font-size:12px;padding:10px 24px;}
-#settingsScreen{background:linear-gradient(180deg,#020210,#061428,#020210);display:none;z-index:650;text-align:center;}
-#settingsScreen h2{color:#00aaff;font-size:clamp(16px,4vw,24px);letter-spacing:3px;text-shadow:0 0 18px #00aaff;margin-bottom:12px;}
+#settingsScreen{background:linear-gradient(180deg,#020210,#061428,#020210);display:none;z-index:650;text-align:center;overflow-y:auto;-webkit-overflow-scrolling:touch;justify-content:flex-start!important;padding-top:16px;padding-bottom:90px;}
+#settingsScreen h2{color:#00aaff;font-size:clamp(16px,4vw,24px);letter-spacing:3px;text-shadow:0 0 18px #00aaff;margin-bottom:12px;flex-shrink:0;}
 #settingsScreen p{color:#888;font-size:10px;line-height:1.7;max-width:320px;margin:0 auto 10px;}
 #adminOpenBtn{background:linear-gradient(135deg,#222244,#111122);border:2px solid #5555aa;color:#fff;border-radius:10px;padding:12px 22px;font-family:'Courier New',monospace;font-size:12px;letter-spacing:2px;cursor:pointer;margin:8px auto 4px;}
 #adminLoginPanel{display:none;background:rgba(0,0,0,0.28);border:1px solid #26384a;border-radius:12px;padding:12px 10px;width:100%;max-width:330px;margin:8px auto;}
 #setPass{background:#070707;border:2px solid #00aaff;border-radius:9px;color:#fff;font-size:16px;font-family:'Courier New',monospace;padding:10px 14px;text-align:center;width:210px;-webkit-appearance:none;outline:none;margin:6px 0;}
 #setErr{color:#ff5555;font-size:10px;min-height:16px;margin:4px 0 8px;}
-#adminBox{display:none;background:rgba(255,255,255,0.05);border:1px solid #24445a;border-radius:12px;padding:14px 12px;width:100%;max-width:330px;margin:8px auto;}
+#adminBox{display:none;background:rgba(255,255,255,0.05);border:1px solid #24445a;border-radius:12px;padding:12px 10px;width:100%;max-width:360px;margin:8px auto 14px;flex-shrink:0;}
 #clearScoresBtn{background:linear-gradient(135deg,#880000,#440000);border:2px solid #ff4444;color:#fff;border-radius:10px;padding:12px 18px;font-family:'Courier New',monospace;font-size:12px;letter-spacing:2px;cursor:pointer;margin-top:8px;}
-#adminMsg{color:#00ffaa;font-size:10px;min-height:16px;margin-top:8px;}
+#adminMsg{color:#00ffaa;font-size:10px;min-height:16px;margin-top:8px;}#settingsBack{position:sticky;bottom:12px;z-index:5;background:linear-gradient(135deg,#7700cc,#3300aa);box-shadow:0 0 18px rgba(0,0,0,0.55);}
 #langSettings{width:100%;max-width:360px;margin:4px auto 12px;padding:10px;border:1px solid #1d3444;border-radius:12px;background:rgba(255,255,255,0.04);}
 #langSettingsTitle{color:#ffaa00;font-size:12px;letter-spacing:2px;margin-bottom:4px;}
 #langSettingsInfo{color:#777;font-size:9px;margin-bottom:8px;}
@@ -261,6 +261,7 @@ canvas{display:block;}
   </div>
   <p id="settingsInfo">Dil seçimini buradan yapabilirsin.</p>
   <button class="bb2" id="adminOpenBtn">🔐 ADMIN PANEL GİRİŞ</button>
+  <button class="bb2" id="settingsBackTop" style="margin-top:8px;background:linear-gradient(135deg,#333,#111);border:2px solid #777;">← GERİ</button>
   <div id="adminLoginPanel">
     <p id="adminLoginInfo">Admin panel için şifre gir.</p>
     <input id="setPass" type="password" placeholder="ŞİFRE" autocomplete="off" autocorrect="off" spellcheck="false">
@@ -270,6 +271,9 @@ canvas{display:block;}
   <div id="adminBox">
     <p id="adminTitle" style="color:#00ffaa;font-size:12px;letter-spacing:2px;margin-bottom:4px;">ADMIN PANEL</p>
     <p id="adminInfo">High score listesini temizleyebilirsin.</p>
+    <button id="analyticsRefreshBtn" style="background:linear-gradient(135deg,#114477,#071d34);border:2px solid #55bbff;color:#fff;border-radius:10px;padding:12px 18px;font-family:'Courier New',monospace;font-weight:bold;margin:6px auto;display:block;">📊 OYUNCU İSTATİSTİKLERİ YENİLE</button>
+    <button id="clearAnalyticsBtn" style="background:linear-gradient(135deg,#663300,#331800);border:2px solid #ff9900;color:#fff;border-radius:10px;padding:10px 14px;font-family:'Courier New',monospace;font-weight:bold;margin:6px auto;display:block;font-size:10px;">🧹 GİRİŞ / OYUNCU KAYITLARINI TEMİZLE</button>
+    <div id="analyticsBox" style="width:100%;max-width:340px;max-height:360px;overflow-y:auto;margin:8px auto 12px;padding:10px;border:1px solid rgba(85,187,255,0.35);border-radius:10px;background:rgba(0,20,40,0.45);color:#bdefff;font-family:'Courier New',monospace;font-size:10px;line-height:1.55;text-align:left;">İstatistikler yüklenmedi.</div>
     <button id="clearScoresBtn">🗑 HI-SCORE TEMİZLE</button>
     <div id="adminMsg"></div>
   </div>
@@ -757,10 +761,10 @@ for(const el of [gc,jz]){el.addEventListener('touchstart',e=>e.preventDefault(),
 function addTap(id,fn){const el=document.getElementById(id);if(!el)return;el.addEventListener('click',()=>{playClick();fn();});el.addEventListener('touchend',e=>{e.preventDefault();e.stopPropagation();playClick();fn();},{passive:false});}
 addTap('logoBtn',showCharSelect);addTap('hiBtn',showHiScores);addTap('settingsBtn',showSettings);
 addTap('hiBack',()=>{gameRunning=false;startMenuMusic();hideAllGameScreens();document.getElementById('logoScreen').style.display='flex';});
-addTap('settingsBack',()=>{gameRunning=false;startMenuMusic();hideAllGameScreens();document.getElementById('logoScreen').style.display='flex';});
+addTap('settingsBack',()=>{gameRunning=false;startMenuMusic();hideAllGameScreens();document.getElementById('logoScreen').style.display='flex';});addTap('settingsBackTop',()=>{gameRunning=false;startMenuMusic();hideAllGameScreens();document.getElementById('logoScreen').style.display='flex';});
 addTap('adminOpenBtn',openAdminLogin);
 addTap('setLogin',adminLogin);
-addTap('clearScoresBtn',clearHiScores);
+addTap('clearScoresBtn',clearHiScores);addTap('analyticsRefreshBtn',loadAdminAnalytics);addTap('clearAnalyticsBtn',clearAdminAnalytics);
 const setPassEl=document.getElementById('setPass');if(setPassEl)setPassEl.addEventListener('keydown',e=>{if(e.key==='Enter')adminLogin();});
 addTap('startBtn',startGame);addTap('nxtBtn',nextLevel);addTap('sndBtn',toggleMute);addTap('gameSettingsBtn',openGameMenu);addTap('gameMenuResume',resumeGameFromMenu);addTap('gameMenuSound',()=>{toggleMute();applyTexts();});addTap('gameMenuLangToggle',toggleGameLangBox);addTap('gameMenuExit',exitToMainMenuFromGame);
 addTap('bPause',togglePause);addTap('bSw',switchWeapon);addTap('bBeam',activateBeam);addTap('bSlap',activateSlap);addTap('bUlti',activateUlti);
@@ -805,13 +809,19 @@ function getScoreCharIcon(ch){
   c.strokeStyle='rgba(255,255,255,0.18)';c.lineWidth=1.4;c.beginPath();c.arc(15,15,14,0,Math.PI*2);c.stroke();
   c.save();c.beginPath();c.arc(15,15,13,0,Math.PI*2);c.clip();
   if(ch){
-    const sc=ch.id===5?0.46:0.78; const y=ch.id===5?17:22;
-    drawChar(c,15,y,ch,sc,0,false);
+    try{
+      const sc=ch.id===5?0.46:0.78; const y=ch.id===5?17:22;
+      drawChar(c,15,y,ch,sc,0,false);
+    }catch(e){
+      c.fillStyle='#ffaa00';c.font='bold 18px Courier New';c.textAlign='center';c.textBaseline='middle';c.fillText('?',15,16);
+    }
   }else{
     c.fillStyle='#ffaa00';c.font='bold 19px Courier New';c.textAlign='center';c.textBaseline='middle';c.fillText('?',15,16);
   }
   c.restore();
-  SCORE_ICON_CACHE[cacheKey]=cv.toDataURL('image/png');
+  try{SCORE_ICON_CACHE[cacheKey]=cv.toDataURL('image/png');}catch(e){SCORE_ICON_CACHE[cacheKey]='';}
+  if(!SCORE_ICON_CACHE[cacheKey])return '';
+
   return SCORE_ICON_CACHE[cacheKey];
 }
 function getScores(){try{return JSON.parse(localStorage.getItem('wf_scores2')||'[]');}catch(e){return[];}}
@@ -822,18 +832,26 @@ function renderScores(scores,online){
     const rawCh=scoreCharName(s), chObj=findCharFromScore(s), ch=chObj?chObj.name:(rawCh&&rawCh!=='???'?rawCh:'Karakter ?'), icon=getScoreCharIcon(chObj);
     const lv=Number(s.level||s.maxLevel||s.levelReached||0);
     const levelHtml=lv>0?`<span style="color:#ffaa00;font-size:9px;margin-left:8px;margin-right:2px;white-space:nowrap;">LEVEL ${lv}</span>`:'';
-    const iconHtml=`<span style="display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:50%;overflow:hidden;background:#111;margin-left:4px;margin-right:4px;vertical-align:middle;box-shadow:0 0 0 1px rgba(255,255,255,0.12) inset;"><img src="${icon}" alt="${escHtml(ch)}" style="width:18px;height:18px;display:block;image-rendering:auto;"/></span>`;
+    const iconHtml=icon?`<span style="display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:50%;overflow:hidden;background:#111;margin-left:4px;margin-right:4px;vertical-align:middle;box-shadow:0 0 0 1px rgba(255,255,255,0.12) inset;"><img src="${icon}" alt="${escHtml(ch)}" style="width:18px;height:18px;display:block;image-rendering:auto;"/></span>`:`<span style="display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:50%;background:#111;color:#ffaa00;margin-left:4px;margin-right:4px;vertical-align:middle;box-shadow:0 0 0 1px rgba(255,255,255,0.12) inset;">?</span>`;
     const chHtml=` <span style="color:${chObj?'#aaa':'#665'};font-size:9px;white-space:nowrap;">${levelHtml}${iconHtml}${escHtml(ch)}</span>`;
     return `<div class="hirow"><span class="rank">#${i+1}</span><span class="name">${escHtml(s.name)}${chHtml}</span><span class="sc">${Number(s.score||0).toLocaleString()}</span></div>`;
   }).join(''):'<div style="color:#444;text-align:center;padding:20px;">'+L().hiEmpty+'</div>';
 }
 async function getCloudScores(){
   if(!wfCloudReady||!WF_RTDB_URL) throw new Error('cloud offline');
-  const url=WF_RTDB_URL.replace(/\/$/,'')+'/'+WF_SCORE_COLLECTION+'.json';
-  const res=await fetch(url,{method:'GET',cache:'no-store'});
-  if(!res.ok) throw new Error('cloud read failed: HTTP '+res.status);
-  const data=await res.json();
-  const rows=Object.values(data||{}).filter(Boolean).map(r=>({
+  const base=WF_RTDB_URL.replace(/\/$/,'')+'/'+WF_SCORE_COLLECTION+'.json';
+  const urls=[base+'?orderBy="score"&limitToLast=25',base+'?print=silent',base];
+  let lastErr=null,data=null;
+  for(const url of urls){
+    try{
+      const res=await fetch(url,{method:'GET',cache:'no-store',mode:'cors'});
+      if(!res.ok) throw new Error('HTTP '+res.status);
+      data=await res.json();
+      break;
+    }catch(e){lastErr=e;data=null;}
+  }
+  if(!data&&lastErr)throw new Error('cloud read failed: '+(lastErr.message||lastErr));
+  const rows=Object.values(data||{}).filter(Boolean).filter(r=>String(r.kind||'score')!=='analytics').map(r=>({
     name:String(r.name||'???').slice(0,12),
     score:Number(r.score||0),
     time:Number(r.time||0),
@@ -841,7 +859,7 @@ async function getCloudScores(){
     date:r.date||'',
     char:String(r.char||r.character||r.charName||'???').slice(0,16),
     charId:Number(r.charId??r.characterId??r.cid??-1)
-  }));
+  })).filter(r=>Number.isFinite(r.score));
   rows.sort((a,b)=>b.score-a.score);
   return rows.slice(0,10);
 }
@@ -850,6 +868,7 @@ async function addCloudScore(row){
   const url=WF_RTDB_URL.replace(/\/$/,'')+'/'+WF_SCORE_COLLECTION+'.json';
   const clean={
     game:'wither-fight',
+    kind:'score',
     name:String(row.name||'???').slice(0,12),
     score:Number(row.score||0),
     time:Number(row.time||0),
@@ -863,6 +882,154 @@ async function addCloudScore(row){
   if(!res.ok) throw new Error('cloud write failed: HTTP '+res.status);
   return await res.json();
 }
+
+const WF_ANALYTICS_COLLECTION=WF_SCORE_COLLECTION; // Firebase rules aynı path'e izin verdiği için analytics skor path altında kind:'analytics' olarak tutulur
+function getVisitorId(){
+  let id='';
+  try{id=localStorage.getItem('wf_visitor_id')||'';}catch(e){}
+  if(!id){
+    id='v_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,9);
+    try{localStorage.setItem('wf_visitor_id',id);}catch(e){}
+  }
+  return id;
+}
+const WF_SESSION_ID='s_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,8);
+let wfVisitTracked=false;
+async function addAnalyticsEvent(event,extra={}){
+  try{
+    if(!wfCloudReady||!WF_RTDB_URL)return;
+    const clean={
+      game:'wither-fight',
+      kind:'analytics',
+      event:String(event||'event').slice(0,40),
+      visitorId:getVisitorId(),
+      sessionId:WF_SESSION_ID,
+      ts:Date.now(),
+      iso:new Date().toISOString(),
+      page:String(location.pathname||'').slice(-80),
+      lang:String(LANG||'tr').slice(0,8),
+      char:String((selectedChar&&selectedChar.name)||(player&&player.char&&player.char.name)||'').slice(0,24),
+      charId:Number((selectedChar&&selectedChar.id)??(player&&player.char&&player.char.id)??-1),
+      level:Number((typeof currentLevel==='number'?currentLevel+1:0)||0),
+      score:Number((typeof gameScore==='number'?Math.floor(gameScore):0)||0),
+      ua:String(navigator.userAgent||'').slice(0,120)
+    };
+    Object.keys(extra||{}).forEach(k=>{
+      const v=extra[k];
+      if(typeof v==='number')clean[k]=Number.isFinite(v)?v:0;
+      else clean[k]=String(v??'').slice(0,80);
+    });
+    const url=WF_RTDB_URL.replace(/\/$/,'')+'/'+WF_ANALYTICS_COLLECTION+'.json';
+    await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(clean),keepalive:true});
+  }catch(e){console.warn('analytics write failed',e);}
+}
+function trackVisitOnce(){
+  if(wfVisitTracked)return;
+  wfVisitTracked=true;
+  addAnalyticsEvent('visit');
+}
+async function getAnalyticsEvents(){
+  if(!wfCloudReady||!WF_RTDB_URL) throw new Error('cloud offline');
+  const base=WF_RTDB_URL.replace(/\/$/,'')+'/'+WF_ANALYTICS_COLLECTION+'.json';
+  const urls=[base+'?orderBy="ts"&limitToLast=200',base];
+  let data=null,lastErr=null;
+  for(const url of urls){
+    try{
+      const res=await fetch(url,{method:'GET',cache:'no-store',mode:'cors'});
+      if(!res.ok)throw new Error('HTTP '+res.status);
+      data=await res.json();
+      break;
+    }catch(e){lastErr=e;data=null;}
+  }
+  if(!data&&lastErr)throw lastErr;
+  return Object.entries(data||{}).map(([key,r])=>({key,r})).filter(o=>o.r&&String(o.r.kind||'')==='analytics').map(o=>({
+    key:String(o.key||''),
+    event:String(o.r.event||'event'),
+    visitorId:String(o.r.visitorId||''),
+    sessionId:String(o.r.sessionId||''),
+    ts:Number(o.r.ts||0),
+    iso:String(o.r.iso||''),
+    char:String(o.r.char||''),
+    level:Number(o.r.level||0),
+    score:Number(o.r.score||0),
+    lang:String(o.r.lang||''),
+    page:String(o.r.page||'')
+  })).filter(r=>Number.isFinite(r.ts)).sort((a,b)=>b.ts-a.ts);
+}
+function fmtTimeTR(ts){
+  if(!ts)return '-';
+  try{return new Date(ts).toLocaleString('tr-TR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});}catch(e){return '-';}
+}
+async function loadAdminAnalytics(){
+  const box=document.getElementById('analyticsBox');
+  if(!box)return;
+  box.innerHTML='<div style="color:#ffaa00;text-align:center;">Yükleniyor...</div>';
+  try{
+    const rows=await getAnalyticsEvents();
+    const uniqueVisitors=new Set(rows.map(r=>r.visitorId).filter(Boolean));
+    const uniquePlayers=new Set(rows.filter(r=>r.event==='game_start').map(r=>r.visitorId).filter(Boolean));
+    const sessions=new Set(rows.map(r=>r.sessionId).filter(Boolean));
+    const todayStart=new Date();todayStart.setHours(0,0,0,0);
+    const today=rows.filter(r=>r.ts>=todayStart.getTime());
+    const opens=rows.filter(r=>r.event==='visit').length;
+    const plays=rows.filter(r=>r.event==='game_start').length;
+    const scores=rows.filter(r=>r.event==='score_save').length;
+    const victories=rows.filter(r=>r.event==='victory').length;
+    const deaths=rows.filter(r=>r.event==='game_over').length;
+    const latestOpen=rows.find(r=>r.event==='visit');
+    const latestPlay=rows.find(r=>r.event==='game_start');
+    const latestScore=rows.find(r=>r.event==='score_save');
+    const playRate=uniqueVisitors.size?Math.round((uniquePlayers.size/uniqueVisitors.size)*100):0;
+    const recent=rows.slice(0,16).map(r=>{
+      const ev=r.event==='visit'?'OYUN AÇILDI':r.event==='game_start'?'OYUNA BAŞLADI':r.event==='score_save'?'SKOR KAYDI':r.event==='victory'?'BÖLÜM BİTTİ':r.event==='game_over'?'ÖLDÜ':r.event;
+      const shortId=r.visitorId?(' · '+escHtml(r.visitorId.slice(-5))):'';
+      const ch=r.char?(' · '+escHtml(r.char)):'';
+      const lv=r.level?(' · L'+r.level):'';
+      const sc=r.score?(' · '+Number(r.score).toLocaleString()+'p'):'';
+      return `<div style="border-top:1px solid rgba(255,255,255,0.08);padding:4px 0;"><b style="color:#fff;">${fmtTimeTR(r.ts)}</b> · ${escHtml(ev)}${shortId}${ch}${lv}${sc}</div>`;
+    }).join('');
+    box.innerHTML=
+      `<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:8px;text-align:center;">
+        <div style="background:rgba(0,0,0,0.28);border-radius:8px;padding:6px;"><b style="color:#fff;font-size:15px;">${opens}</b><br>oyun açıldı</div>
+        <div style="background:rgba(0,0,0,0.28);border-radius:8px;padding:6px;"><b style="color:#fff;font-size:15px;">${plays}</b><br>oyun oynandı</div>
+        <div style="background:rgba(0,0,0,0.28);border-radius:8px;padding:6px;"><b style="color:#fff;font-size:15px;">${uniqueVisitors.size}</b><br>farklı kişi açtı</div>
+        <div style="background:rgba(0,0,0,0.28);border-radius:8px;padding:6px;"><b style="color:#fff;font-size:15px;">${uniquePlayers.size}</b><br>farklı kişi oynadı</div>
+        <div style="background:rgba(0,0,0,0.28);border-radius:8px;padding:6px;"><b style="color:#fff;font-size:15px;">${sessions.size}</b><br>oturum</div>
+        <div style="background:rgba(0,0,0,0.28);border-radius:8px;padding:6px;"><b style="color:#fff;font-size:15px;">%${playRate}</b><br>oynama oranı</div>
+        <div style="background:rgba(0,0,0,0.28);border-radius:8px;padding:6px;"><b style="color:#fff;font-size:15px;">${today.length}</b><br>bugün event</div>
+        <div style="background:rgba(0,0,0,0.28);border-radius:8px;padding:6px;"><b style="color:#fff;font-size:15px;">${scores}</b><br>skor kaydı</div>
+      </div>
+      <div style="color:#aaffdd;margin-bottom:4px;">Victory: ${victories} · Death: ${deaths}</div>
+      <div style="color:#8fdcff;margin-bottom:3px;">Son açılış: ${fmtTimeTR(latestOpen&&latestOpen.ts)}</div>
+      <div style="color:#8fdcff;margin-bottom:3px;">Son oynama: ${fmtTimeTR(latestPlay&&latestPlay.ts)}</div>
+      <div style="color:#8fdcff;margin-bottom:6px;">Son skor kaydı: ${fmtTimeTR(latestScore&&latestScore.ts)}</div>
+      <div style="color:#ffaa00;margin:8px 0 4px;">SON AKTİVİTELER</div>
+      ${recent||'<div style="color:#666;text-align:center;">Henüz kayıt yok.</div>'}`;
+  }catch(err){
+    box.innerHTML='<div style="color:#ff6688;">Analytics gelmedi: '+escHtml(err.message||err)+'</div><div style="color:#ffaa00;margin-top:6px;">Not: Bu veri Firebase high-score path içine kind:analytics olarak yazılır.</div>';
+  }
+}
+
+async function clearAdminAnalytics(){
+  const box=document.getElementById('analyticsBox');
+  if(!confirm('Giriş / oyuncu kayıtlarını temizleyeyim mi? High-score silinmez.'))return;
+  if(box)box.innerHTML='<div style="color:#ffaa00;text-align:center;">Temizleniyor...</div>';
+  try{
+    const rows=await getAnalyticsEvents();
+    const keys=rows.map(r=>r.key).filter(Boolean);
+    const base=WF_RTDB_URL.replace(/\/$/,'')+'/'+WF_ANALYTICS_COLLECTION;
+    for(const k of keys){
+      try{await fetch(base+'/'+encodeURIComponent(k)+'.json',{method:'DELETE'});}catch(e){console.warn('analytics delete item failed',e);}
+    }
+    document.getElementById('adminMsg').textContent='Giriş / oyuncu kayıtları temizlendi.';
+    if(box)box.innerHTML='<div style="color:#00ffaa;text-align:center;">Kayıtlar temizlendi.</div>';
+  }catch(err){
+    if(box)box.innerHTML='<div style="color:#ff6688;">Temizlenemedi: '+escHtml(err.message||err)+'</div>';
+  }
+}
+
+setTimeout(trackVisitOnce,500);
+
 function hideAllGameScreens(){
   ['langScreen','ctrlScreen','ctrlSelScreen','logoScreen','hiScreen','settingsScreen','nameScreen','charSelect','endScreen','unlockScreen','gameOverScreen','lvlBanner'].forEach(id=>{
     const el=document.getElementById(id);
@@ -885,6 +1052,7 @@ function showSettings(){
   hideAllGameScreens();
   const s=document.getElementById('settingsScreen');
   s.style.display='flex';
+  try{s.scrollTop=0;}catch(e){}
   applyTexts();
   document.getElementById('setPass').value='';
   document.getElementById('setErr').textContent='';
@@ -907,6 +1075,7 @@ function adminLogin(){
     document.getElementById('adminLoginPanel').style.display='none';
     document.getElementById('adminBox').style.display='block';
     document.getElementById('adminMsg').textContent='';
+    loadAdminAnalytics();
   }else{
     document.getElementById('adminBox').style.display='none';
     document.getElementById('setErr').textContent=txt('wrongPass');
@@ -928,10 +1097,12 @@ function showHiScores(){
   const localScores=getScores().sort((a,b)=>b.score-a.score).slice(0,10);
   renderScores(localScores,false);
   getCloudScores().then(scores=>{
-    renderScores(scores||[],true);
+    try{renderScores(scores||[],true);}catch(e){console.warn('Online score render failed',e);renderScores(scores||[],true);}
   }).catch(err=>{
     console.warn('Realtime DB score read failed',err);
     renderScores(localScores,false);
+    const hl=document.getElementById('hiList');
+    if(hl)hl.innerHTML+='<div style="color:#ff6688;text-align:center;font-size:9px;margin-top:8px;">ONLINE SCORE GELMEDİ: '+escHtml(err.message||err)+'</div>';
   });
 }
 function showNameEntry(reason='score'){
@@ -953,6 +1124,7 @@ function saveScore(){
   }
   const name=raw.slice(0,12);
   const row={name,score:Math.floor(gameScore),time:Math.floor(gameTime/1000),level:currentLevel+1,date:new Date().toLocaleDateString('tr-TR'),char:currentScoreChar(),charId:currentScoreCharId()};
+  addAnalyticsEvent('score_save',{playerName:name,score:row.score,level:row.level,char:row.char});
   const scores=getScores();
   scores.push(row);
   scores.sort((a,b)=>b.score-a.score);
@@ -964,6 +1136,7 @@ function saveScore(){
 
 // ── GAME OVER SCREEN ─────────────────────────────────
 function showGameOverScreen(){
+  addAnalyticsEvent('game_over',{score:Math.floor(gameScore),level:currentLevel+1});
   gc.style.display='none';
   document.getElementById('touchCtrl').style.display='none';
   document.getElementById('btnCtrl').style.display='none';
@@ -3037,6 +3210,7 @@ function exitToMainMenuFromGame(){
 function showCharSelect(){gameRunning=false;startMenuMusic();renderCharCards();document.getElementById('logoScreen').style.display='none';document.getElementById('charSelect').style.display='flex';}
 function startGame(){
   if(gameRunning)return;
+  addAnalyticsEvent('game_start');
   if(!selectedChar)return;initAudio();assignRandomUltiSfx();stopUltiSfx();
   gameRunning=true;fadeOutMenuMusic(1900);
   document.getElementById('charSelect').style.display='none';
@@ -3936,12 +4110,17 @@ function bossShoot(rage=1,offset=false){
   if(isMorphBossInstance()){
     const cx=boss.x+boss.w/2,cy=boss.y+boss.h*0.75;
     boss.fireAnimTimer=480;
-    const baseType=(boss.phase===2)?'nether':'fireball';
-    const shots=offset?3:1;
+    const baseType=(boss.phase===2)?'wither_laser2':'wither_laser';
+    const tx=player.x+player.w/2, ty=player.y+player.h*0.35;
+    const baseAng=Math.atan2(ty-cy,tx-cx);
+    const shots=3;
+    const angOffsets=[-0.14,0,0.14];
+    const spd=(boss.phase===2?7.5:6.8);
     for(let i=0;i<shots;i++){
-      const spread=shots===1?0:(i-1)*1.2;
-      projectiles.push({x:cx,y:cy,vx:spread,vy:6.4+(boss.phase===2?0.8:0),type:baseType,owner:'boss',r:(boss.phase===2?13:11),spin:0,wobble:0});
+      const ang=baseAng+angOffsets[i];
+      projectiles.push({x:cx,y:cy,vx:Math.cos(ang)*spd,vy:Math.sin(ang)*spd,type:baseType,owner:'boss',r:(boss.phase===2?16:14),spin:0,wobble:0,tone:i});
     }
+    burst(cx,cy,boss.phase===2?'#b78cff':'#d8c2ff',8);
     return;
   }
   if(boss.def.shape==='cirex'){
@@ -4058,7 +4237,7 @@ function triggerPlayerDeath(){
   burst(player.x+player.w/2,player.y+player.h/2,'#ffffff',25);
   burst(player.x+player.w/2,player.y+player.h/2,'#ffdd00',15);
 }
-function startVictory(){stopUltiSfx();
+function startVictory(){addAnalyticsEvent('victory',{score:Math.floor(gameScore),level:currentLevel+1,boss:bossNameByDef(boss&&boss.def)});stopUltiSfx();
   if(isMorphBossInstance()){boss.dying=true;boss.deathAnimT=0;}
   pendingLevelUnlockId=registerLevelVictorySecretProgress();
   victory=true;victoryPhase=0;victoryAlpha=0;stopBGM();
@@ -5261,7 +5440,27 @@ function drawProj(p){
     ctx.restore();
   }
   ctx.save();ctx.translate(p.x,p.y);const t=p.type;
-  if(t==='fireball'||t==='fireball_wither'){ctx.fillStyle='#f60';ctx.beginPath();ctx.arc(0,0,p.r,0,Math.PI*2);ctx.fill();ctx.fillStyle='#fc0';ctx.beginPath();ctx.arc(0,0,p.r*0.45,0,Math.PI*2);ctx.fill();}
+  if(t==='wither_laser'||t==='wither_laser2'){
+    ctx.rotate(Math.atan2(p.vy,p.vx)+Math.PI/2);
+    const tone=(p.tone==null?1:p.tone)|0;
+    const edges=['#9b6cff','#b78cff','#d7b7ff'];
+    const glows=['#8c5cff','#b06fff','#cda5ff'];
+    const cores=['#f6f0ff','#fffaff','#f3e8ff'];
+    const haze=['rgba(175,120,255,0.22)','rgba(210,170,255,0.22)','rgba(230,205,255,0.22)'];
+    const edge=edges[Math.max(0,Math.min(edges.length-1,tone))];
+    const glow=glows[Math.max(0,Math.min(glows.length-1,tone))];
+    const core=cores[Math.max(0,Math.min(cores.length-1,tone))];
+    ctx.shadowColor=glow; ctx.shadowBlur=18;
+    ctx.fillStyle=haze[Math.max(0,Math.min(haze.length-1,tone))];
+    ctx.beginPath(); ctx.roundRect(-p.r*0.55,-p.r*1.7,p.r*1.1,p.r*3.4,p.r*0.48); ctx.fill();
+    ctx.fillStyle=edge;
+    ctx.beginPath(); ctx.roundRect(-p.r*0.28,-p.r*1.55,p.r*0.56,p.r*3.1,p.r*0.30); ctx.fill();
+    ctx.fillStyle=core;
+    ctx.beginPath(); ctx.roundRect(-p.r*0.12,-p.r*1.3,p.r*0.24,p.r*2.6,p.r*0.18); ctx.fill();
+    ctx.fillStyle='rgba(255,255,255,0.82)';
+    for(let i=0;i<3;i++){ ctx.beginPath(); ctx.arc((Math.random()-0.5)*p.r*0.5, -p.r*1.0 + i*p.r*0.9, p.r*(0.10+0.06*Math.random()), 0, Math.PI*2); ctx.fill(); }
+  }
+  else if(t==='fireball'||t==='fireball_wither'){ctx.fillStyle='#f60';ctx.beginPath();ctx.arc(0,0,p.r,0,Math.PI*2);ctx.fill();ctx.fillStyle='#fc0';ctx.beginPath();ctx.arc(0,0,p.r*0.45,0,Math.PI*2);ctx.fill();}
   else if(t==='ice'){ctx.fillStyle='#8df';ctx.beginPath();ctx.arc(0,0,p.r,0,Math.PI*2);ctx.fill();ctx.strokeStyle='rgba(255,255,255,0.7)';ctx.lineWidth=1;for(let a=0;a<Math.PI;a+=Math.PI/3){ctx.beginPath();ctx.moveTo(Math.cos(a)*(p.r-2),Math.sin(a)*(p.r-2));ctx.lineTo(-Math.cos(a)*(p.r-2),-Math.sin(a)*(p.r-2));ctx.stroke();}}
   else if(t==='lava'){const rg=ctx.createRadialGradient(0,0,2,0,0,p.r);rg.addColorStop(0,'#fff');rg.addColorStop(0.7,'#f40');rg.addColorStop(1,'#800');ctx.fillStyle=rg;ctx.beginPath();ctx.arc(0,0,p.r,0,Math.PI*2);ctx.fill();}
   else if(t==='rocket'){// Güdümlü roket görünümü
