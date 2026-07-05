@@ -613,8 +613,8 @@ Object.keys(WF_MENU_I18N).forEach(k=>{LANG_PACKS[k]=Object.assign(LANG_PACKS[k]|
 function locMap(key){return (L()[key]||EN[key]||{});}
 function weaponName(id){return locMap('weaponNames')[id] || WEAPONS_BASE?.[id]?.name || id;}
 function bonusLabel(b){const key=(typeof b==='string')?b:(b.type==='weapon'?b.weapon:b.type);return locMap('bonusNames')[key] || (typeof b==='object'?(b.label||key):key);}
-function bossName(idx){idx=Math.max(0,Math.min(BOSS_DEFS.length-1,idx|0));const names=(L().bossNames||EN.bossNames||[]);return names[idx] || BOSS_DEFS[idx]?.name || '';}
-function bossNameByDef(def){return bossName(def?.id??currentLevel);}
+function bossName(idx){idx=Math.max(0,Math.min(BOSS_DEFS.length-1,idx|0));return BOSS_DEFS[idx]?.name || ((L().bossNames||EN.bossNames||[])[idx]||'');}
+function bossNameByDef(def){return def?.name || bossName(def?.id??currentLevel);}
 function ultiName(ud){const id=Object.keys(CHAR_ULTIS||{}).find(k=>CHAR_ULTIS[k]===ud);return (L().ultiNames||EN.ultiNames||{})[id] || ud?.nameEN || ud?.name || '';}
 function levelBonusDesc(lv){return (L().levelBonusDesc||EN.levelBonusDesc||{})[lv] || LEVEL_BONUSES[lv]?.descEN || '';} 
 function levelUpText(lv){const f=L().levelUp||EN.levelUp;return f(lv,levelBonusDesc(lv));}
@@ -1235,6 +1235,7 @@ function playBossHurt(vol=0.56,minGap=120){
 }
 function damageBoss(amount,vol=0.56,minGap=120,dx=null,dy=null){
   if(!boss||amount<=0)return 0;
+  if(isMorphBossInstance()&&(boss.invulnerable||boss.morphing||boss.dying))return 0;
   const before=boss.hp;
   boss.hp=Math.max(0,boss.hp-amount);
   const dealt=before-boss.hp;
@@ -1523,7 +1524,8 @@ function lockPointToBoss(obj,xKey='hitX',yKey='hitY',yMul=0.52){
 
 // ── BOSS DEFS ────────────────────────────────────────
 const BOSS_DEFS=[
-  {id:0,name:'Mavi Çiçek Canavarı',color1:'#0033cc',color2:'#1a1aff',eyeColor:'#aaddff',heads:3,hpMul:1.0,spdMul:1.0,fireMul:1.0,shape:'blue_flower',moveMode:'linear',bgTheme:0},
+  {id:0,name:'Wither Fight Master',color1:'#0b0b18',color2:'#1c2f65',eyeColor:'#ff334f',heads:1,hpMul:1.55,spdMul:0.55,fireMul:1.0,shape:'morph_boss',moveMode:'linear',bgTheme:0,special:'morph_phase'},
+  {id:1,name:'Mavi Çiçek Canavarı',color1:'#0033cc',color2:'#1a1aff',eyeColor:'#aaddff',heads:3,hpMul:1.0,spdMul:1.0,fireMul:1.0,shape:'blue_flower',moveMode:'linear',bgTheme:0},
   {id:1,name:'Göz Canavarı',color1:'#6fb7ff',color2:'#1b8d58',eyeColor:'#ffffff',heads:8,hpMul:1.1,spdMul:1.08,fireMul:1.05,shape:'eye_monster',moveMode:'sine',bgTheme:1},
   {id:2,name:'Kızıl Örümcek',color1:'#cc1100',color2:'#ff2200',eyeColor:'#ffcc00',heads:2,hpMul:1.2,spdMul:1.2,fireMul:1.1,shape:'red_spider',moveMode:'sine',bgTheme:2},
   {id:3,name:'Yeşil Kanat',color1:'#005500',color2:'#008800',eyeColor:'#88ff44',heads:3,hpMul:1.4,spdMul:0.9,fireMul:1.3,shape:'green_wing',moveMode:'zigzag',bgTheme:3},
@@ -2833,8 +2835,98 @@ const mikailSpriteImg=new Image();
 let mikailSpriteReady=false;
 mikailSpriteImg.onload=()=>{mikailSpriteReady=true;};
 mikailSpriteImg.src=MIKAIL_SPRITE_SRC;
+
 let mikailWalkFrameHint=0;
+const BOSS1_SPRITE=new Image(); BOSS1_SPRITE.src='boss1.png';
+const BOSS_MORPH_SPRITE=new Image(); BOSS_MORPH_SPRITE.src='bossmorph.png';
+const BOSS_MORPH2_SPRITE=new Image(); BOSS_MORPH2_SPRITE.src='bossmorph2.png';
+function drawSpriteSheetFrame(img,cols,rows,row,frame,dx,dy,dw,dh){
+  if(!img||!img.complete||!img.naturalWidth)return false;
+  const sw=img.naturalWidth/cols,sh=img.naturalHeight/rows;
+  const f=Math.max(0,Math.min(cols-1,frame|0));
+  const r=Math.max(0,Math.min(rows-1,row|0));
+  ctx.imageSmoothingEnabled=false;
+  ctx.drawImage(img,f*sw,r*sh,sw,sh,dx,dy,dw,dh);
+  return true;
+}
+function isMorphBossInstance(b=boss){return !!(b&&b.def&&b.def.shape==='morph_boss');}
+function initMorphBossState(b){
+  if(!isMorphBossInstance(b))return;
+  b.phase=1;
+  b.morphing=false;
+  b.morphT=0;
+  b.morphDuration=2600;
+  b.invulnerable=false;
+  b.morphAnchorX=b.x;
+  b.morphAnchorY=b.y;
+  b.fireAnimTimer=0;
+  b.deathAnimT=0;
+  b.dying=false;
+  b.maxHp=2600;
+  b.hp=2600;
+  b.baseW=b.w;
+  b.baseH=b.h;
+}
+function updateMorphBoss(dt){
+  if(!isMorphBossInstance())return;
+  if(boss.fireAnimTimer>0)boss.fireAnimTimer=Math.max(0,boss.fireAnimTimer-dt);
+  if(boss.dying){boss.deathAnimT=(boss.deathAnimT||0)+dt;return;}
+  if(boss.morphing){
+    boss.morphT=(boss.morphT||0)+dt;
+    if(boss.morphT>=boss.morphDuration){
+      boss.morphing=false;
+      boss.invulnerable=false;
+      boss.phase=2;
+      boss.w=boss.baseW;
+      boss.h=boss.baseH;
+      if(boss.morphAnchorX!=null)boss.x=boss.morphAnchorX;
+      if(boss.morphAnchorY!=null)boss.y=boss.morphAnchorY;
+      boss.dx=(boss._savedDx!=null?boss._savedDx:0.55);
+      boss.dy=(boss._savedDy!=null?boss._savedDy:0);
+      boss.morphT=boss.morphDuration;
+    }
+    return;
+  }
+  if((boss.phase||1)===1 && boss.hp<=boss.maxHp*0.5){
+    boss.phase=1;
+    boss.morphing=true;
+    boss.invulnerable=true;
+    boss.morphT=0;
+    boss.fireAnimTimer=0;
+    boss.morphAnchorX=boss.x;
+    boss.morphAnchorY=boss.y;
+    boss._savedDx=boss.dx;
+    boss._savedDy=boss.dy;
+    boss.dx=0;
+    boss.dy=0;
+  }
+}
+function drawMorphBossSprite(){
+  if(!isMorphBossInstance())return false;
+  // Morph animasyonu: tek kez, çok yavaş, sabit aynı noktada oynasın.
+  if(boss.morphing){
+    const prog=Math.min(0.999,(boss.morphT||0)/Math.max(1,boss.morphDuration||1));
+    const idx=Math.min(15,Math.floor(prog*16));
+    const mw=boss.baseW||boss.w, mh=boss.baseH||boss.h;
+    const mx=Math.round((boss.morphAnchorX!=null?boss.morphAnchorX:boss.x));
+    const my=Math.round((boss.morphAnchorY!=null?boss.morphAnchorY:boss.y));
+    return drawSpriteSheetFrame(BOSS_MORPH_SPRITE,4,4,Math.floor(idx/4),idx%4,mx,my,mw,mh);
+  }
+  const img=(boss.phase===2)?BOSS_MORPH2_SPRITE:BOSS1_SPRITE;
+  let row=((boss.dx||0)>=0)?0:1;
+  // Sağa/sola uçuş frame geçişi çok yavaş olsun ki kanat çırpışları net görünsün.
+  let frame=Math.floor((boss.animT||0)*5)%4;
+  if(boss.dying){
+    row=3;
+    frame=Math.min(3,Math.floor((boss.deathAnimT||0)/220));
+  }else if((boss.fireAnimTimer||0)>0){
+    row=2;
+    frame=Math.max(0,Math.min(3,Math.floor((280-boss.fireAnimTimer)/70)));
+  }
+  return drawSpriteSheetFrame(img,4,4,row,frame,boss.x,boss.y,boss.w,boss.h);
+}
 let beamActive=false,beamTimer=0,beamCooldown=0,beamAmmo=0,beamKillFade=null,scorpionEntangle=null;
+
 let slapAmmo=0,slapAnim=null,rocketAmmo=0,clawAmmo=0;
 let speedBoostTimer=0,speedBoostActive=false;
 let gameScore=0,gameTime=0,levelStartTime=0;
@@ -2860,6 +2952,7 @@ function initLevel(lvl){
   const bdef=BOSS_DEFS[Math.min(lvl,BOSS_DEFS.length-1)];
   const bw=Math.min(W*0.40,240); const bh=bw*0.64;
   boss={x:W/2-bw/2,y:(W<700?H*0.14:H*0.06),w:bw,h:bh,baseW:bw,baseH:bh,splitScale:1,splitParts:[],dx:2*bdef.spdMul,dy:0,hp:Math.floor(1500*bdef.hpMul),maxHp:Math.floor(1500*bdef.hpMul),def:bdef,animT:0,specialTimer:0,alive:true,moveMode:bdef.moveMode,_tx:null,_ty:null,slapShake:0};
+  if(isMorphBossInstance(boss))initMorphBossState(boss);
   const startWeapon=(selectedChar&&selectedChar.startWeapon)||'fireball';
   player={x:W/2-20,y:playerStartY(),w:40,h:70,speed:4,hp:5,maxHp:5,char:selectedChar,invincible:0,shield:false,weapon:startWeapon,weaponIdx:0,dead:false,deathTimer:0,deathAnimT:0,hurtTimer:0,fireHandSide:1,nextFireHandSide:1};
   inventory=[startWeapon];beamAmmo=0;slapAmmo=0;rocketAmmo=0;clawAmmo=(selectedChar&&selectedChar.scorpion)?2:0;speedBoostActive=false;speedBoostTimer=0;
@@ -3244,23 +3337,23 @@ function update(dt){
   if(!isPlayerMovementLockedByUlti())clampPlayerToArena();
 
   // Boss
-  updateBossMove(dt);updateBossSplitParts(dt);boss.animT+=dt*0.003;
+  updateBossMove(dt);if(isMorphBossInstance()&&boss){ if(boss.morphing){boss.x=(boss.morphAnchorX!=null?boss.morphAnchorX:boss.x); boss.y=(boss.morphAnchorY!=null?boss.morphAnchorY:boss.y); boss.dx=0; boss.dy=0;} else {boss.dx=Math.max(-0.55,Math.min(0.55,boss.dx||0));}}updateBossSplitParts(dt);boss.animT+=dt*0.0018;updateMorphBoss(dt);
   // Boss öfke çarpanı — HP azaldıkça logaritmik artar
   if(boss.alive){
     const hpR=boss.hp/boss.maxHp;
     // %60 altında devreye girer, daha yumuşak: 0.6→1x, 0.4→1.3x, 0.2→1.6x, 0→2x
     const rage=hpR<0.6?1+Math.log(0.6/Math.max(hpR,0.02))*0.7:1;
-    const fireInterval=Math.max(300,1500/(boss.def.fireMul*rage));
+    const fireInterval=isMorphBossInstance()?2000:Math.max(300,1500/(boss.def.fireMul*rage));
     bossFireTimer+=dt;
-    if(bossFireTimer>fireInterval){
+    if(!boss.morphing&&bossFireTimer>fireInterval){
       bossFireTimer=0;
       bossShoot(rage);
-      // Sadece %30 altında çift ateş
-      if(hpR<0.3&&rage>1.4)bossShoot(rage,true);
+      // Sadece özel boss dışında %30 altında çift ateş
+      if(!isMorphBossInstance()&&hpR<0.3&&rage>1.4)bossShoot(rage,true);
     }
     boss.specialTimer+=dt;
     const specialInterval=hpR<0.4?3500:5000;
-    if(boss.specialTimer>specialInterval){boss.specialTimer=0;bossSpecial();}
+    if(!isMorphBossInstance()&&boss.specialTimer>specialInterval){boss.specialTimer=0;bossSpecial();}
     boss._rage=rage;
   }
 
@@ -3329,8 +3422,9 @@ function update(dt){
   // Bonuses
   bonuses=bonuses.filter(b=>{
     if(b.y>H+50)return false;
-    const px=player.x+player.w/2,py=player.y+player.h/2;
-    if(Math.abs(px-b.x)<36&&Math.abs(py-b.y)<36){applyBonus(b);burst(b.x,b.y,'#FFD700',14);return false;}
+    const headX=player.x+player.w/2, headY=player.y+player.h*0.12;
+    const headHit=(Math.abs(headX-b.x)<44 && Math.abs(headY-b.y)<46);
+    if(headHit){applyBonus(b);burst(b.x,b.y,'#FFD700',14);return false;}
     return true;
   });
   particles=particles.filter(p=>{p.x+=p.vx*(dt/16);p.y+=p.vy*(dt/16);p.vy+=0.18;p.life-=(dt/16);return p.life>0;});
@@ -3839,6 +3933,17 @@ function updateBossMove(dt){
   boss.y=Math.max(H*0.04, Math.min(Math.max(H*0.04, maxBossY), boss.y));
 }
 function bossShoot(rage=1,offset=false){
+  if(isMorphBossInstance()){
+    const cx=boss.x+boss.w/2,cy=boss.y+boss.h*0.75;
+    boss.fireAnimTimer=480;
+    const baseType=(boss.phase===2)?'nether':'fireball';
+    const shots=offset?3:1;
+    for(let i=0;i<shots;i++){
+      const spread=shots===1?0:(i-1)*1.2;
+      projectiles.push({x:cx,y:cy,vx:spread,vy:6.4+(boss.phase===2?0.8:0),type:baseType,owner:'boss',r:(boss.phase===2?13:11),spin:0,wobble:0});
+    }
+    return;
+  }
   if(boss.def.shape==='cirex'){
     const cx=boss.x+boss.w*0.5+(offset?(Math.random()-0.5)*40:0),cy=boss.y+boss.h*0.52;
     const type=Math.random()<0.28?'cirex_sword':'cirex_spike';
@@ -3954,6 +4059,7 @@ function triggerPlayerDeath(){
   burst(player.x+player.w/2,player.y+player.h/2,'#ffdd00',15);
 }
 function startVictory(){stopUltiSfx();
+  if(isMorphBossInstance()){boss.dying=true;boss.deathAnimT=0;}
   pendingLevelUnlockId=registerLevelVictorySecretProgress();
   victory=true;victoryPhase=0;victoryAlpha=0;stopBGM();
   if(player&&player.char&&player.char.id===5){
@@ -3973,6 +4079,7 @@ function updateVictory(dt){
   if(wpTimer>0)wpTimer-=dt;
   if(upgradeNotif){upgradeNotif.timer-=dt;if(upgradeNotif.timer<=0)upgradeNotif=null;}
   if(levelUpNotif){levelUpNotif.timer-=dt;if(levelUpNotif.timer<=0)levelUpNotif=null;}
+  if(boss&&boss.dying)boss.deathAnimT=(boss.deathAnimT||0)+dt;
   if(player&&!player.dead&&!isPlayerHiddenAfterFinish()){
     if(isPlayerMovementLockedByUlti())walkT+=dt*0.012;else{player.y=playerStartY();walkT*=0.88;}
     if(player.invincible>0)player.invincible-=dt;
@@ -4156,7 +4263,7 @@ function drawPlayerFireArmOverlay(){
 function render(){
   ctx.clearRect(0,0,W,H);
   drawBG();drawBgFx();drawBlocks();drawBonuses();
-  if(boss.alive){if(boss.splitParts&&boss.splitParts.length)boss.splitParts.forEach(drawSplitBossPart);drawBoss();drawBossStatusFx();}
+  if(boss.alive||boss.dying){if(boss.alive&&boss.splitParts&&boss.splitParts.length)boss.splitParts.forEach(drawSplitBossPart);drawBoss();if(boss.alive)drawBossStatusFx();}
   drawFantasyUlti();
   drawBeam();drawScorpionEntangle();drawSlap();
   projectiles.forEach(drawProj);
@@ -5052,7 +5159,8 @@ function drawBossSnapshotPhantom(x,y,w,h,animT){
 
 function drawBoss(){
   const bd=boss.def,{x,y,w,h,animT,hp,maxHp}=boss,hpR=hp/maxHp,nhds=bd.heads;
-  if(bd.shape==='blue_flower'){drawBossBlueFlower(x,y,w,h,animT);}
+  if(bd.shape==='morph_boss'){ if(drawMorphBossSprite()){} else {ctx.save();ctx.fillStyle='#0a0f22';ctx.strokeStyle='#ff3355';ctx.lineWidth=3;ctx.beginPath();ctx.ellipse(x+w/2,y+h/2,w*0.34,h*0.28,0,0,Math.PI*2);ctx.fill();ctx.stroke();ctx.restore();} }
+  else if(bd.shape==='blue_flower'){drawBossBlueFlower(x,y,w,h,animT);}
   else if(bd.shape==='eye_monster'){drawBossEyeMonster(x,y,w,h,animT);}
   else if(bd.shape==='red_spider'){drawBossRedSpider(x,y,w,h,animT);}
   else if(bd.shape==='green_wing'){drawBossGreenWing(x,y,w,h,animT);}
@@ -5068,7 +5176,7 @@ function drawBoss(){
   else if(bd.shape==='dragon'){ctx.fillStyle=bd.color1;ctx.beginPath();ctx.moveTo(x+w*0.3,y+h*0.4);ctx.lineTo(x,y+h*0.1);ctx.lineTo(x+w*0.15,y+h*0.7);ctx.closePath();ctx.fill();ctx.beginPath();ctx.moveTo(x+w*0.7,y+h*0.4);ctx.lineTo(x+w,y+h*0.1);ctx.lineTo(x+w*0.85,y+h*0.7);ctx.closePath();ctx.fill();ctx.fillStyle=bd.color2;ctx.fillRect(x+w*0.3,y+h*0.2,w*0.4,h*0.65);}
   else{ctx.fillStyle=bd.color1;ctx.beginPath();for(let i=0;i<=16;i++){const a=(i/16)*Math.PI*2,r=w*0.38+Math.sin(a*3+animT)*18+Math.cos(a*5+animT*1.3)*12;i===0?ctx.moveTo(x+w/2+Math.cos(a)*r,y+h/2+Math.sin(a)*r*0.7):ctx.lineTo(x+w/2+Math.cos(a)*r,y+h/2+Math.sin(a)*r*0.7);}ctx.closePath();ctx.fill();}
   // CMD block only for non-custom bosses
-  if(!['blue_flower','eye_monster','red_spider','green_wing','cirex','bex','shayguy','veamer_knife','snapshot_phantom'].includes(bd.shape)){
+  if(!['morph_boss','blue_flower','eye_monster','red_spider','green_wing','cirex','bex','shayguy','veamer_knife','snapshot_phantom'].includes(bd.shape)){
     const cmdX=x+w/2-15,cmdY=y+h*0.35;ctx.fillStyle='#d4873e';ctx.fillRect(cmdX,cmdY,30,30);ctx.fillStyle='#b07030';ctx.fillRect(cmdX+3,cmdY+3,24,24);ctx.strokeStyle='#ff8800';ctx.lineWidth=2;ctx.strokeRect(cmdX+3,cmdY+3,24,24);ctx.fillStyle='#f60';ctx.fillRect(cmdX+8,cmdY+8,14,14);ctx.fillStyle='#fc0';ctx.font='bold 6px Courier New';ctx.textAlign='center';ctx.fillText('CMD',x+w/2,cmdY-3);
     const hstep=w/(nhds+1);
     for(let i=0;i<nhds;i++){const cx2=x+hstep*(i+1),bob=Math.sin(animT+i*1.8)*6,hy=y+6+bob,hw=Math.max(24,34-nhds*2),hh=26;ctx.fillStyle=bd.color1;ctx.fillRect(cx2-hw/2,hy,hw,hh);ctx.fillStyle=bd.color2;ctx.fillRect(cx2-hw/2+2,hy+2,hw-4,hh-4);ctx.fillStyle=bd.eyeColor;ctx.fillRect(cx2-hw/2+3,hy+5,6,5);ctx.fillRect(cx2+hw/2-9,hy+5,6,5);if(beamActive){ctx.fillStyle=`rgba(0,255,255,${0.5+Math.sin(Date.now()*0.02)*0.3})`;ctx.beginPath();ctx.arc(cx2,hy+7,10,0,Math.PI*2);ctx.fill();}ctx.fillStyle='#000';ctx.fillRect(cx2-6,hy+17,12,5);ctx.fillStyle=bd.color1;ctx.fillRect(cx2-4,hy+hh,8,9);}
