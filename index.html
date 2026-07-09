@@ -1788,6 +1788,9 @@ Metal gövdesi çiziklerle doluydu ama çekirdeği hâlâ ışıl ışıldı.
   {charId:16,title:"Gözcü'nün Keskin Bakışı",story:`Gözcü son kez ufka baktı.
 Hiçbir tehdit gözünden kaçmamıştı.
 Sessizce başını salladı; alan artık güvendeydi.`,fam:'Her şeyi görüp takımı korudu'},
+  {charId:17,title:"Tolga'nın Zaferi",story:`Tolga son düşmanı da indirip silahını omzuna aldı.
+Savaş alanı sessizleşti; ekip onun arkasında güvenle toplandı.
+"Bu iş tamam," dedi ve yeni maceraya doğru yürüdü.`,fam:'Takımıyla zaferi kutladı'},
 ];
 
 const CHARS=[
@@ -1808,6 +1811,7 @@ const CHARS=[
   {id:14,name:'Cohhecity',desc:'Mavi Başlıklı Bıçakçı',gender:'M',hair:'#1f5fff',skin:'#69cf59',shirt:'#2472ff',shorts:'#1e2436',hood:'#256dff',boot:'#111111',cohhecity:true,startWeapon:'saw'},
   {id:15,name:'Robot',desc:'Çelik Muhafız',gender:'M',hair:'#93d7ff',skin:'#b9e6ff',shirt:'#7eaed6',shorts:'#56697f',robot:true,startWeapon:'thunder'},
   {id:16,name:'Gözcü',desc:'Keskin Nişancı',gender:'M',hair:'#88c45a',skin:'#e0c39b',shirt:'#597c3a',shorts:'#425331',gozcu:true,startWeapon:'neon'},
+  {id:17,name:'Tolga',desc:'Yeni Kahraman',gender:'M',hair:'#222222',skin:'#f0c8a8',shirt:'#333333',shorts:'#1f4f8f',tolga:true,startWeapon:'fireball'},
 ];
 let selectedChar=null;
 
@@ -2173,6 +2177,7 @@ const GOZCU_SPRITE_SRC='gozcu.png';
 const GOZCU_IDLE_SPRITE_SRC='gozcuidle.png';
 const GOZCU_WIN_SPRITE_SRC='gozcuwin.png';
 const GOZCU_ULTI_SPRITE_SRC='gozcuulti.png';
+const TOLGA_SPRITE_SRC='tolga.png';
 const robotSpriteImg=new Image(); let robotSpriteReady=false; robotSpriteImg.onload=()=>{robotSpriteReady=true;}; robotSpriteImg.src=ROBOT_SPRITE_SRC;
 const robotIdleImg=new Image(); let robotIdleReady=false; robotIdleImg.onload=()=>{robotIdleReady=true;}; robotIdleImg.src=ROBOT_IDLE_SPRITE_SRC;
 const robotWinImg=new Image(); let robotWinReady=false; robotWinImg.onload=()=>{robotWinReady=true;}; robotWinImg.src=ROBOT_WIN_SPRITE_SRC;
@@ -2181,6 +2186,7 @@ const gozcuSpriteImg=new Image(); let gozcuSpriteReady=false; gozcuSpriteImg.onl
 const gozcuIdleImg=new Image(); let gozcuIdleReady=false; gozcuIdleImg.onload=()=>{gozcuIdleReady=true;}; gozcuIdleImg.src=GOZCU_IDLE_SPRITE_SRC;
 const gozcuWinImg=new Image(); let gozcuWinReady=false; gozcuWinImg.onload=()=>{gozcuWinReady=true;}; gozcuWinImg.src=GOZCU_WIN_SPRITE_SRC;
 const gozcuUltiImg=new Image(); let gozcuUltiReady=false; gozcuUltiImg.onload=()=>{gozcuUltiReady=true;}; gozcuUltiImg.src=GOZCU_ULTI_SPRITE_SRC;
+const tolgaSpriteImg=new Image(); let tolgaSpriteReady=false; tolgaSpriteImg.onload=()=>{tolgaSpriteReady=true;}; tolgaSpriteImg.src=TOLGA_SPRITE_SRC;
 function drawSheetCharacter(c,x,y,sc,wt,inv,opts,charId,mainReady,mainImg,idleReady,idleImg,winReady,winImg,ultiActiveFn){
   const preview=!!(opts&&opts.preview);
   if((!opts||(!Number.isFinite(opts.forceRow)&&!Number.isFinite(opts.forceFrame)))&&player&&player.char&&player.char.id===charId){
@@ -2226,6 +2232,31 @@ function drawRobotSprite(c,x,y,ch,sc=1,wt=0,inv=false,opts=null){
 }
 function drawGozcuSprite(c,x,y,ch,sc=1,wt=0,inv=false,opts=null){
   return drawSheetCharacter(c,x,y,sc,wt,inv,opts,16,gozcuSpriteReady,gozcuSpriteImg,gozcuIdleReady,gozcuIdleImg,gozcuWinReady,gozcuWinImg,()=>!!player._zephyrUlti);
+}
+function drawTolgaSprite(c,x,y,ch,sc=1,wt=0,inv=false,opts=null){
+  if(!tolgaSpriteReady||!tolgaSpriteImg.naturalWidth)return false;
+  const preview=!!(opts&&opts.preview);
+  let row=faceR?0:1;
+  let frame=0;
+  const moving=!!(player&&player.char&&player.char.id===17&&player._moving);
+  if(player&&player.char&&player.char.id===17&&playerFireArmTimer>0){
+    row=2;
+    const p=1-Math.max(0,Math.min(1,playerFireArmTimer/300));
+    frame=Math.max(0,Math.min(3,Math.floor(p*4)));
+  }else if(moving){
+    frame=SPRITE_WALK_SEQ_4[Math.floor(((wt||0)*SPRITE_WALK_RATE)%SPRITE_WALK_SEQ_4.length)];
+  }
+  if(opts&&Number.isFinite(opts.forceRow))row=opts.forceRow;
+  if(opts&&Number.isFinite(opts.forceFrame))frame=opts.forceFrame;
+  const m=spriteMetaCols4(tolgaSpriteImg,4);
+  const baseH=(preview?72:126)*sc,dh=Math.round(baseH),dw=Math.round(baseH*(m.fw/m.fh));
+  const dx=Math.round(x-dw/2),dy=Math.round(y-dh+(preview?8:10*sc));
+  c.save();
+  if(inv&&Math.floor(Date.now()/80)%2===0)c.globalAlpha=0.35;
+  c.imageSmoothingEnabled=false;
+  c.drawImage(tolgaSpriteImg,frame*m.fw,row*m.fh,m.fw,m.fh,dx,dy,dw,dh);
+  c.restore();
+  return true;
 }
 function drawRobotUltiSprite(c,x,y,sc=1,preview=false){
   if(!robotUltiReady||!robotUltiImg.naturalWidth)return false;
@@ -2499,6 +2530,7 @@ function drawChar(c,x,y,ch,sc=1,wt=0,inv=false){
   if(ch&&ch.id===4&&drawFiremanSprite(c,x,y,ch,sc,wt,inv))return;
   if(ch&&ch.id===15&&drawRobotSprite(c,x,y,ch,sc,wt,inv))return;
   if(ch&&ch.id===16&&drawGozcuSprite(c,x,y,ch,sc,wt,inv))return;
+  if(ch&&ch.id===17&&drawTolgaSprite(c,x,y,ch,sc,wt,inv))return;
   if(ch&&ch.id===5&&drawBarisSprite(c,x,y,ch,sc,wt,inv))return;
   if(ch&&ch.id===5){drawBarisMonster(c,x,y,sc,wt,inv);return;}
   if(ch&&ch.id===6){drawCeks(c,x,y,sc,wt,inv);return;}
@@ -2579,7 +2611,7 @@ function renderCharCards(){
     const nm=document.createElement('div');nm.className='cn';nm.textContent=locked?'???':ch.name;card.appendChild(nm);
     const ds=document.createElement('div');ds.className='cd';ds.textContent=locked?getLockedCharHint(ch):ch.desc;card.appendChild(ds);
     charsDiv.appendChild(card);
-    setTimeout(()=>{const cc=cv.getContext('2d'); if(locked) drawLockedCharacterCard(cc,'?'); else if(ch.id===0) drawJessieSprite(cc,30,82,ch,1,0,false,{preview:true,forceRow:0,forceFrame:0}); else if(ch.id===1) drawIcemanSprite(cc,30,82,ch,1,0,false,{preview:true,forceRow:0,forceFrame:0}); else if(ch.id===4) drawFiremanSprite(cc,30,82,ch,1,0,false,{preview:true,forceRow:0,forceFrame:0}); else if(ch.id===5) drawBarisSprite(cc,30,84,ch,1,0,false,{preview:true,forceRow:0,forceFrame:0}) || drawChar(cc,30,58,ch,0.9,0); else if(ch.id===2) drawMikailSprite(cc,30,82,ch,1,0,false,{preview:true,forceRow:4,forceFrame:3}); else if(ch.id===15) drawRobotSprite(cc,30,82,ch,1,0,false,{preview:true,forceRow:0,forceFrame:0}); else if(ch.id===16) drawGozcuSprite(cc,30,82,ch,1,0,false,{preview:true,forceRow:0,forceFrame:0}); else drawChar(cc,30,58,ch,0.9,0);},20);
+    setTimeout(()=>{const cc=cv.getContext('2d'); if(locked) drawLockedCharacterCard(cc,'?'); else if(ch.id===0) drawJessieSprite(cc,30,82,ch,1,0,false,{preview:true,forceRow:0,forceFrame:0}); else if(ch.id===1) drawIcemanSprite(cc,30,82,ch,1,0,false,{preview:true,forceRow:0,forceFrame:0}); else if(ch.id===4) drawFiremanSprite(cc,30,82,ch,1,0,false,{preview:true,forceRow:0,forceFrame:0}); else if(ch.id===5) drawBarisSprite(cc,30,84,ch,1,0,false,{preview:true,forceRow:0,forceFrame:0}) || drawChar(cc,30,58,ch,0.9,0); else if(ch.id===2) drawMikailSprite(cc,30,82,ch,1,0,false,{preview:true,forceRow:4,forceFrame:3}); else if(ch.id===15) drawRobotSprite(cc,30,82,ch,1,0,false,{preview:true,forceRow:0,forceFrame:0}); else if(ch.id===16) drawGozcuSprite(cc,30,82,ch,1,0,false,{preview:true,forceRow:0,forceFrame:0}); else if(ch.id===17) drawTolgaSprite(cc,30,82,ch,1,0,false,{preview:true,forceRow:0,forceFrame:0}) || drawChar(cc,30,58,ch,0.9,0); else drawChar(cc,30,58,ch,0.9,0);},20);
   });
   const startBtn=document.getElementById('startBtn');
   if(!selectedChar||!isCharUnlocked(selectedChar)){
@@ -4230,12 +4262,8 @@ function applyBonus(b){
 }
 function triggerPlayerDeath(){
   registerPlayerDeathSecretReset();
-  player.dead=true;player.deathTimer=((player.char&&player.char.id===2)?1700:((player.char&&player.char.id===0)?1650:((player.char&&player.char.id===5)?1600:1200)));player.deathAnimT=0;
-  const charColor=player.char.shirt||player.char.armor||'#4488ff';
-  for(let i=0;i<30;i++){const a=Math.random()*Math.PI*2,s=3+Math.random()*7;bossFragments.push({x:player.x+Math.random()*player.w,y:player.y+Math.random()*player.h,vx:Math.cos(a)*s,vy:Math.sin(a)*s-4,spin:Math.random()*Math.PI,spinSpeed:(Math.random()-0.5)*0.25,life:50+Math.random()*50,maxLife:100,color:charColor,color2:'#aaddff',size:5+Math.random()*12});}
-  for(let i=0;i<6;i++)setTimeout(()=>burst(player.x+player.w/2,player.y+player.h/2,'#aaddff',18),i*80);
-  burst(player.x+player.w/2,player.y+player.h/2,'#ffffff',25);
-  burst(player.x+player.w/2,player.y+player.h/2,'#ffdd00',15);
+  player.dead=true;player.deathTimer=((player.char&&player.char.id===2)?1700:((player.char&&player.char.id===0)?1650:((player.char&&player.char.id===5)?1600:((player.char&&player.char.id===17)?1600:1200))));player.deathAnimT=0;
+  // Oyuncu ölünce patlama/parçalanma efekti yok; sprite ölüm satırı ekranda kalır.
 }
 function startVictory(){addAnalyticsEvent('victory',{score:Math.floor(gameScore),level:currentLevel+1,boss:bossNameByDef(boss&&boss.def)});stopUltiSfx();
   if(isMorphBossInstance()){boss.dying=true;boss.deathAnimT=0;}
@@ -4492,9 +4520,9 @@ function render(){
       ctx.restore();
     } else {
       drawChar(ctx,player.x+player.w/2,player.y+player.h*0.88,player.char,1.0,walkT,player.invincible>0);
-      if(!((player.char&&player.char.id===2&&mikailSpriteReady)||(player.char&&player.char.id===0&&jessieSpriteReady)||(player.char&&player.char.id===1&&icemanSpriteReady)||(player.char&&player.char.id===4&&firemanSpriteReady)||(player.char&&player.char.id===5&&barisSpriteReady)||(player.char&&player.char.id===15&&robotSpriteReady)||(player.char&&player.char.id===16&&gozcuSpriteReady)))drawWH(ctx,player.x+player.w/2,player.y+player.h*0.88,player.weapon,1.0,faceR);
+      if(!((player.char&&player.char.id===2&&mikailSpriteReady)||(player.char&&player.char.id===0&&jessieSpriteReady)||(player.char&&player.char.id===1&&icemanSpriteReady)||(player.char&&player.char.id===4&&firemanSpriteReady)||(player.char&&player.char.id===5&&barisSpriteReady)||(player.char&&player.char.id===15&&robotSpriteReady)||(player.char&&player.char.id===16&&gozcuSpriteReady)||(player.char&&player.char.id===17&&tolgaSpriteReady)))drawWH(ctx,player.x+player.w/2,player.y+player.h*0.88,player.weapon,1.0,faceR);
     }
-    if(!((player.char&&player.char.id===2&&mikailSpriteReady)||(player.char&&player.char.id===0&&jessieSpriteReady)||(player.char&&player.char.id===1&&icemanSpriteReady)||(player.char&&player.char.id===4&&firemanSpriteReady)||(player.char&&player.char.id===5&&barisSpriteReady)||(player.char&&player.char.id===15&&robotSpriteReady)||(player.char&&player.char.id===16&&gozcuSpriteReady)))drawPlayerFireArmOverlay();
+    if(!((player.char&&player.char.id===2&&mikailSpriteReady)||(player.char&&player.char.id===0&&jessieSpriteReady)||(player.char&&player.char.id===1&&icemanSpriteReady)||(player.char&&player.char.id===4&&firemanSpriteReady)||(player.char&&player.char.id===5&&barisSpriteReady)||(player.char&&player.char.id===15&&robotSpriteReady)||(player.char&&player.char.id===16&&gozcuSpriteReady)||(player.char&&player.char.id===17&&tolgaSpriteReady)))drawPlayerFireArmOverlay();
   }else if(player&&player.dead&&player.char&&player.char.id===2&&mikailSpriteReady){
     const p=Math.max(0,Math.min(1,(player.deathAnimT||0)/1500));
     const f=Math.max(0,Math.min(7,Math.floor(p*8)));
@@ -4523,6 +4551,11 @@ function render(){
     const p=Math.max(0,Math.min(1,(player.deathAnimT||0)/1500));
     const f=Math.max(0,Math.min(3,Math.floor(p*4)));
     drawGozcuSprite(ctx,player.x+player.w/2,player.y+player.h*0.88,player.char,1.0,0,false,{forceRow:3,forceFrame:f});
+  }else if(player&&player.dead&&player.char&&player.char.id===17&&tolgaSpriteReady){
+    // tolga.png: 4. satır (row 3) yere düşüp yatma / ölüm animasyonu.
+    const p=Math.max(0,Math.min(1,(player.deathAnimT||0)/1500));
+    const f=Math.max(0,Math.min(3,Math.floor(p*4)));
+    drawTolgaSprite(ctx,player.x+player.w/2,player.y+player.h*0.88,player.char,1.0,0,false,{forceRow:3,forceFrame:f});
   }
 
   // Aria kara delik
